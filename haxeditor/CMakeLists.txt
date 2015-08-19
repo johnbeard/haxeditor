@@ -1,6 +1,10 @@
 
 set(srcFiles
-    haxeditor.cpp
+    
 )
 
-add_executable(haxeditor ${srcFiles})
+add_library(haxeditor ${srcFiles})
+
+target_link_libraries(haxeditor
+    fal
+)
