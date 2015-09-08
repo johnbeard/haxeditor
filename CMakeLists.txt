@@ -24,4 +24,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(fal)
 add_subdirectory(haxeditor)
-add_subdirectory(hxe-curses)
+#add_subdirectory(hxe-curses)
+add_subdirectory(hxe-wx)
