@@ -31,7 +31,7 @@ protected:
 	wxString  m_text;
 
 private:
-	std::unique_ptr<wxBitmap> m_bmpBuffer;
+	wxBitmap m_bmpBuffer;
 	const HaxStringRenderer& m_renderer;
 };
 

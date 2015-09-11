@@ -45,9 +45,10 @@ class HaxDocument
 public:
 
 	HaxDocument():
-		m_data(1024)
+		m_data(55),
+		m_len(55)
 	{
-	    for (int i = 0; i < 1024; ++i)
+	    for (uint64_t i = 0; i < m_len; ++i)
 	    {
 	        m_data[i] = 3 * i;
 	    }
@@ -57,9 +58,15 @@ public:
 	{
 		return &m_data[offset];
 	}
+
+	uint64_t GetDataLength() const
+	{
+		return m_len;
+	}
 private:
 
 	std::vector<uint8_t> m_data;
+	uint64_t m_len;
 };
 
 class HaxDataRenderer
@@ -111,12 +118,13 @@ public:
 		std::stringstream ss;
 		ss << std::hex << std::uppercase << std::setfill('0');
 
-		const int elements = GetWidth();
-		for (int x = 0; x < elements; ++x)
+		int lastOffset = std::min(offset + GetWidth(),
+				getDocument().GetDataLength());
+
+		for (int x = offset; x < lastOffset; ++x)
 		{
-			const uint8_t* d = getDocument().GetDataAt(offset);
+			const uint8_t* d = getDocument().GetDataAt(x);
 			ss << std::setw(2) << static_cast<unsigned>(*d) << " ";
-			offset += 1;
 		}
 
 		return ss.str();

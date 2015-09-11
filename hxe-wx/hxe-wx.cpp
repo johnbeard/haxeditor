@@ -80,7 +80,7 @@ void MyFrame::SetData()
 	m_doc.reset(new HaxDocument());
 
 	m_hexRenderer.reset(new HaxStringRenderer(*m_doc));
-	m_hexRenderer->SetWidth(5);
+	m_hexRenderer->SetWidth(10);
 
 	hf = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, 300),
 			*m_hexRenderer);

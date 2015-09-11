@@ -19,21 +19,20 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 			m_Margin(3, 3),
 			m_Caret(0, 0),
 			m_Window(10, 10),
+			m_bmpBuffer(0, 0),
 			m_renderer(renderer)
 {
-	m_bmpBuffer.reset(new wxBitmap(0,0));
-
 	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
 }
 
 void HexFrame::DataChanged()
 {
-	m_bmpBuffer->SetWidth(GetSize().GetWidth());
-	m_bmpBuffer->SetHeight(GetSize().GetHeight());
+	m_bmpBuffer.SetWidth(GetSize().GetWidth());
+	m_bmpBuffer.SetHeight(GetSize().GetHeight());
 
 	std::unique_ptr<wxMemoryDC> mdc(new wxMemoryDC());
 
-	mdc->SelectObject(*m_bmpBuffer);
+	mdc->SelectObject(m_bmpBuffer);
 	mdc->Clear();
 
 	wxTextAttr attrs(
@@ -72,20 +71,12 @@ void HexFrame::DataChanged()
 
 void HexFrame::Paint(wxPaintEvent& /*event*/)
 {
-	std::cout << "Paint" << std::endl;
-
-	if (!m_bmpBuffer.get())
+	if (!m_bmpBuffer.GetWidth())
 		return;
-
-	static int sdfsdf = 0;
-
-	sdfsdf += 10;
-
-	sdfsdf = (sdfsdf % 50);
 
 	wxClientDC dc( this );
 	std::unique_ptr<wxGraphicsContext> gc(wxGraphicsContext::Create(dc));
 
-	gc->DrawBitmap(*m_bmpBuffer, 0.0, 0.0,
+	gc->DrawBitmap(m_bmpBuffer, 0.0, 0.0,
 			dc.GetSize().GetWidth(), dc.GetSize().GetHeight());
 }
