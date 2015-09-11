@@ -29,34 +29,16 @@ private:
 	void OnAbout(wxCommandEvent& event);wxDECLARE_EVENT_TABLE();
 
 	HexFrame* hf;
+
+	std::unique_ptr<HaxDocument> m_doc;
+
+	std::unique_ptr<HaxStringRenderer> m_hexRenderer;
 };
 
 enum
 {
 	ID_Hello = 1
 };
-
-void MyFrame::SetData()
-{
-	hf = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
-	wxSizer* sz = new wxBoxSizer(wxVERTICAL);
-	sz->Add(hf, 0, wxALIGN_RIGHT, 10);
-	SetSizer(sz);
-
-	sz->Show(true);
-
-	wxColour c(*wxWHITE);
-	hf->SetBackgroundColour(c);
-
-	char data[1024];
-
-	for (int i = 0, e = 1024; i < e; ++i)
-	{
-		data[i] = 2 * i;
-	}
-
-	hf->SetData(data, 1024);
-}
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 wxEND_EVENT_TABLE()
@@ -88,8 +70,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 	CreateStatusBar();
 	SetStatusText("Welcome to wxWidgets!");
 
-	Bind(wxEVT_CREATE, &MyFrame::OnCreate, this, wxID_ANY);
-
 	// bind menu events
 	Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 	Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
@@ -97,9 +77,25 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 
 	SetData();
 }
-void MyFrame::OnCreate(wxCommandEvent& /*event*/)
+
+void MyFrame::SetData()
 {
-	std::cout << "created" << std::endl;
+	m_doc.reset(new HaxDocument());
+
+	m_hexRenderer.reset(new HaxStringRenderer(*m_doc));
+	m_hexRenderer->SetWidth(5);
+
+	hf = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, 300), *m_hexRenderer);
+	wxSizer* sz = new wxBoxSizer(wxVERTICAL);
+	sz->Add(hf, 0, wxALIGN_RIGHT, 10);
+	SetSizer(sz);
+
+	sz->Show(true);
+
+	wxColour c(*wxWHITE);
+	hf->SetBackgroundColour(c);
+
+	hf->DataChanged();
 }
 
 void MyFrame::OnExit(wxCommandEvent& /*event*/)

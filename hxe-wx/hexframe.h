@@ -11,13 +11,16 @@
 #include <wx/scrolwin.h>
 #include <memory>
 
+#include "haxeditor/haxeditor.h"
+
 class HexFrame: public wxScrolledWindow
 {
 public:
 	HexFrame(wxWindow *parent, wxWindowID id,
-			const wxPoint &pos, const wxSize &size);
+			const wxPoint &pos, const wxSize &size,
+			const HaxStringRenderer& renderer);
 
-	void SetData(char* data, uint64_t len);
+	void DataChanged();
 
 	void Paint(wxPaintEvent& event);
 
@@ -27,12 +30,9 @@ protected:
 	wxPoint   m_Window;	// the size (in text coords) of the window
 	wxString  m_text;
 
-	// TODO replace with a proper buffer interface
-	char* m_data;
-	uint64_t m_len;
-
 private:
-	std::unique_ptr<wxBitmap> internalBmp;
+	std::unique_ptr<wxBitmap> m_bmpBuffer;
+	const HaxStringRenderer& m_renderer;
 };
 
 
