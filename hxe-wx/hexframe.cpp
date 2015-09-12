@@ -39,34 +39,57 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 	Bind(wxEVT_SIZE, &HexFrame::OnSize, this);
 }
 
-void HexFrame::DataChanged()
+void HexFrame::DataChanged(bool force)
 {
-	m_bmpBuffer.Create(GetSize().GetWidth(), GetSize().GetHeight());
 	wxMemoryDC mdc;
-
-	mdc.SelectObject(m_bmpBuffer);
-	mdc.Clear();
 	mdc.SetFont(m_textAttr.GetFont());
 
 	const wxSize charSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 
-	// offset into the buffer
-	uint64_t offset = 0;
+	State newState;
 
-	// number of text lines we can fit
-	const int usableH = GetSize().GetHeight() - m_Margin.y * 2;
-	const int numLines = usableH / (charSize.y + m_Margin.y) + 1;
+	// offset into the buffer
+	newState.offset = 0;
+
+	// number of text lines we can fit (add one at the end so we always fill
+	// the space)
+	//only use one margin, the other is in the last row
+	const int usableH = GetSize().GetHeight() - m_Margin.y;
+	// could use a different line spacing
+	const int rowH = charSize.y + m_Margin.y;
+	newState.m_rows = (usableH / rowH) + 1;
+	newState.m_cols = m_renderer.GetWidth();
+
+	// see if we need to redraw (force to override and recompute anyway!)
+	if (!force && (m_state == newState))
+	{
+		//std::cout << "skipping" << std::endl;
+
+		// but still need to redraw, even if the bmp is the same
+		Refresh();
+		return;
+	}
+	//std::cout << "drawing" << std::endl;
+
+	m_state = std::move(newState);
+
+	const int bmpH = m_state.m_rows * rowH + m_Margin.y;
+	m_bmpBuffer.Create(GetSize().GetWidth(), bmpH);
+
+	mdc.SelectObject(m_bmpBuffer);
+	mdc.Clear();
 
 	int yPos = m_Margin.y;
-	for ( int y = 0 ; y < numLines; ++y )
+	uint64_t lineOffset = m_state.offset;
+	for ( int y = 0 ; y < m_state.m_rows; ++y )
 	{
 		int xPos = m_Margin.x;
 
-		const std::string row(m_renderer.RenderLine(offset));
+		const std::string row(m_renderer.RenderLine(lineOffset));
 
 		mdc.DrawText(row, xPos, yPos);
 
-		offset += m_renderer.GetWidth();
+		lineOffset += m_state.m_cols;
 		yPos += charSize.y + m_Margin.y;
 	}
 
@@ -76,7 +99,7 @@ void HexFrame::DataChanged()
 void HexFrame::OnSize(wxSizeEvent& /*event*/)
 {
 //	std::cout << "Height " << GetSize().GetHeight() << std::endl;
-	DataChanged();
+	DataChanged(false);
 }
 
 void HexFrame::Paint(wxPaintEvent& /*event*/)
