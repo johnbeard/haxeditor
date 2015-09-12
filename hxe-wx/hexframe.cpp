@@ -16,7 +16,6 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		const HaxStringRenderer& renderer) :
 			wxScrolledWindow(parent, id, pos, size, wxSUNKEN_BORDER),
-			m_Margin(3, 3),
 			m_Caret(0, 0),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer)
@@ -38,6 +37,8 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 			)
 	);
 
+	m_state.m_margin = wxPoint(3, 0);
+
 	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
 	Bind(wxEVT_SIZE, &HexFrame::OnSize, this);
 }
@@ -47,24 +48,23 @@ void HexFrame::DataChanged(bool force)
 	wxMemoryDC mdc;
 	mdc.SetFont(m_textAttr.GetFont());
 
-	const wxSize charSize(mdc.GetCharWidth(), mdc.GetCharHeight());
-
 	State newState;
 
 	// offset into the buffer
 	newState.offset = 0;
 
+	newState.m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 	// number of text lines we can fit (add one at the end so we always fill
 	// the space)
 	//only use one margin, the other is in the last row
-	const int usableH = GetSize().GetHeight() - m_Margin.y;
+	const int usableH = GetSize().GetHeight() - m_state.m_margin.y;
 	// could use a different line spacing
-	const int rowH = charSize.y + m_Margin.y;
+	const int rowH = newState.m_charSize.y + m_state.m_margin.y;
 	newState.m_rows = (usableH / rowH) + 1;
 	newState.m_cols = m_renderer.GetWidth();
 
 	// see if we need to redraw (force to override and recompute anyway!)
-	if (!force && (m_state == newState))
+	if (!force && (m_state.redrawNeeded(newState)))
 	{
 		//std::cout << "skipping" << std::endl;
 
@@ -76,27 +76,38 @@ void HexFrame::DataChanged(bool force)
 
 	m_state = std::move(newState);
 
-	const int bmpH = m_state.m_rows * rowH + m_Margin.y;
-	m_bmpBuffer.Create(GetSize().GetWidth(), bmpH);
+	const int bmpH = m_state.m_rows * rowH + m_state.m_margin.y;
+	const int bmpW = GetSize().GetWidth();
+
+	// can't make zero sized bitmaps
+	if (bmpH == 0 || bmpW == 0)
+		return;
+
+	m_bmpBuffer.Create(bmpW, bmpH);
 
 	mdc.SelectObject(m_bmpBuffer);
 	mdc.Clear();
 
-	int yPos = m_Margin.y;
+	drawToBitmap(mdc);
+
+	Refresh();
+}
+
+void HexFrame::drawToBitmap(wxDC& dc)
+{
+	int yPos = m_state.m_margin.y;
 	uint64_t lineOffset = m_state.offset;
 	for ( int y = 0 ; y < m_state.m_rows; ++y )
 	{
-		int xPos = m_Margin.x;
+		int xPos = m_state.m_margin.x;
 
 		const std::string row(m_renderer.RenderLine(lineOffset));
 
-		mdc.DrawText(row, xPos, yPos);
+		dc.DrawText(row, xPos, yPos);
 
 		lineOffset += m_state.m_cols;
-		yPos += charSize.y + m_Margin.y;
+		yPos += m_state.m_charSize.y + m_state.m_margin.y;
 	}
-
-	Refresh();
 }
 
 void HexFrame::OnSize(wxSizeEvent& /*event*/)
