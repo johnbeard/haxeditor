@@ -85,15 +85,13 @@ void MyFrame::SetData()
 	hf = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, 300),
 			*m_hexRenderer);
 	wxSizer* sz = new wxBoxSizer(wxVERTICAL);
-	sz->Add(hf, 0, wxALIGN_RIGHT, 10);
+	sz->Add(hf, 100, wxALIGN_RIGHT, 10);
 	SetSizer(sz);
 
 	sz->Show(true);
 
 	wxColour c(*wxWHITE);
 	hf->SetBackgroundColour(c);
-
-	hf->DataChanged();
 }
 
 void MyFrame::OnExit(wxCommandEvent& /*event*/)

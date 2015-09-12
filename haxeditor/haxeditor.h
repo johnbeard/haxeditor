@@ -45,9 +45,9 @@ class HaxDocument
 public:
 
 	HaxDocument():
-		m_data(55),
-		m_len(55)
+		m_len(303)
 	{
+		m_data.resize(m_len);
 	    for (uint64_t i = 0; i < m_len; ++i)
 	    {
 	        m_data[i] = 3 * i;

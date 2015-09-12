@@ -9,6 +9,8 @@
 #define HXE_WX_HEXFRAME_H_
 
 #include <wx/scrolwin.h>
+#include <wx/textctrl.h>
+
 #include <memory>
 
 #include "haxeditor/haxeditor.h"
@@ -23,15 +25,16 @@ public:
 	void DataChanged();
 
 	void Paint(wxPaintEvent& event);
+	void OnSize(wxSizeEvent& /*event*/);
 
 protected:
 	wxPoint   m_Margin;	// the margin around the text (looks nicer)
 	wxPoint   m_Caret;	// position (in text coords) of the caret
-	wxPoint   m_Window;	// the size (in text coords) of the window
 	wxString  m_text;
 
 private:
 	wxBitmap m_bmpBuffer;
+	wxTextAttr m_textAttr;
 	const HaxStringRenderer& m_renderer;
 };
 

@@ -18,24 +18,10 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 			wxScrolledWindow(parent, id, pos, size, wxSUNKEN_BORDER),
 			m_Margin(3, 3),
 			m_Caret(0, 0),
-			m_Window(10, 10),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer)
 {
-	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
-}
-
-void HexFrame::DataChanged()
-{
-	m_bmpBuffer.SetWidth(GetSize().GetWidth());
-	m_bmpBuffer.SetHeight(GetSize().GetHeight());
-
-	std::unique_ptr<wxMemoryDC> mdc(new wxMemoryDC());
-
-	mdc->SelectObject(m_bmpBuffer);
-	mdc->Clear();
-
-	wxTextAttr attrs(
+	m_textAttr = wxTextAttr(
 			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ),
 			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ),
 			wxFont(
@@ -45,38 +31,61 @@ void HexFrame::DataChanged()
 					wxFONTWEIGHT_NORMAL,// weight
 					false,				// underline
 					wxT(""),			// facename
-					wxFONTENCODING_UTF8)
+					wxFONTENCODING_UTF8
+			)
 	);
 
-	mdc->SetFont( attrs.GetFont() );
+	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
+	Bind(wxEVT_SIZE, &HexFrame::OnSize, this);
+}
 
-	const wxSize charSize(mdc->GetCharWidth(), mdc->GetCharHeight());
+void HexFrame::DataChanged()
+{
+	m_bmpBuffer.Create(GetSize().GetWidth(), GetSize().GetHeight());
+	wxMemoryDC mdc;
+
+	mdc.SelectObject(m_bmpBuffer);
+	mdc.Clear();
+	mdc.SetFont(m_textAttr.GetFont());
+
+	const wxSize charSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 
 	// offset into the buffer
 	uint64_t offset = 0;
 
+	// number of text lines we can fit
+	const int usableH = GetSize().GetHeight() - m_Margin.y * 2;
+	const int numLines = usableH / (charSize.y + m_Margin.y) + 1;
+
 	int yPos = m_Margin.y;
-	for ( int y = 0 ; y < m_Window.y; ++y )
+	for ( int y = 0 ; y < numLines; ++y )
 	{
-		yPos += charSize.y + m_Margin.y;
 		int xPos = m_Margin.x;
 
 		const std::string row(m_renderer.RenderLine(offset));
 
-		mdc->DrawText(row, xPos, yPos);
+		mdc.DrawText(row, xPos, yPos);
 
 		offset += m_renderer.GetWidth();
+		yPos += charSize.y + m_Margin.y;
 	}
+
+	Refresh();
+}
+
+void HexFrame::OnSize(wxSizeEvent& /*event*/)
+{
+//	std::cout << "Height " << GetSize().GetHeight() << std::endl;
+	DataChanged();
 }
 
 void HexFrame::Paint(wxPaintEvent& /*event*/)
 {
-	if (!m_bmpBuffer.GetWidth())
-		return;
-
 	wxClientDC dc( this );
 	std::unique_ptr<wxGraphicsContext> gc(wxGraphicsContext::Create(dc));
 
-	gc->DrawBitmap(m_bmpBuffer, 0.0, 0.0,
-			dc.GetSize().GetWidth(), dc.GetSize().GetHeight());
+	const int w = m_bmpBuffer.GetWidth();
+	const int h = m_bmpBuffer.GetHeight();
+
+	gc->DrawBitmap(m_bmpBuffer, 0.0, 0.0, w, h);
 }
