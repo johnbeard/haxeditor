@@ -113,7 +113,21 @@ public:
 		m_width = width;
 	}
 
-	std::string RenderLine(uint64_t offset) const
+	virtual std::string RenderLine(uint64_t offset) const = 0;
+
+private:
+	// the width of the renderer
+	unsigned m_width;
+};
+
+class HaxHexRenderer: public HaxStringRenderer
+{
+public:
+	HaxHexRenderer(const HaxDocument& doc):
+		HaxStringRenderer(doc)
+	{}
+
+	std::string RenderLine(uint64_t offset) const override
 	{
 		std::stringstream ss;
 		ss << std::hex << std::uppercase << std::setfill('0');
@@ -129,10 +143,23 @@ public:
 
 		return ss.str();
 	}
-
-private:
-	// the width of the renderer
-	unsigned m_width;
 };
+
+class HaxAddressRenderer: public HaxStringRenderer
+{
+public:
+	HaxAddressRenderer(const HaxDocument& doc):
+		HaxStringRenderer(doc)
+	{}
+
+	std::string RenderLine(uint64_t offset) const override
+	{
+		std::stringstream ss;
+		ss << std::hex << std::uppercase << std::setfill('0');
+		ss << std::setw(8) << static_cast<uint64_t>(offset) << " ";
+		return ss.str();
+	}
+};
+
 
 #endif // HAXEDITOR__H_

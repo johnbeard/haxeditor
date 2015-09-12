@@ -21,6 +21,9 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer)
 {
+	wxColour c(*wxWHITE);
+	SetBackgroundColour(c);
+
 	m_textAttr = wxTextAttr(
 			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ),
 			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ),
@@ -109,6 +112,9 @@ void HexFrame::Paint(wxPaintEvent& /*event*/)
 
 	const int w = m_bmpBuffer.GetWidth();
 	const int h = m_bmpBuffer.GetHeight();
+
+	if (w == 0 || h == 0)
+		return;
 
 	gc->DrawBitmap(m_bmpBuffer, 0.0, 0.0, w, h);
 }

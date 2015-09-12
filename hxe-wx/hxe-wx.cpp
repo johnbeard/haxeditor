@@ -28,11 +28,13 @@ private:
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);wxDECLARE_EVENT_TABLE();
 
-	HexFrame* hf;
+	HexFrame* hexFrame;
+	HexFrame* addrFrame;
 
 	std::unique_ptr<HaxDocument> m_doc;
 
 	std::unique_ptr<HaxStringRenderer> m_hexRenderer;
+	std::unique_ptr<HaxAddressRenderer> m_addrRenderer;
 };
 
 enum
@@ -77,21 +79,31 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 
 void MyFrame::SetData()
 {
+	wxSizer* sz = new wxBoxSizer(wxHORIZONTAL);
+
 	m_doc.reset(new HaxDocument());
 
-	m_hexRenderer.reset(new HaxStringRenderer(*m_doc));
-	m_hexRenderer->SetWidth(10);
+	const int lineSize = 10;
 
-	hf = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, 300),
+	m_hexRenderer.reset(new HaxHexRenderer(*m_doc));
+	m_hexRenderer->SetWidth(lineSize);
+
+	m_addrRenderer.reset(new HaxAddressRenderer(*m_doc));
+	m_addrRenderer->SetWidth(lineSize);
+
+	const int height = 300;
+
+	hexFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, height),
 			*m_hexRenderer);
-	wxSizer* sz = new wxBoxSizer(wxVERTICAL);
-	sz->Add(hf, 100, wxALIGN_RIGHT, 10);
+
+	addrFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(100, height),
+			*m_addrRenderer);
+
+	sz->Add(addrFrame, 0, wxALIGN_RIGHT | wxEXPAND, 10);
+	sz->Add(hexFrame, 100, wxALIGN_RIGHT | wxEXPAND, 10);
 	SetSizer(sz);
 
 	sz->Show(true);
-
-	wxColour c(*wxWHITE);
-	hf->SetBackgroundColour(c);
 }
 
 void MyFrame::OnExit(wxCommandEvent& /*event*/)
