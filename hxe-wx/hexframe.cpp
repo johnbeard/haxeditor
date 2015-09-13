@@ -10,18 +10,18 @@
 #include "wx/wx.h"
 #include "wx/graphics.h"
 
-
-
 HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		const HaxStringRenderer& renderer) :
-			wxScrolledWindow(parent, id, pos, size, wxSUNKEN_BORDER),
+			wxWindow(parent, id, pos, size),
 			m_Caret(0, 0),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer)
 {
 	wxColour c(*wxWHITE);
 	SetBackgroundColour(c);
+
+	SetWindowStyleFlag(wxBORDER_SUNKEN);
 
 	m_textAttr = wxTextAttr(
 			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ),

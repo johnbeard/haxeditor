@@ -10,12 +10,13 @@
 
 #include <wx/scrolwin.h>
 #include <wx/textctrl.h>
+#include <wx/sizer.h>
 
 #include <memory>
 
 #include "haxeditor/haxeditor.h"
 
-class HexFrame: public wxScrolledWindow
+class HexFrame: public wxWindow
 {
 public:
 	HexFrame(wxWindow *parent, wxWindowID id,
@@ -69,6 +70,51 @@ private:
 	const HaxStringRenderer& m_renderer;
 };
 
+class HexMultiFrame: public wxScrolledWindow
+{
+public:
+	HexMultiFrame(wxWindow* parent, wxWindowID id, HaxDocument& m_doc):
+		wxScrolledWindow(parent, id)
+	{
+		const int lineSize = 10;
+
+		m_hexRenderer.reset(new HaxHexRenderer(m_doc));
+		m_hexRenderer->SetWidth(lineSize);
+
+		m_addrRenderer.reset(new HaxAddressRenderer(m_doc));
+		m_addrRenderer->SetWidth(lineSize);
+
+		m_textRenderer.reset(new HaxTextRenderer(m_doc));
+		m_textRenderer->SetWidth(lineSize);
+
+		const int height = 300;
+
+		m_hexFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, height),
+				*m_hexRenderer);
+
+		m_addrFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(100, height),
+				*m_addrRenderer);
+
+		m_textFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(100, height),
+				*m_textRenderer);
+
+		wxSizer* sz = new wxBoxSizer(wxHORIZONTAL);
+		SetSizer(sz);
+
+		sz->Show(true);
+
+		sz->Add(m_addrFrame, 0, wxALIGN_RIGHT | wxEXPAND, 10);
+		sz->Add(m_hexFrame, 60, wxALIGN_RIGHT | wxEXPAND, 10);
+		sz->Add(m_textFrame, 40, wxALIGN_RIGHT | wxEXPAND, 10);
+	}
+
+private:
+	HexFrame* m_addrFrame, *m_hexFrame, *m_textFrame;
+
+	std::unique_ptr<HaxStringRenderer> m_hexRenderer;
+	std::unique_ptr<HaxAddressRenderer> m_addrRenderer;
+	std::unique_ptr<HaxTextRenderer> m_textRenderer;
+};
 
 
 #endif /* HXE_WX_HEXFRAME_H_ */

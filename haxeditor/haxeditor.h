@@ -145,6 +145,39 @@ public:
 	}
 };
 
+class HaxTextRenderer: public HaxStringRenderer
+{
+public:
+	HaxTextRenderer(const HaxDocument& doc):
+		HaxStringRenderer(doc)
+	{}
+
+	std::string RenderLine(uint64_t offset) const override
+	{
+		std::stringstream ss;
+
+		int lastOffset = std::min(offset + GetWidth(),
+				getDocument().GetDataLength());
+
+		for (int x = offset; x < lastOffset; ++x)
+		{
+			const uint8_t* d = getDocument().GetDataAt(x);
+			addCharToString((char)*d, ss);
+		}
+
+		return ss.str();
+	}
+private:
+
+	void addCharToString(const char c, std::stringstream& ss) const
+	{
+		if ((c >= 'a' && c <= 'z' ) || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+			ss << c;
+		else
+			ss << ".";
+	}
+};
+
 class HaxAddressRenderer: public HaxStringRenderer
 {
 public:
@@ -155,8 +188,13 @@ public:
 	std::string RenderLine(uint64_t offset) const override
 	{
 		std::stringstream ss;
-		ss << std::hex << std::uppercase << std::setfill('0');
-		ss << std::setw(8) << static_cast<uint64_t>(offset) << " ";
+
+		if (offset <= getDocument().GetDataLength())
+		{
+			ss << std::hex << std::uppercase << std::setfill('0');
+			ss << std::setw(8) << static_cast<uint64_t>(offset) << " ";
+		}
+
 		return ss.str();
 	}
 };
