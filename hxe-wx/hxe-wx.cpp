@@ -45,7 +45,7 @@ wxIMPLEMENT_APP( HaxEditorWX);
 bool HaxEditorWX::OnInit()
 {
 	MyFrame *frame = new MyFrame("HaxEditor", wxPoint(50, 50),
-			wxSize(450, 450));
+			wxSize(750, 450));
 	frame->Show(true);
 	return true;
 }

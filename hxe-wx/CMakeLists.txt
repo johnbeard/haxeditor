@@ -1,6 +1,7 @@
 set(srcFiles
     hxe-wx.cpp
     hexframe.cpp
+    HugeScrollBar.cpp
 )
 
 add_executable(hxe-wx ${srcFiles})

@@ -12,9 +12,13 @@
 #include <wx/textctrl.h>
 #include <wx/sizer.h>
 
+#include <wx/scrolbar.h>
+
 #include <memory>
 
 #include "haxeditor/haxeditor.h"
+
+#include "HugeScrollBar.h"
 
 class HexFrame: public wxWindow
 {
@@ -98,6 +102,24 @@ public:
 		m_textFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(100, height),
 				*m_textRenderer);
 
+		m_realScrollBar = new wxScrollBar(this, wxID_ANY, wxDefaultPosition,
+				wxDefaultSize, wxSB_VERTICAL);
+		m_realScrollBar->Enable(true);
+
+		m_hugeScrollBar = new wxHugeScrollBar( m_realScrollBar );
+
+		m_hugeScrollBar->SetThumbPosition( 10 );
+
+		m_realScrollBar->Bind( wxEVT_SCROLL_TOP, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_BOTTOM, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_LINEUP, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_LINEDOWN, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_PAGEUP, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_PAGEDOWN, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_THUMBTRACK, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_THUMBRELEASE, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Bind( wxEVT_SCROLL_CHANGED, &HexMultiFrame::OnOffsetScroll, this );
+
 		wxSizer* sz = new wxBoxSizer(wxHORIZONTAL);
 		SetSizer(sz);
 
@@ -106,6 +128,25 @@ public:
 		sz->Add(m_addrFrame, 0, wxALIGN_RIGHT | wxEXPAND, 10);
 		sz->Add(m_hexFrame, 60, wxALIGN_RIGHT | wxEXPAND, 10);
 		sz->Add(m_textFrame, 40, wxALIGN_RIGHT | wxEXPAND, 10);
+		sz->Add(m_realScrollBar, 0, wxALIGN_RIGHT | wxEXPAND, 0);
+	}
+
+	~HexMultiFrame()
+	{
+		m_realScrollBar->Unbind( wxEVT_SCROLL_TOP, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_BOTTOM, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_LINEUP, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_LINEDOWN, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_PAGEUP, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_PAGEDOWN, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_THUMBTRACK, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_THUMBRELEASE, &HexMultiFrame::OnOffsetScroll, this );
+		m_realScrollBar->Unbind( wxEVT_SCROLL_CHANGED, &HexMultiFrame::OnOffsetScroll, this );
+	}
+
+	void OnOffsetScroll(wxScrollEvent& /*e*/)
+	{
+		std::cout << "hmf offset scroll" << std::endl;
 	}
 
 private:
@@ -114,6 +155,9 @@ private:
 	std::unique_ptr<HaxStringRenderer> m_hexRenderer;
 	std::unique_ptr<HaxAddressRenderer> m_addrRenderer;
 	std::unique_ptr<HaxTextRenderer> m_textRenderer;
+
+	wxScrollBar* m_realScrollBar;
+	wxHugeScrollBar* m_hugeScrollBar;
 };
 
 
