@@ -21,8 +21,19 @@
 class HexFrame: public wxWindow
 {
 public:
+
+	class Director
+	{
+	public:
+		virtual const wxSize& GetCharSize() const = 0;
+		virtual unsigned GetNumRowsToShow() const = 0;
+		virtual const wxTextAttr& GetTextAttr() const = 0;
+		virtual	const wxSize& GetFrameMargin() const = 0;
+	};
+
 	HexFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
+			Director* director,
 			const HaxStringRenderer& renderer);
 
 	void DataChanged(bool force);
@@ -70,11 +81,12 @@ private:
 	State m_state, m_pendingState;
 
 	wxBitmap m_bmpBuffer;
-	wxTextAttr m_textAttr;
 	const HaxStringRenderer& m_renderer;
+	Director* m_director;
 };
 
-class HexMultiFrame: public wxScrolledWindow
+class HexMultiFrame: public wxScrolledWindow,
+					 public HexFrame::Director
 {
 public:
 	HexMultiFrame(wxWindow* parent, wxWindowID id, HaxDocument& m_doc):
@@ -95,13 +107,13 @@ public:
 		const int height = 300;
 
 		m_hexFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(300, height),
-				*m_hexRenderer);
+				this, *m_hexRenderer);
 
 		m_addrFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(100, height),
-				*m_addrRenderer);
+				this, *m_addrRenderer);
 
 		m_textFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxSize(100, height),
-				*m_textRenderer);
+				this, *m_textRenderer);
 
 		m_realScrollBar = new wxScrollBar(this, wxID_ANY, wxDefaultPosition,
 				wxDefaultSize, wxSB_VERTICAL);
@@ -174,11 +186,6 @@ public:
 		m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 	}
 
-	const wxSize& GetCharSize() const
-	{
-		return m_charSize;
-	}
-
 	void AdjustScrollBar()
 	{
 		const uint64_t dataSize = 303;
@@ -192,21 +199,22 @@ public:
 
 		const int paneH = GetSize().GetHeight();
 
-		std::cout << "Adjust SB to fit window height: " << paneH << std::endl;
-
-		const int usableH = paneH - 3;
+		const int usableH = paneH;
 		// could use a different line spacing
-		const int rowH = m_charSize.GetHeight() + 3;
+		const int rowH = m_charSize.GetHeight();
 
-		const int m_rows = (usableH / rowH) + 1;
+		m_rows = usableH / rowH;
 
+		if (usableH % rowH)
+			m_rows += 1;
+
+		// one more row because we draw the last row off the bottom edge
+		dataRows += 1;
 		m_hugeScrollBar->SetScrollbar(m_rowOffset, m_rows, dataRows, m_rows - 1, true);
 	}
 
-	void OnResize(wxSizeEvent& event)
+	void OnResize(wxSizeEvent& /*event*/)
 	{
-		std::cout << "Resize: " << event.GetSize().GetWidth() << ", "
-				<< event.GetSize().GetHeight() << std::endl;
 		// recompute the scrollbar properties
 		AdjustScrollBar();
 	}
@@ -214,11 +222,38 @@ public:
 	void OnOffsetScroll(wxScrollEvent& /*event*/)
 	{
 		m_rowOffset = m_hugeScrollBar->GetThumbPosition() ;
-		std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
+		//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
 
 		m_addrFrame->SetOffset(m_rowOffset);
 		m_hexFrame->SetOffset(m_rowOffset);
 		m_textFrame->SetOffset(m_rowOffset);
+	}
+
+	// Interface to data windows HexFrame::Director
+	// TODO composite this interface rather than inherit?
+	const wxSize& GetCharSize() const override
+	{
+		return m_charSize;
+	}
+
+	/*!
+	 * Get the (default) border around the edges of the frame
+	 * Frames can override it, especially for the left/right edges, but
+	 * the top should be the same for all windows to keep the data in line
+	 */
+	const wxSize& GetFrameMargin() const override
+	{
+		return m_frameMargin;
+	}
+
+	unsigned GetNumRowsToShow() const override
+	{
+		return m_rows;
+	}
+
+	const wxTextAttr& GetTextAttr() const override
+	{
+		return m_textAttr;
 	}
 
 private:
@@ -232,9 +267,11 @@ private:
 	wxScrollBar* m_realScrollBar;
 	wxHugeScrollBar* m_hugeScrollBar;
 
+	int m_rows;
 	uint64_t m_rowOffset;
 	wxSize m_charSize;
 	wxTextAttr m_textAttr;
+	wxSize m_frameMargin;
 };
 
 

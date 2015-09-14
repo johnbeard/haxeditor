@@ -12,30 +12,18 @@
 
 HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
+		Director* director,
 		const HaxStringRenderer& renderer) :
 			wxWindow(parent, id, pos, size),
 			m_Caret(0, 0),
 			m_bmpBuffer(0, 0),
-			m_renderer(renderer)
+			m_renderer(renderer),
+			m_director(director)
 {
 	wxColour c(*wxWHITE);
 	SetBackgroundColour(c);
 
 	SetWindowStyleFlag(wxBORDER_SUNKEN);
-
-	m_textAttr = wxTextAttr(
-			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ),
-			wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ),
-			wxFont(
-					10,
-					wxFONTFAMILY_MODERN,	// family
-					wxFONTSTYLE_NORMAL,	// style
-					wxFONTWEIGHT_NORMAL,// weight
-					false,				// underline
-					wxT(""),			// facename
-					wxFONTENCODING_UTF8
-			)
-	);
 
 	m_state.offset = 0;
 	m_state.m_margin = wxPoint(3, 0);
@@ -46,32 +34,27 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 
 void HexFrame::DataChanged(bool force)
 {
-	wxMemoryDC mdc;
-	mdc.SetFont(m_textAttr.GetFont());
+	m_pendingState.m_charSize = m_director->GetCharSize();
 
-	m_pendingState.m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
-	// number of text lines we can fit (add one at the end so we always fill
-	// the space)
-	//only use one margin, the other is in the last row
-	const int usableH = GetSize().GetHeight() - m_state.m_margin.y;
 	// could use a different line spacing
-	const int rowH = m_pendingState.m_charSize.y + m_state.m_margin.y;
-	m_pendingState.m_rows = (usableH / rowH) + 1;
+	m_pendingState.m_rows = m_director->GetNumRowsToShow();
 	m_pendingState.m_cols = m_renderer.GetWidth();
 
 	// see if we need to redraw (force to override and recompute anyway!)
 	if (!force && !m_state.redrawNeeded(m_pendingState))
 	{
-		std::cout << "skipping" << std::endl;
+		//std::cout << "skipping" << std::endl;
 
 		// but still need to redraw, even if the bmp is the same
 		Refresh();
 		return;
 	}
-	//std::cout << "drawing" << std::endl;
+	//std::cout << "drawing " << m_pendingState.m_rows << std::endl;
 
-	m_state = std::move(m_pendingState);
+	m_state = m_pendingState;
 
+	// FIXME
+	int rowH = m_state.m_charSize.y + m_state.m_margin.y;
 	const int bmpH = m_state.m_rows * rowH + m_state.m_margin.y;
 	const int bmpW = GetSize().GetWidth();
 
@@ -80,6 +63,9 @@ void HexFrame::DataChanged(bool force)
 		return;
 
 	m_bmpBuffer.Create(bmpW, bmpH);
+
+	wxMemoryDC mdc;
+	mdc.SetFont(m_director->GetTextAttr().GetFont());
 
 	mdc.SelectObject(m_bmpBuffer);
 	mdc.Clear();

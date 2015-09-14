@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#define _DEBUG_SCROLL_
+//#define _DEBUG_SCROLL_
 
 wxHugeScrollBar::wxHugeScrollBar(wxScrollBar* m_scrollbar):
 		m_range(0),
