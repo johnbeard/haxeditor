@@ -94,9 +94,9 @@ void wxHugeScrollBar::OnOffsetScroll(wxScrollEvent& event)
 
 #ifdef _DEBUG_SCROLL_
 	if(event.GetEventType() == wxEVT_SCROLL_CHANGED)
-		std::cout << "wxEVT_SCROLL_CHANGED"  << std::endl;
+		std::cout << "wxEVT_SCROLL_CHANGED " << m_thumb << std::endl;
 	if(event.GetEventType() == wxEVT_SCROLL_THUMBTRACK)
-		std::cout << "wxEVT_SCROLL_THUMBTRACK"  << std::endl;
+		std::cout << "wxEVT_SCROLL_THUMBTRACK" << m_thumb << std::endl;
 	if(event.GetEventType() == wxEVT_SCROLL_THUMBRELEASE)
 		std::cout << "wxEVT_SCROLL_THUMBRELEASE"  << std::endl;
 	if( event.GetEventType() == wxEVT_SCROLL_LINEDOWN )

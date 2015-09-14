@@ -37,6 +37,7 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 			)
 	);
 
+	m_state.offset = 0;
 	m_state.m_margin = wxPoint(3, 0);
 
 	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
@@ -48,25 +49,20 @@ void HexFrame::DataChanged(bool force)
 	wxMemoryDC mdc;
 	mdc.SetFont(m_textAttr.GetFont());
 
-	State newState;
-
-	// offset into the buffer
-	newState.offset = 0;
-
-	newState.m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
+	m_pendingState.m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 	// number of text lines we can fit (add one at the end so we always fill
 	// the space)
 	//only use one margin, the other is in the last row
 	const int usableH = GetSize().GetHeight() - m_state.m_margin.y;
 	// could use a different line spacing
-	const int rowH = newState.m_charSize.y + m_state.m_margin.y;
-	newState.m_rows = (usableH / rowH) + 1;
-	newState.m_cols = m_renderer.GetWidth();
+	const int rowH = m_pendingState.m_charSize.y + m_state.m_margin.y;
+	m_pendingState.m_rows = (usableH / rowH) + 1;
+	m_pendingState.m_cols = m_renderer.GetWidth();
 
 	// see if we need to redraw (force to override and recompute anyway!)
-	if (!force && (m_state.redrawNeeded(newState)))
+	if (!force && !m_state.redrawNeeded(m_pendingState))
 	{
-		//std::cout << "skipping" << std::endl;
+		std::cout << "skipping" << std::endl;
 
 		// but still need to redraw, even if the bmp is the same
 		Refresh();
@@ -74,7 +70,7 @@ void HexFrame::DataChanged(bool force)
 	}
 	//std::cout << "drawing" << std::endl;
 
-	m_state = std::move(newState);
+	m_state = std::move(m_pendingState);
 
 	const int bmpH = m_state.m_rows * rowH + m_state.m_margin.y;
 	const int bmpW = GetSize().GetWidth();
@@ -108,6 +104,13 @@ void HexFrame::drawToBitmap(wxDC& dc)
 		lineOffset += m_state.m_cols;
 		yPos += m_state.m_charSize.y + m_state.m_margin.y;
 	}
+}
+
+void HexFrame::SetOffset(uint64_t newOffset)
+{
+	//TODO fix width access
+	m_pendingState.offset = newOffset * m_renderer.GetWidth();
+	DataChanged(false);
 }
 
 void HexFrame::OnSize(wxSizeEvent& /*event*/)
