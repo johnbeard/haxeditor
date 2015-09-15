@@ -7,10 +7,13 @@
 
 #include "HexMultiFrame.h"
 
+#include <algorithm>
+
 HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
-		HaxDocument& m_doc) :
+		HaxDocument& doc) :
 		wxScrolledWindow(parent, id),
-		m_rowOffset(0)
+		m_rowOffset(0),
+		m_doc(doc)
 {
 	const int lineSize = 10;
 
@@ -79,6 +82,7 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 	OnFontChange();
 
 	Bind(wxEVT_SIZE, &HexMultiFrame::OnResize, this);
+	Bind(wxEVT_MOUSEWHEEL, &HexMultiFrame::OnMouseWheel, this);
 }
 
 HexMultiFrame::~HexMultiFrame()
@@ -103,9 +107,9 @@ void HexMultiFrame::OnFontChange()
 	m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 }
 
-void HexMultiFrame::AdjustScrollBar()
+uint64_t HexMultiFrame::getTotalNumRows() const
 {
-	const uint64_t dataSize = 303;
+	const uint64_t dataSize = m_doc.GetDataLength();
 	const unsigned lineSize = 10;
 
 	uint64_t dataRows = dataSize / lineSize;
@@ -114,6 +118,21 @@ void HexMultiFrame::AdjustScrollBar()
 	if (lastRowCount)
 		dataRows += 1;
 
+	// one more row because we draw the last row off the bottom edge
+	dataRows += 1;
+
+	return dataRows;
+}
+
+void HexMultiFrame::AdjustScrollBar()
+{
+	const uint64_t dataRows = getTotalNumRows();
+
+	m_hugeScrollBar->SetScrollbar(m_rowOffset, m_rows, dataRows, m_rows - 1, true);
+}
+
+void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
+{
 	const int paneH = GetSize().GetHeight();
 
 	const int usableH = paneH;
@@ -125,13 +144,6 @@ void HexMultiFrame::AdjustScrollBar()
 	if (usableH % rowH)
 		m_rows += 1;
 
-	// one more row because we draw the last row off the bottom edge
-	dataRows += 1;
-	m_hugeScrollBar->SetScrollbar(m_rowOffset, m_rows, dataRows, m_rows - 1, true);
-}
-
-void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
-{
 	// recompute the scrollbar properties
 	AdjustScrollBar();
 
@@ -150,8 +162,43 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 	// (which must have already processed the event!)
 	m_rowOffset = m_hugeScrollBar->GetThumbPosition() ;
 	//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
+	updateOffset();
+}
 
+
+void HexMultiFrame::updateOffset()
+{
 	m_addrFrame->SetOffset(m_rowOffset);
 	m_hexFrame->SetOffset(m_rowOffset);
 	m_textFrame->SetOffset(m_rowOffset);
+}
+
+void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
+{
+	if (event.GetWheelRotation() == 0)
+		return;
+
+	const bool goingDown = event.GetWheelRotation() < 0;
+	const uint64_t lineDelta = static_cast<uint64_t>(event.GetLinesPerAction());
+
+	if (goingDown)
+	{
+		const uint64_t maxRow = getTotalNumRows() - GetNumRowsToShow();
+
+		// don't exceed the end of the document
+		m_rowOffset = std::min(m_rowOffset + lineDelta, maxRow);
+	}
+	else
+	{
+		if (lineDelta > m_rowOffset)
+			m_rowOffset = 0;
+		else
+			m_rowOffset -= lineDelta;
+	}
+
+	// notify offset changed
+	updateOffset();
+
+	AdjustScrollBar();
+
 }

@@ -22,6 +22,7 @@ public:
 	void OnFontChange();
 	void OnResize(wxSizeEvent& event);
 	void OnOffsetScroll(wxScrollEvent& event);
+	void OnMouseWheel(wxMouseEvent& event);
 
 	// Interface to data windows HexFrame::Director
 	// TODO composite this interface rather than inherit?
@@ -59,6 +60,18 @@ private:
 	 */
 	void AdjustScrollBar();
 
+	/*!
+	 * Called when something has changed the offset
+	 */
+	void updateOffset();
+
+	/*!
+	 * Get the total length of the document, in rows, as rendered at the current
+	 * width.
+	 * @return
+	 */
+	uint64_t getTotalNumRows() const;
+
 	HexFrame* m_addrFrame, *m_hexFrame, *m_textFrame;
 	wxSizer* m_hexPanelSizer;
 
@@ -74,6 +87,8 @@ private:
 	wxSize m_charSize;
 	wxTextAttr m_textAttr;
 	wxSize m_frameMargin;
+
+	HaxDocument& m_doc;
 };
 
 

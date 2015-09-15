@@ -221,8 +221,8 @@ public:
 
 		if (offset <= getDocument().GetDataLength())
 		{
-			ss << std::setw(getAddrWidth()) << static_cast<uint64_t>(offset) << " ";
 			ss << std::hex << std::uppercase << std::setfill('0');
+			ss << std::setw(getAddrWidth()) << static_cast<uint64_t>(offset) << " ";
 		}
 
 		return ss.str();
