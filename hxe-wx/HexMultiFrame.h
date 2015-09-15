@@ -23,6 +23,7 @@ public:
 	void OnResize(wxSizeEvent& event);
 	void OnOffsetScroll(wxScrollEvent& event);
 	void OnMouseWheel(wxMouseEvent& event);
+	void OnKeyboardInput(wxKeyEvent& event);
 
 	// Interface to data windows HexFrame::Director
 	// TODO composite this interface rather than inherit?
@@ -71,6 +72,15 @@ private:
 	 * @return
 	 */
 	uint64_t getTotalNumRows() const;
+
+	void scrollToStart();
+	void scrollToEnd();
+
+	/*!
+	 * Get the row index of the maximum row you can scroll too (so that you
+	 * don't scroll into a mostly black page at the end
+	 */
+	uint64_t getMaximumOffsetRow() const;
 
 	HexFrame* m_addrFrame, *m_hexFrame, *m_textFrame;
 	wxSizer* m_hexPanelSizer;

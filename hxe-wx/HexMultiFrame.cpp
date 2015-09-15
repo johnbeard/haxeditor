@@ -83,6 +83,7 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 
 	Bind(wxEVT_SIZE, &HexMultiFrame::OnResize, this);
 	Bind(wxEVT_MOUSEWHEEL, &HexMultiFrame::OnMouseWheel, this);
+	m_hexFrame->Bind(wxEVT_KEY_DOWN, &HexMultiFrame::OnKeyboardInput, this);
 }
 
 HexMultiFrame::~HexMultiFrame()
@@ -98,6 +99,8 @@ HexMultiFrame::~HexMultiFrame()
 	m_realScrollBar->Unbind( wxEVT_SCROLL_CHANGED, &HexMultiFrame::OnOffsetScroll, this );
 
 	Unbind(wxEVT_SIZE, &HexMultiFrame::OnResize, this);
+	Unbind(wxEVT_MOUSEWHEEL, &HexMultiFrame::OnMouseWheel, this);
+	Unbind(wxEVT_KEY_DOWN, &HexMultiFrame::OnKeyboardInput, this);
 }
 
 void HexMultiFrame::OnFontChange()
@@ -122,6 +125,17 @@ uint64_t HexMultiFrame::getTotalNumRows() const
 	dataRows += 1;
 
 	return dataRows;
+}
+
+uint64_t HexMultiFrame::getMaximumOffsetRow() const
+{
+	const uint64_t pageRows = GetNumRowsToShow();
+	const uint64_t totalRows = getTotalNumRows();
+
+	if (pageRows > totalRows)
+		return 0;
+
+	return totalRows - pageRows;
 }
 
 void HexMultiFrame::AdjustScrollBar()
@@ -165,12 +179,13 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 	updateOffset();
 }
 
-
 void HexMultiFrame::updateOffset()
 {
 	m_addrFrame->SetOffset(m_rowOffset);
 	m_hexFrame->SetOffset(m_rowOffset);
 	m_textFrame->SetOffset(m_rowOffset);
+
+	AdjustScrollBar();
 }
 
 void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
@@ -183,7 +198,7 @@ void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 
 	if (goingDown)
 	{
-		const uint64_t maxRow = getTotalNumRows() - GetNumRowsToShow();
+		const uint64_t maxRow = getMaximumOffsetRow();
 
 		// don't exceed the end of the document
 		m_rowOffset = std::min(m_rowOffset + lineDelta, maxRow);
@@ -198,7 +213,35 @@ void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 
 	// notify offset changed
 	updateOffset();
+}
 
-	AdjustScrollBar();
+void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
+{
+	std::cout << "key: " << event.GetKeyCode() << std::endl;
 
+	switch (event.GetKeyCode())
+	{
+	case WXK_HOME:
+		scrollToStart();
+		break;
+	case WXK_END:
+		scrollToEnd();
+		break;
+	default:
+		// unhandled key
+		event.Skip();
+		break;
+	}
+}
+
+void HexMultiFrame::scrollToStart()
+{
+	m_rowOffset = 0;
+	updateOffset();
+}
+
+void HexMultiFrame::scrollToEnd()
+{
+	m_rowOffset = getMaximumOffsetRow();
+	updateOffset();
 }
