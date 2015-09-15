@@ -6,7 +6,7 @@
 #include <wx/wx.h>
 #endif
 
-#include "hexframe.h"
+#include "HexMultiFrame.h"
 
 class HaxEditorWX: public wxApp
 {
@@ -74,7 +74,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 
 void MyFrame::SetData()
 {
-
 	m_doc.reset(new HaxDocument());
 
 	m_mframe = new HexMultiFrame(this, wxID_ANY, *m_doc);
