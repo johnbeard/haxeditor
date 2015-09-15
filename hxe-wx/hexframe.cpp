@@ -102,6 +102,7 @@ void HexFrame::SetOffset(uint64_t newOffset)
 void HexFrame::OnSize(wxSizeEvent& /*event*/)
 {
 //	std::cout << "Height " << GetSize().GetHeight() << std::endl;
+	// we resize - we might need to redraw the image
 	DataChanged(false);
 }
 
@@ -117,4 +118,14 @@ void HexFrame::Paint(wxPaintEvent& /*event*/)
 		return;
 
 	gc->DrawBitmap(m_bmpBuffer, 0.0, 0.0, w, h);
+}
+
+unsigned HexFrame::GetMinimumWidthForData() const
+{
+	const unsigned cells = m_renderer.GetCellsPerRow();
+	const unsigned cellW = m_renderer.GetCellChars()
+			* m_director->GetCharSize().GetWidth();
+
+	const unsigned margin = 5;
+	return cells * cellW + margin;
 }

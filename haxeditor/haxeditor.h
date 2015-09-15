@@ -113,6 +113,13 @@ public:
 		m_width = width;
 	}
 
+	virtual unsigned GetCellsPerRow() const = 0;
+
+	/*!
+	 * Get the cells chars needed to display the data
+	 */
+	virtual unsigned GetCellChars() const = 0;
+
 	virtual std::string RenderLine(uint64_t offset) const = 0;
 
 private:
@@ -143,6 +150,19 @@ public:
 
 		return ss.str();
 	}
+
+	unsigned GetCellsPerRow() const override
+	{
+		// TODO multiple formats?
+		return GetWidth();
+	}
+
+	unsigned GetCellChars() const override
+	{
+		return 3;
+	}
+
+
 };
 
 class HaxTextRenderer: public HaxStringRenderer
@@ -176,6 +196,16 @@ private:
 		else
 			ss << ".";
 	}
+
+	unsigned GetCellsPerRow() const override
+	{
+		return 1;
+	}
+
+	unsigned GetCellChars() const override
+	{
+		return GetWidth();
+	}
 };
 
 class HaxAddressRenderer: public HaxStringRenderer
@@ -191,11 +221,27 @@ public:
 
 		if (offset <= getDocument().GetDataLength())
 		{
+			ss << std::setw(getAddrWidth()) << static_cast<uint64_t>(offset) << " ";
 			ss << std::hex << std::uppercase << std::setfill('0');
-			ss << std::setw(8) << static_cast<uint64_t>(offset) << " ";
 		}
 
 		return ss.str();
+	}
+
+	unsigned GetCellsPerRow() const override
+	{
+		return 1;
+	}
+
+	unsigned GetCellChars() const override
+	{
+		return getAddrWidth();
+	}
+private:
+	unsigned getAddrWidth() const
+	{
+		// FIXME
+		return 6;
 	}
 };
 

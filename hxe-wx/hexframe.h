@@ -43,6 +43,11 @@ public:
 
 	void SetOffset(uint64_t offset);
 
+	/*!
+	 * Return the minimum width needed for the current data
+	 */
+	unsigned GetMinimumWidthForData() const;
+
 protected:
 	wxPoint   m_Caret;	// position (in text coords) of the caret
 	wxString  m_text;
