@@ -96,7 +96,7 @@ private:
 	wxBitmap m_bmpBuffer;
 	const HaxStringRenderer& m_renderer;
 	Director* m_director;
-	wxCaret* m_caret;
+	class HexCaret* m_caret;
 };
 
 #endif /* HXE_WX_HEXFRAME_H_ */

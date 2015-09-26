@@ -10,13 +10,83 @@
 #include "wx/wx.h"
 #include "wx/graphics.h"
 
+class HexCaret: public wxWindow
+{
+public:
+	HexCaret(wxWindow* parent, const wxSize& size):
+		wxWindow(),
+		m_visible(false),
+		m_blinkState(true),
+		m_blinkTimerMs(750)
+	{
+		SetBackgroundStyle(wxBG_STYLE_TRANSPARENT);
+
+		// create after the BG settings
+		Create(parent, wxID_ANY);
+
+		SetSize(size);
+
+		Bind(wxEVT_PAINT, &HexCaret::Paint, this);
+		m_blinkTimer.Bind(wxEVT_TIMER, &HexCaret::OnBlinkTimer, this);
+
+		m_blinkTimer.Start(m_blinkTimerMs, false);
+	}
+
+	~HexCaret()
+	{
+
+		Unbind(wxEVT_PAINT, &HexCaret::Paint, this);
+	}
+
+	void SetVisible(bool visible)
+	{
+		m_visible = visible;
+	}
+
+private:
+
+	void Paint(wxPaintEvent& /*event*/)
+	{
+		if (!m_visible)
+			return;
+
+	    wxPaintDC dc(this);
+	    std::unique_ptr<wxGraphicsContext> gdc(wxGraphicsContext::Create(dc));
+
+	    gdc->SetPen(*wxBLACK_PEN);
+
+	    if (m_blinkState)
+	    {
+	    	gdc->SetBrush(wxBrush(wxColour(255, 0, 0, 50)));
+	    }
+	    else
+	    {
+	    	gdc->SetBrush(*wxTRANSPARENT_BRUSH);
+	    }
+
+    	const wxSize size = GetSize();
+    	gdc->DrawRectangle(0, 0, size.x - 1, size.y - 1);
+	}
+
+	void OnBlinkTimer(wxTimerEvent& /*event*/)
+	{
+		m_blinkState = !m_blinkState;
+		Refresh();
+	}
+
+	wxTimer m_blinkTimer;
+	bool m_visible;
+	bool m_blinkState;
+	int m_blinkTimerMs;
+};
+
 HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
 		const HaxStringRenderer& renderer) :
 			HaxFrame(),
 			wxWindow(parent, id, pos, size),
-			m_caretPos(20, 20),
+			m_caretPos(5, 20),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer),
 			m_director(director)
@@ -34,9 +104,8 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 	Bind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
 	Bind(wxEVT_LEFT_DOWN, &HexFrame::OnLeftMouseDown, this);
 
-	m_caret = new wxCaret(this, m_director->GetCharSize());
-	SetCaret(m_caret);
-	m_caret->Show(false);
+	m_caret = new HexCaret(this, m_director->GetCharSize());
+	m_caret->Show();
 }
 
 HexFrame::~HexFrame()
@@ -50,8 +119,6 @@ HexFrame::~HexFrame()
 void HexFrame::onCharSizeChanged()
 {
 	const wxSize charSize(m_director->GetCharSize());
-	m_caret->SetSize(charSize);
-	moveCaret();
 	DataChanged(false);
 }
 
@@ -71,8 +138,7 @@ void HexFrame::DataChanged(bool force)
 {
 	moveCaret();
 
-	if (m_caret->IsVisible() != isCaretVisible())
-		m_caret->Show(isCaretVisible());
+	m_caret->SetVisible(isCaretVisible());
 
 	m_pendingState.m_charSize = m_director->GetCharSize();
 
@@ -111,8 +177,6 @@ void HexFrame::DataChanged(bool force)
 	mdc.Clear();
 
 	drawToBitmap(mdc);
-
-
 
 	Refresh();
 }
