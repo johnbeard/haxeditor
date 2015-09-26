@@ -83,7 +83,7 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 
 	Bind(wxEVT_SIZE, &HexMultiFrame::OnResize, this);
 	Bind(wxEVT_MOUSEWHEEL, &HexMultiFrame::OnMouseWheel, this);
-	m_hexFrame->Bind(wxEVT_KEY_DOWN, &HexMultiFrame::OnKeyboardInput, this);
+	Bind(wxEVT_KEY_DOWN, &HexMultiFrame::OnKeyboardInput, this);
 }
 
 HexMultiFrame::~HexMultiFrame()

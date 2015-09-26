@@ -35,6 +35,7 @@ public:
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
 			const HaxStringRenderer& renderer);
+	~HexFrame();
 
 	void DataChanged(bool force);
 
@@ -53,6 +54,8 @@ protected:
 	wxString  m_text;
 
 private:
+
+	void OnKeyboardInput(wxKeyEvent& event);
 
 	void drawToBitmap(wxDC& dc);
 

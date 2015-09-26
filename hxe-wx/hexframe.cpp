@@ -30,6 +30,14 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 
 	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
 	Bind(wxEVT_SIZE, &HexFrame::OnSize, this);
+	Bind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
+}
+
+HexFrame::~HexFrame()
+{
+	Unbind(wxEVT_PAINT, &HexFrame::Paint, this);
+	Unbind(wxEVT_SIZE, &HexFrame::OnSize, this);
+	Unbind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
 }
 
 void HexFrame::DataChanged(bool force)
@@ -128,4 +136,12 @@ unsigned HexFrame::GetMinimumWidthForData() const
 
 	const unsigned margin = 5;
 	return cells * cellW + margin;
+}
+
+void HexFrame::OnKeyboardInput(wxKeyEvent& event)
+{
+	std::cout << "HexFrame key: " << std::endl;
+
+	// can't handle the key here, maybe someone higher wants it?
+	wxPostEvent(GetParent(), event);
 }
