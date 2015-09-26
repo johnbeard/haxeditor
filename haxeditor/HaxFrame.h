@@ -15,12 +15,33 @@
 class HaxFrame
 {
 public:
+	HaxFrame():
+		m_caretVisible(true)
+	{}
+
 	virtual ~HaxFrame()
 	{}
 
 	virtual void SetOffset(uint64_t newOffset) = 0;
 
 	virtual unsigned GetMinimumWidthForData() const = 0;
+
+	virtual void moveCaret() = 0;
+
+protected:
+
+	bool isCaretVisible() const
+	{
+		return m_caretVisible;
+	}
+
+	void setCaretVisible(bool visible)
+	{
+		m_caretVisible = visible;
+	}
+
+private:
+	bool m_caretVisible;
 };
 
 

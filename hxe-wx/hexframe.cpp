@@ -16,7 +16,7 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const HaxStringRenderer& renderer) :
 			HaxFrame(),
 			wxWindow(parent, id, pos, size),
-			m_Caret(0, 0),
+			m_caretPos(20, 20),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer),
 			m_director(director)
@@ -32,6 +32,11 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
 	Bind(wxEVT_SIZE, &HexFrame::OnSize, this);
 	Bind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
+	Bind(wxEVT_LEFT_DOWN, &HexFrame::OnLeftMouseDown, this);
+
+	m_caret = new wxCaret(this, m_director->GetCharSize());
+	SetCaret(m_caret);
+	m_caret->Show(false);
 }
 
 HexFrame::~HexFrame()
@@ -39,10 +44,36 @@ HexFrame::~HexFrame()
 	Unbind(wxEVT_PAINT, &HexFrame::Paint, this);
 	Unbind(wxEVT_SIZE, &HexFrame::OnSize, this);
 	Unbind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
+	Unbind(wxEVT_LEFT_DOWN, &HexFrame::OnLeftMouseDown, this);
+}
+
+void HexFrame::onCharSizeChanged()
+{
+	const wxSize charSize(m_director->GetCharSize());
+	m_caret->SetSize(charSize);
+	moveCaret();
+	DataChanged(false);
+}
+
+void HexFrame::moveCaret()
+{
+	if (!m_caret)
+		return;
+
+	const wxSize charSize(m_director->GetCharSize());
+
+	m_caret->SetSize(charSize);
+	m_caret->Move(m_caretPos.x * charSize.x,
+			m_caretPos.y * charSize.y);
 }
 
 void HexFrame::DataChanged(bool force)
 {
+	moveCaret();
+
+	if (m_caret->IsVisible() != isCaretVisible())
+		m_caret->Show(isCaretVisible());
+
 	m_pendingState.m_charSize = m_director->GetCharSize();
 
 	// could use a different line spacing
@@ -80,6 +111,8 @@ void HexFrame::DataChanged(bool force)
 	mdc.Clear();
 
 	drawToBitmap(mdc);
+
+
 
 	Refresh();
 }
@@ -145,4 +178,9 @@ void HexFrame::OnKeyboardInput(wxKeyEvent& event)
 
 	// can't handle the key here, maybe someone higher wants it?
 	wxPostEvent(GetParent(), event);
+}
+
+void HexFrame::OnLeftMouseDown(wxMouseEvent& event)
+{
+
 }

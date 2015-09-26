@@ -11,6 +11,7 @@
 #include <wx/wx.h>
 
 #include <wx/scrolbar.h>
+#include <wx/caret.h>
 
 #include <memory>
 
@@ -50,16 +51,18 @@ public:
 	 * Return the minimum width needed for the current data
 	 */
 	unsigned GetMinimumWidthForData() const override;
-
 protected:
-	wxPoint   m_Caret;	// position (in text coords) of the caret
-	wxString  m_text;
-
+	wxPoint   m_caretPos;	// position (in text coords) of the caret
 private:
 
 	void OnKeyboardInput(wxKeyEvent& event);
+	void OnLeftMouseDown(wxMouseEvent& event);
 
 	void drawToBitmap(wxDC& dc);
+
+	void moveCaret() override;
+
+	void onCharSizeChanged();
 
 	/*!
 	 * The internal state of the view - if this doesn't change, we
@@ -93,6 +96,7 @@ private:
 	wxBitmap m_bmpBuffer;
 	const HaxStringRenderer& m_renderer;
 	Director* m_director;
+	wxCaret* m_caret;
 };
 
 #endif /* HXE_WX_HEXFRAME_H_ */
