@@ -69,7 +69,7 @@ private:
 	 */
 	void updateOffset() override;
 
-	HexFrame* m_addrFrame, *m_hexFrame, *m_textFrame;
+	std::vector<HexFrame*> m_frames;
 	wxSizer* m_hexPanelSizer;
 
 	std::unique_ptr<HaxStringRenderer> m_hexRenderer;

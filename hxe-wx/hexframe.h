@@ -49,7 +49,7 @@ public:
 	/*!
 	 * Return the minimum width needed for the current data
 	 */
-	unsigned GetMinimumWidthForData() const;
+	unsigned GetMinimumWidthForData() const override;
 
 protected:
 	wxPoint   m_Caret;	// position (in text coords) of the caret

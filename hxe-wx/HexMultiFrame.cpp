@@ -25,14 +25,31 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 	m_textRenderer.reset(new HaxTextRenderer(doc));
 	m_textRenderer->SetWidth(lineSize);
 
-	m_hexFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_hexRenderer);
+	m_hexPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(m_hexPanelSizer);
 
-	m_addrFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_addrRenderer);
+	std::unique_ptr<HexFrame> f;
 
-	m_textFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_textRenderer);
+	f = std::unique_ptr<HexFrame>(new HexFrame(
+				this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+				this, *m_addrRenderer));
+	m_frames.push_back(f.get());
+	m_hexPanelSizer->Add(f.get(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
+	f.release();
+
+	f = std::unique_ptr<HexFrame>(new HexFrame(
+			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+			this, *m_hexRenderer));
+	m_frames.push_back(f.get());
+	m_hexPanelSizer->Add(f.release(), 100, wxALIGN_RIGHT | wxEXPAND, 0);
+	f.release();
+
+	f = std::unique_ptr<HexFrame>(new HexFrame(
+			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+			this, *m_textRenderer));
+	m_frames.push_back(f.get());
+	m_hexPanelSizer->Add(f.release(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
+	f.release();
 
 	m_realScrollBar = new wxScrollBar(this, wxID_ANY, wxDefaultPosition,
 			wxDefaultSize, wxSB_VERTICAL);
@@ -48,18 +65,12 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 	m_realScrollBar->Bind( wxEVT_SCROLL_THUMBRELEASE, &HexMultiFrame::OnOffsetScroll, this );
 	m_realScrollBar->Bind( wxEVT_SCROLL_CHANGED, &HexMultiFrame::OnOffsetScroll, this );
 
+	m_hexPanelSizer->Add(m_realScrollBar, 0, wxALIGN_RIGHT | wxEXPAND, 0);
+
 	// do this AFTER the real scrollbar binding (so it will have priotity),
 			// because we need the HugeScrollBar to get its position before we deal
 	// with the event though the wrapper in this call!
 	m_hugeScrollBar = new wxHugeScrollBar( m_realScrollBar );
-
-	m_hexPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-	SetSizer(m_hexPanelSizer);
-
-	m_hexPanelSizer->Add(m_addrFrame, 0, wxALIGN_RIGHT | wxALL | wxEXPAND, 0);
-	m_hexPanelSizer->Add(m_hexFrame, 100, wxALIGN_RIGHT | wxEXPAND, 0);
-	m_hexPanelSizer->Add(m_textFrame, 0, wxALIGN_RIGHT | wxEXPAND, 0);
-	m_hexPanelSizer->Add(m_realScrollBar, 0, wxALIGN_RIGHT | wxEXPAND, 0);
 
 	m_hexPanelSizer->Show(true);
 
@@ -136,13 +147,11 @@ void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
 	// recompute the scrollbar properties
 	AdjustScrollBar();
 
-	const unsigned addrW = m_addrFrame->GetMinimumWidthForData();
-	const unsigned hexW = m_hexFrame->GetMinimumWidthForData();
-	const unsigned textW = m_textFrame->GetMinimumWidthForData();
-
-	m_addrFrame->SetMinSize(wxSize(addrW, 10));
-	m_hexFrame->SetMinSize(wxSize(hexW, 10));
-	m_textFrame->SetMinSize(wxSize(textW, 10));
+	for (auto& f: m_frames)
+	{
+		const unsigned frameW = f->GetMinimumWidthForData();
+		f->SetMinSize(wxSize(frameW, 10));
+	}
 }
 
 void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
@@ -157,9 +166,11 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 void HexMultiFrame::updateOffset()
 {
 	const uint64_t offset = GetRowOffset();
-	m_addrFrame->SetOffset(offset);
-	m_hexFrame->SetOffset(offset);
-	m_textFrame->SetOffset(offset);
+
+	for (auto& f: m_frames)
+	{
+		f->SetOffset(offset);
+	}
 
 	AdjustScrollBar();
 }

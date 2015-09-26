@@ -19,6 +19,8 @@ public:
 	{}
 
 	virtual void SetOffset(uint64_t newOffset) = 0;
+
+	virtual unsigned GetMinimumWidthForData() const = 0;
 };
 
 

@@ -80,7 +80,6 @@ private:
 	uint64_t m_rowOffset;
 	unsigned m_rows;
 
-	std::vector<std::unique_ptr<HaxFrame> > frames;
 
 	HaxDocument& m_doc;
 };
