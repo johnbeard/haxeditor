@@ -57,10 +57,14 @@ private:
 
 	void OnKeyboardInput(wxKeyEvent& event);
 	void OnLeftMouseDown(wxMouseEvent& event);
+	void OnFocusSet(wxFocusEvent& event);
 
 	void drawToBitmap(wxDC& dc);
 
 	void moveCaret() override;
+
+	void moveCaretDown(int n);
+	void moveCaretRight(int n);
 
 	void onCharSizeChanged();
 
@@ -97,6 +101,7 @@ private:
 	const HaxStringRenderer& m_renderer;
 	Director* m_director;
 	class HexCaret* m_caret;
+	wxColour m_bgColour;
 };
 
 #endif /* HXE_WX_HEXFRAME_H_ */
