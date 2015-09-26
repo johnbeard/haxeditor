@@ -10,9 +10,11 @@
 
 #include <wx/wx.h>
 #include "hexframe.h"
+#include "haxeditor/HaxDocumentMultiFrame.h"
 
 class HexMultiFrame: public wxScrolledWindow,
-						public HexFrame::Director
+					 public HaxDocumentMultiFrame,
+					 public HexFrame::Director
 {
 public:
 	HexMultiFrame(wxWindow* parent, wxWindowID id, HaxDocument& m_doc);
@@ -42,17 +44,18 @@ public:
 		return m_frameMargin;
 	}
 
-	unsigned GetNumRowsToShow() const override
-	{
-		return m_rows;
-	}
-
 	const wxTextAttr& GetTextAttr() const override
 	{
 		return m_textAttr;
 	}
 
 private:
+
+	// forward to the HaxDocumentMultiFrame
+	unsigned GetNumRowsToShow() const override
+	{
+		return GetNumVisibleRows();
+	}
 
 	/*!
 	 * Internal function to recompute the scrollbar position and thumb sizing
@@ -64,23 +67,7 @@ private:
 	/*!
 	 * Called when something has changed the offset
 	 */
-	void updateOffset();
-
-	/*!
-	 * Get the total length of the document, in rows, as rendered at the current
-	 * width.
-	 * @return
-	 */
-	uint64_t getTotalNumRows() const;
-
-	void scrollToStart();
-	void scrollToEnd();
-
-	/*!
-	 * Get the row index of the maximum row you can scroll too (so that you
-	 * don't scroll into a mostly black page at the end
-	 */
-	uint64_t getMaximumOffsetRow() const;
+	void updateOffset() override;
 
 	HexFrame* m_addrFrame, *m_hexFrame, *m_textFrame;
 	wxSizer* m_hexPanelSizer;
@@ -92,13 +79,10 @@ private:
 	wxScrollBar* m_realScrollBar;
 	wxHugeScrollBar* m_hugeScrollBar;
 
-	int m_rows;
-	uint64_t m_rowOffset;
 	wxSize m_charSize;
 	wxTextAttr m_textAttr;
 	wxSize m_frameMargin;
 
-	HaxDocument& m_doc;
 };
 
 

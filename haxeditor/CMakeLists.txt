@@ -1,6 +1,6 @@
 
 set(srcFiles
-    
+    HaxDocumentMultiFrame.cpp
 )
 
 add_library(haxeditor ${srcFiles})

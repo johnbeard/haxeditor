@@ -14,6 +14,7 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
 		const HaxStringRenderer& renderer) :
+			HaxFrame(),
 			wxWindow(parent, id, pos, size),
 			m_Caret(0, 0),
 			m_bmpBuffer(0, 0),

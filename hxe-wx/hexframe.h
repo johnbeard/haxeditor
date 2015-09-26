@@ -15,10 +15,12 @@
 #include <memory>
 
 #include "haxeditor/haxeditor.h"
+#include "haxeditor/HaxFrame.h"
 
 #include "HugeScrollBar.h"
 
-class HexFrame: public wxWindow
+class HexFrame: public HaxFrame,
+				public wxWindow
 {
 public:
 
@@ -40,9 +42,9 @@ public:
 	void DataChanged(bool force);
 
 	void Paint(wxPaintEvent& event);
-	void OnSize(wxSizeEvent& /*event*/);
+	void OnSize(wxSizeEvent& event);
 
-	void SetOffset(uint64_t offset);
+	void SetOffset(uint64_t offset) override;
 
 	/*!
 	 * Return the minimum width needed for the current data

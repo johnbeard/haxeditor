@@ -7,4 +7,7 @@ set(srcFiles
 
 add_executable(hxe-wx ${srcFiles})
 
-target_link_libraries(hxe-wx ${wxWidgets_LIBRARIES})
+target_link_libraries(hxe-wx
+	haxeditor
+	${wxWidgets_LIBRARIES}
+)

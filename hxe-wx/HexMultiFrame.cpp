@@ -12,18 +12,17 @@
 HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 		HaxDocument& doc) :
 		wxScrolledWindow(parent, id),
-		m_rowOffset(0),
-		m_doc(doc)
+		HaxDocumentMultiFrame(doc)
 {
 	const int lineSize = 10;
 
-	m_hexRenderer.reset(new HaxHexRenderer(m_doc));
+	m_hexRenderer.reset(new HaxHexRenderer(doc));
 	m_hexRenderer->SetWidth(lineSize);
 
-	m_addrRenderer.reset(new HaxAddressRenderer(m_doc));
+	m_addrRenderer.reset(new HaxAddressRenderer(doc));
 	m_addrRenderer->SetWidth(lineSize);
 
-	m_textRenderer.reset(new HaxTextRenderer(m_doc));
+	m_textRenderer.reset(new HaxTextRenderer(doc));
 	m_textRenderer->SetWidth(lineSize);
 
 	m_hexFrame = new HexFrame(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
@@ -110,39 +109,13 @@ void HexMultiFrame::OnFontChange()
 	m_charSize = wxSize(mdc.GetCharWidth(), mdc.GetCharHeight());
 }
 
-uint64_t HexMultiFrame::getTotalNumRows() const
-{
-	const uint64_t dataSize = m_doc.GetDataLength();
-	const unsigned lineSize = 10;
-
-	uint64_t dataRows = dataSize / lineSize;
-	const unsigned lastRowCount = dataSize % lineSize;
-
-	if (lastRowCount)
-		dataRows += 1;
-
-	// one more row because we draw the last row off the bottom edge
-	dataRows += 1;
-
-	return dataRows;
-}
-
-uint64_t HexMultiFrame::getMaximumOffsetRow() const
-{
-	const uint64_t pageRows = GetNumRowsToShow();
-	const uint64_t totalRows = getTotalNumRows();
-
-	if (pageRows > totalRows)
-		return 0;
-
-	return totalRows - pageRows;
-}
-
 void HexMultiFrame::AdjustScrollBar()
 {
 	const uint64_t dataRows = getTotalNumRows();
 
-	m_hugeScrollBar->SetScrollbar(m_rowOffset, m_rows, dataRows, m_rows - 1, true);
+	const unsigned rows = GetNumVisibleRows();
+	m_hugeScrollBar->SetScrollbar(GetRowOffset(), rows,
+			dataRows, rows - 1, true);
 }
 
 void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
@@ -153,10 +126,12 @@ void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
 	// could use a different line spacing
 	const int rowH = m_charSize.GetHeight();
 
-	m_rows = usableH / rowH;
+	unsigned visibleRows = usableH / rowH;
 
 	if (usableH % rowH)
-		m_rows += 1;
+		visibleRows += 1;
+
+	setNumVisibleRows(visibleRows);
 
 	// recompute the scrollbar properties
 	AdjustScrollBar();
@@ -174,16 +149,17 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 {
 	// take the position from the HugeScrollBar
 	// (which must have already processed the event!)
-	m_rowOffset = m_hugeScrollBar->GetThumbPosition() ;
+	SetOffset(m_hugeScrollBar->GetThumbPosition());
 	//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
 	updateOffset();
 }
 
 void HexMultiFrame::updateOffset()
 {
-	m_addrFrame->SetOffset(m_rowOffset);
-	m_hexFrame->SetOffset(m_rowOffset);
-	m_textFrame->SetOffset(m_rowOffset);
+	const uint64_t offset = GetRowOffset();
+	m_addrFrame->SetOffset(offset);
+	m_hexFrame->SetOffset(offset);
+	m_textFrame->SetOffset(offset);
 
 	AdjustScrollBar();
 }
@@ -194,32 +170,17 @@ void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 		return;
 
 	const bool goingDown = event.GetWheelRotation() < 0;
-	const uint64_t lineDelta = static_cast<uint64_t>(event.GetLinesPerAction());
+	const int lineDelta = event.GetLinesPerAction();
 
-	if (goingDown)
-	{
-		const uint64_t maxRow = getMaximumOffsetRow();
-
-		// don't exceed the end of the document
-		m_rowOffset = std::min(m_rowOffset + lineDelta, maxRow);
-	}
-	else
-	{
-		if (lineDelta > m_rowOffset)
-			m_rowOffset = 0;
-		else
-			m_rowOffset -= lineDelta;
-	}
-
-	// notify offset changed
-	updateOffset();
+	scrollLines(lineDelta * (goingDown ? 1 : -1));
 }
 
 void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 {
 	std::cout << "key: " << event.GetKeyCode() << std::endl;
 
-	switch (event.GetKeyCode())
+	const int keyCode = event.GetKeyCode();
+	switch (keyCode)
 	{
 	case WXK_HOME:
 		scrollToStart();
@@ -227,21 +188,15 @@ void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 	case WXK_END:
 		scrollToEnd();
 		break;
+	case WXK_PAGEDOWN:
+		scrollPages(1);
+		break;
+	case WXK_PAGEUP:
+		scrollPages(-1);
+		break;
 	default:
 		// unhandled key
 		event.Skip();
 		break;
 	}
-}
-
-void HexMultiFrame::scrollToStart()
-{
-	m_rowOffset = 0;
-	updateOffset();
-}
-
-void HexMultiFrame::scrollToEnd()
-{
-	m_rowOffset = getMaximumOffsetRow();
-	updateOffset();
 }
