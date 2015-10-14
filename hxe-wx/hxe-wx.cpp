@@ -18,6 +18,7 @@ class MyFrame: public wxFrame
 {
 public:
 	MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+	~MyFrame();
 
 	void SetData();
 private:
@@ -26,6 +27,7 @@ private:
 
 	void OnHello(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
+	void OnExitWindow(wxCloseEvent& event);
 	void OnAbout(wxCommandEvent& event);wxDECLARE_EVENT_TABLE();
 
 	std::unique_ptr<HaxDocument> m_doc;
@@ -69,7 +71,19 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 	Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 	Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
 
+	Bind(wxEVT_CLOSE_WINDOW, &MyFrame::OnExitWindow, this);
+
 	SetData();
+}
+
+MyFrame::~MyFrame()
+{
+	// destroy children first because they rely on data
+	// that will be deleted here, but events can prompt accesses
+	// destruction and the children's own dtors
+	DestroyChildren();
+
+	Unbind(wxEVT_CLOSE_WINDOW, &MyFrame::OnExitWindow, this);
 }
 
 void MyFrame::SetData()
@@ -87,7 +101,14 @@ void MyFrame::SetData()
 
 void MyFrame::OnExit(wxCommandEvent& /*event*/)
 {
-	Close(true);
+	Destroy();
+}
+
+void MyFrame::OnExitWindow(wxCloseEvent& event)
+{
+	wxCommandEvent evt;
+	OnExit( evt );
+	event.Skip(false);
 }
 
 void MyFrame::OnAbout(wxCommandEvent& /*event*/)

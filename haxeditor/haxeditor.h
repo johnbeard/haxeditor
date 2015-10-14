@@ -54,6 +54,11 @@ public:
 	    }
 	}
 
+	~HaxDocument()
+	{
+
+	}
+
 	const uint8_t* GetDataAt(uint64_t offset) const
 	{
 		return &m_data[offset];

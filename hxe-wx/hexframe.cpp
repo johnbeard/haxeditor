@@ -108,6 +108,9 @@ HexFrame::~HexFrame()
 	Unbind(wxEVT_SIZE, &HexFrame::OnSize, this);
 	Unbind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
 	Unbind(wxEVT_LEFT_DOWN, &HexFrame::OnLeftMouseDown, this);
+
+	Unbind(wxEVT_SET_FOCUS, &HexFrame::OnFocusSet, this);
+	Unbind(wxEVT_KILL_FOCUS, &HexFrame::OnFocusSet, this);
 }
 
 void HexFrame::onCharSizeChanged()
@@ -280,7 +283,7 @@ void HexFrame::OnFocusSet(wxFocusEvent& /*event*/)
 {
 	// TOD: needs to be more persistant than just focus?
 	if (HasFocus())
-		m_bgColour = wxColour(255, 100, 255);
+		m_bgColour = wxColour(255, 200, 255);
 	else
 		m_bgColour = wxColour(255,255,255);
 
