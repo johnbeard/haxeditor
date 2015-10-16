@@ -73,7 +73,7 @@ private:
 HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
-		const HaxStringRenderer& renderer) :
+		HaxStringRenderer& renderer) :
 			HaxFrame(),
 			wxWindow(parent, id, pos, size),
 			m_caretPos(5, 20),
@@ -261,11 +261,11 @@ void HexFrame::OnKeyboardInput(wxKeyEvent& event)
 	{
 	case WXK_UP:
 	case WXK_DOWN:
-		moveCaretDown((keyCode == WXK_DOWN) ? 1 : -1);
+		m_renderer.ReqMoveCaretDown((keyCode == WXK_DOWN) ? 1 : -1);
 		break;
 	case WXK_LEFT:
 	case WXK_RIGHT:
-		moveCaretRight((keyCode == WXK_RIGHT) ? 1 : -1);
+		m_renderer.ReqMoveCaretRight((keyCode == WXK_RIGHT) ? 1 : -1);
 		break;
 	}
 

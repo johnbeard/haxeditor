@@ -45,7 +45,8 @@ class HaxDocument
 public:
 
 	HaxDocument():
-		m_len(3003)
+		m_len(3003),
+		m_offset(0)
 	{
 		m_data.resize(m_len);
 	    for (uint64_t i = 0; i < m_len; ++i)
@@ -68,30 +69,59 @@ public:
 	{
 		return m_len;
 	}
+
+	void SetOffset(uint64_t newOffset)
+	{
+		m_offset = std::min(GetDataLength(), newOffset);
+	}
+
+	uint64_t GetOffset() const
+	{
+		return m_offset;
+	}
+
 private:
 
 	std::vector<uint8_t> m_data;
 	uint64_t m_len;
+
+	// location of the caret within the document
+	uint64_t m_offset;
 };
 
 class HaxDataRenderer
 {
 public:
-	HaxDataRenderer(const HaxDocument& doc):
+	HaxDataRenderer(HaxDocument& doc):
 		m_doc(doc)
 	{}
 
 	virtual ~HaxDataRenderer()
 	{}
 
+	/*!
+	 * Implement to allow this renderer to move a caret
+	 *
+	 * Default disallows movement from this renderer
+	 */
+	virtual bool ReqMoveCaretDown(int /*steps*/)
+	{
+		return false;
+	}
+
+	virtual bool ReqMoveCaretRight(int /*steps*/)
+	{
+		return false;
+	}
+
 protected:
-	const HaxDocument& getDocument() const
+	HaxDocument& getDocument() const
 	{
 		return m_doc;
 	}
 
 private:
-	const HaxDocument& m_doc;
+	HaxDocument& m_doc;
 };
 
 #include <iomanip>
@@ -100,7 +130,7 @@ private:
 class HaxStringRenderer: public HaxDataRenderer
 {
 public:
-	HaxStringRenderer(const HaxDocument& doc):
+	HaxStringRenderer(HaxDocument& doc):
 		HaxDataRenderer(doc),
 		m_width(0)
 	{}
@@ -127,6 +157,34 @@ public:
 
 	virtual std::string RenderLine(uint64_t offset) const = 0;
 
+	bool ReqMoveCaretDown(int steps) override
+	{
+		uint64_t newOffset = 0;
+
+		const uint64_t distance = std::abs(steps) * GetWidth();
+		const uint64_t currOffset = getDocument().GetOffset();
+
+		if (steps > 0) // down
+		{
+			newOffset = std::min(getDocument().GetDataLength(),
+					currOffset + distance);
+		}
+		else
+		{
+			if (-distance > currOffset)
+				newOffset = 0;
+			else
+				newOffset -= distance;
+		}
+
+		bool moved = newOffset != currOffset;
+
+		if (moved)
+			getDocument().SetOffset(newOffset);
+
+		return moved;
+	}
+
 private:
 	// the width of the renderer
 	unsigned m_width;
@@ -135,9 +193,11 @@ private:
 class HaxHexRenderer: public HaxStringRenderer
 {
 public:
-	HaxHexRenderer(const HaxDocument& doc):
+	HaxHexRenderer(HaxDocument& doc):
 		HaxStringRenderer(doc)
 	{}
+
+private:
 
 	std::string RenderLine(uint64_t offset) const override
 	{
@@ -166,14 +226,12 @@ public:
 	{
 		return 3;
 	}
-
-
 };
 
 class HaxTextRenderer: public HaxStringRenderer
 {
 public:
-	HaxTextRenderer(const HaxDocument& doc):
+	HaxTextRenderer(HaxDocument& doc):
 		HaxStringRenderer(doc)
 	{}
 
@@ -216,7 +274,7 @@ private:
 class HaxAddressRenderer: public HaxStringRenderer
 {
 public:
-	HaxAddressRenderer(const HaxDocument& doc):
+	HaxAddressRenderer(HaxDocument& doc):
 		HaxStringRenderer(doc)
 	{}
 
