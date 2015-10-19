@@ -57,19 +57,23 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
 	if (linesToScrollDown == 0)
 		return; //nothing to do
 
+	const uint64_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
+
+	uint64_t newOffset = m_doc.GetOffset();
+
 	if (linesToScrollDown > 0) // down
 	{
-		m_rowOffset = std::min(getMaximumOffsetRow(),
-				m_rowOffset + linesToScrollDown);
+		newOffset += deltaOffset;
 	}
 	else
 	{
-		if (static_cast<uint64_t>(std::abs(linesToScrollDown)) > m_rowOffset)
-			m_rowOffset = 0;
+		if (deltaOffset > newOffset)
+			newOffset = 0;
 		else
-			m_rowOffset += linesToScrollDown;
+			newOffset -= deltaOffset;
 	}
-//	updateOffset();
+
+	m_doc.SetOffset(newOffset);
 }
 
 void HaxDocumentMultiFrame::scrollPages(int pagesDown)

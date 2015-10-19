@@ -260,11 +260,11 @@ void HexFrame::OnKeyboardInput(wxKeyEvent& event)
 	{
 	case WXK_UP:
 	case WXK_DOWN:
-		m_renderer.ReqMoveCaretDown((keyCode == WXK_DOWN) ? 1 : -1);
+		//m_renderer.ReqMoveCaretDown((keyCode == WXK_DOWN) ? 1 : -1);
 		break;
 	case WXK_LEFT:
 	case WXK_RIGHT:
-		m_renderer.ReqMoveCaretRight((keyCode == WXK_RIGHT) ? 1 : -1);
+		//m_renderer.ReqMoveCaretRight((keyCode == WXK_RIGHT) ? 1 : -1);
 		break;
 	}
 

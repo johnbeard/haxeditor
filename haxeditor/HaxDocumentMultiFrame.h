@@ -25,6 +25,7 @@ public:
 	HaxDocumentMultiFrame(HaxDocument& doc):
 		m_doc(doc),
 		m_rowOffset(0),
+		m_rowLength(0),
 		m_rows(0)
 	{
 		doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
@@ -73,6 +74,16 @@ protected:
 	 */
 	uint64_t getMaximumOffsetRow() const;
 
+	void setRowLength(unsigned rowLength)
+	{
+		m_rowLength = rowLength;
+	}
+
+	unsigned getRowLength() const
+	{
+		return m_rowLength;
+	}
+
 	HaxDocument& m_doc;
 
 private:
@@ -86,6 +97,7 @@ private:
 
 	uint64_t m_rowOffset;
 
+	unsigned m_rowLength;
 	unsigned m_rows;
 };
 
