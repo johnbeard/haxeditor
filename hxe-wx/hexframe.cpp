@@ -10,6 +10,8 @@
 #include "wx/wx.h"
 #include "wx/graphics.h"
 
+#include <cstdlib>
+
 class HexCaret: public wxWindow
 {
 public:
@@ -201,6 +203,19 @@ void HexFrame::drawToBitmap(wxDC& dc)
 void HexFrame::SetOffset(uint64_t newOffset)
 {
 	m_pendingState.offset = newOffset;
+
+	// work out the new care position
+	const unsigned w = m_renderer.GetWidth();
+	uint64_t div = newOffset / w;
+	uint64_t rem = newOffset % w;
+
+	unsigned chPerCell = m_renderer.GetCellChars();
+	uint64_t cells = rem / chPerCell;
+	uint64_t chars = rem % chPerCell;
+
+	m_caretPos.y = div;
+	m_caretPos.x = cells * m_renderer.GetCellChars() + (cells - 1) + chars;
+
 	DataChanged(false);
 }
 
