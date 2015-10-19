@@ -1,0 +1,41 @@
+language: cpp
+
+compiler:
+    - gcc
+
+# old fashioned way until the libs are available...
+before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository ppa:george-edison55/precise-backports -y
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libwxgtk3.0-dev g++-4.8 gcc-4.8 libsigc++-2.0-dev cmake cmake-data
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
+#addons:
+#  apt:
+#    sources:
+#      - ubuntu-toolchain-r-test
+#      - george-edison55-precise-backports
+#    packages:
+#      - cmake
+#      - cmake-data
+#      - libwxgtk2.8-dev
+#      - libsigc++-2.0-dev
+#      - g++-4.8
+#      - gcc-4.8
+
+install:
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+
+before_script:
+    - gcc --version
+    - g++ --version
+    - cmake --version
+
+    - mkdir build
+    - cd build
+    - cmake ..
+
+script:
+    - make
+    - make test
