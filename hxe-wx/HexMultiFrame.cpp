@@ -218,6 +218,10 @@ void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 	case WXK_DOWN:
 		scrollLines((keyCode == WXK_DOWN) ? 1: -1);
 		break;
+	case WXK_LEFT:
+	case WXK_RIGHT:
+		scrollRight((keyCode == WXK_RIGHT) ? 1 : -1);
+		break;
 	default:
 		// unhandled key
 		event.Skip();

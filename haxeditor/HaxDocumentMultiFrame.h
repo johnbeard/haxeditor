@@ -38,6 +38,7 @@ public:
 	void scrollToEnd();
 	void scrollLines(int linesToScrollDown);
 	void scrollPages(int pagesDown);
+	void scrollRight(int unitsRight);
 
 	void SetOffset(uint64_t newOffset)
 	{
@@ -87,6 +88,8 @@ protected:
 	HaxDocument& m_doc;
 
 private:
+
+	virtual void performDeltaOffset(uint64_t offset, bool down);
 
 	/*!
 	 * Implement to handle an offset change

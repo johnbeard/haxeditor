@@ -49,7 +49,6 @@ void HaxDocumentMultiFrame::scrollToEnd()
 //	updateOffset();
 
 	m_doc.SetOffset(m_doc.GetDataLength());
-
 }
 
 void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
@@ -59,18 +58,22 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
 
 	const uint64_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
 
-	uint64_t newOffset = m_doc.GetOffset();
+	performDeltaOffset(linesToScrollDown > 0, deltaOffset);
+}
 
-	if (linesToScrollDown > 0) // down
+void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down)
+{
+	uint64_t newOffset = m_doc.GetOffset();
+	if (down) // down
 	{
-		newOffset += deltaOffset;
+		newOffset = std::min(m_doc.GetDataLength(), newOffset + delta);
 	}
 	else
 	{
-		if (deltaOffset > newOffset)
+		if (delta > newOffset)
 			newOffset = 0;
 		else
-			newOffset -= deltaOffset;
+			newOffset -= delta;
 	}
 
 	m_doc.SetOffset(newOffset);
@@ -79,6 +82,12 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
 void HaxDocumentMultiFrame::scrollPages(int pagesDown)
 {
 	scrollLines(pagesDown * (GetNumVisibleRows() - 2)); // leave a bit of overlap
+}
+
+void HaxDocumentMultiFrame::scrollRight(int unitsRight)
+{
+	std::cout << "Right: " << unitsRight << std::endl;
+	performDeltaOffset(unitsRight > 0, unitsRight);
 }
 
 
