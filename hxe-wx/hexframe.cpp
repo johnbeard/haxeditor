@@ -235,39 +235,18 @@ unsigned HexFrame::GetMinimumWidthForData() const
 	return cells * cellW + margin;
 }
 
-void HexFrame::moveCaretDown(int lines)
-{
-	// TODO: do this by just offset and then callback via the director
-	m_caretPos.y += lines;
-	moveCaret();
-}
-
-void HexFrame::moveCaretRight(int cols)
-{
-	m_caretPos.x += cols;
-	moveCaret();
-}
-
 void HexFrame::OnKeyboardInput(wxKeyEvent& event)
 {
 	std::cout << "HexFrame key: " << event.GetKeyCode() << std::endl;
 
 	// handle movements in the frame because the distance depends on the
 	// renderer...
-	const int keyCode = event.GetKeyCode();
+/*	const int keyCode = event.GetKeyCode();
 
 	switch (keyCode)
 	{
-	case WXK_UP:
-	case WXK_DOWN:
-		//m_renderer.ReqMoveCaretDown((keyCode == WXK_DOWN) ? 1 : -1);
-		break;
-	case WXK_LEFT:
-	case WXK_RIGHT:
-		//m_renderer.ReqMoveCaretRight((keyCode == WXK_RIGHT) ? 1 : -1);
-		break;
 	}
-
+*/
 	// can't handle the key here, maybe someone higher wants it?
 	wxPostEvent(GetParent(), event);
 }

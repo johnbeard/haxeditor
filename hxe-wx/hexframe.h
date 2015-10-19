@@ -63,9 +63,6 @@ private:
 
 	void moveCaret() override;
 
-	void moveCaretDown(int n);
-	void moveCaretRight(int n);
-
 	void onCharSizeChanged();
 
 	/*!

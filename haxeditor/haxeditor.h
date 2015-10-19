@@ -167,34 +167,6 @@ public:
 
 	virtual std::string RenderLine(uint64_t offset) const = 0;
 
-	bool ReqMoveCaretDown(int steps) override
-	{
-		uint64_t newOffset = 0;
-
-		const uint64_t distance = std::abs(steps) * GetWidth();
-		const uint64_t currOffset = getDocument().GetOffset();
-
-		if (steps > 0) // down
-		{
-			newOffset = std::min(getDocument().GetDataLength(),
-					currOffset + distance);
-		}
-		else
-		{
-			if (-distance > currOffset)
-				newOffset = 0;
-			else
-				newOffset -= distance;
-		}
-
-		bool moved = newOffset != currOffset;
-		std::cout << "moved" << " " << newOffset << std::endl;
-		if (moved)
-			getDocument().SetOffset(newOffset);
-
-		return moved;
-	}
-
 private:
 
 	// the width of the renderer
