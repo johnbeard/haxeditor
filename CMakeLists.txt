@@ -9,6 +9,10 @@ project(haxeditor)
 
 find_package( wxWidgets 3.0.0 COMPONENTS core REQUIRED )
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SIGC2 REQUIRED sigc++-2.0)
+include_directories(${SIGC2_INCLUDE_DIRS})
+
 add_definitions(
     -Wall -Wextra -Wpedantic
 )

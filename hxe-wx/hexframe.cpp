@@ -200,8 +200,7 @@ void HexFrame::drawToBitmap(wxDC& dc)
 
 void HexFrame::SetOffset(uint64_t newOffset)
 {
-	//TODO fix width access
-	m_pendingState.offset = newOffset * m_renderer.GetWidth();
+	m_pendingState.offset = newOffset;
 	DataChanged(false);
 }
 
@@ -251,7 +250,7 @@ void HexFrame::moveCaretRight(int cols)
 
 void HexFrame::OnKeyboardInput(wxKeyEvent& event)
 {
-	std::cout << "HexFrame key: " << std::endl;
+	std::cout << "HexFrame key: " << event.GetKeyCode() << std::endl;
 
 	// handle movements in the frame because the distance depends on the
 	// renderer...

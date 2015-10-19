@@ -23,10 +23,12 @@ class HaxDocumentMultiFrame
 public:
 
 	HaxDocumentMultiFrame(HaxDocument& doc):
+		m_doc(doc),
 		m_rowOffset(0),
-		m_rows(0),
-		m_doc(doc)
-	{}
+		m_rows(0)
+	{
+		doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
+	}
 
 	virtual ~HaxDocumentMultiFrame()
 	{}
@@ -71,17 +73,20 @@ protected:
 	 */
 	uint64_t getMaximumOffsetRow() const;
 
+	HaxDocument& m_doc;
+
 private:
+
 	/*!
 	 * Implement to handle an offset change
+	 * Called by the offset provider - probably the HaxDocument
+	 * @param newOffset new offset - guaranteed to be in the document
 	 */
-	virtual void updateOffset() = 0;
+	virtual void onOffsetChanged(uint64_t newOffset) = 0;
 
 	uint64_t m_rowOffset;
+
 	unsigned m_rows;
-
-
-	HaxDocument& m_doc;
 };
 
 #endif /* HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_ */

@@ -158,18 +158,16 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 {
 	// take the position from the HugeScrollBar
 	// (which must have already processed the event!)
-	SetOffset(m_hugeScrollBar->GetThumbPosition());
+	m_doc.SetOffset(m_hugeScrollBar->GetThumbPosition()); // TODO times width!
 	//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
-	updateOffset();
 }
 
-void HexMultiFrame::updateOffset()
+void HexMultiFrame::onOffsetChanged(uint64_t newOffset)
 {
-	const uint64_t offset = GetRowOffset();
-
+	std::cout << "Offset change cb: " << newOffset << std::endl;
 	for (auto& f: m_frames)
 	{
-		f->SetOffset(offset);
+		f->SetOffset(newOffset);
 	}
 
 	AdjustScrollBar();

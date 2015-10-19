@@ -40,14 +40,16 @@ uint64_t HaxDocumentMultiFrame::getMaximumOffsetRow() const
 
 void HaxDocumentMultiFrame::scrollToStart()
 {
-	m_rowOffset = 0;
-	updateOffset();
+	m_doc.SetOffset(0);
 }
 
 void HaxDocumentMultiFrame::scrollToEnd()
 {
-	m_rowOffset = getMaximumOffsetRow();
-	updateOffset();
+//	m_rowOffset = getMaximumOffsetRow();
+//	updateOffset();
+
+	m_doc.SetOffset(m_doc.GetDataLength());
+
 }
 
 void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
@@ -67,7 +69,7 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
 		else
 			m_rowOffset += linesToScrollDown;
 	}
-	updateOffset();
+//	updateOffset();
 }
 
 void HaxDocumentMultiFrame::scrollPages(int pagesDown)

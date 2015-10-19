@@ -8,6 +8,8 @@
 #ifndef HAXEDITOR_HAXFRAME_H_
 #define HAXEDITOR_HAXFRAME_H_
 
+#include <sigc++-2.0/sigc++/sigc++.h>
+
 /*!
  * The main type of data view in haxeditor: a frame filled will some sort
  * of cells, arranged in rows
@@ -17,7 +19,8 @@ class HaxFrame
 public:
 	HaxFrame():
 		m_caretVisible(true)
-	{}
+	{
+	}
 
 	virtual ~HaxFrame()
 	{}
@@ -41,6 +44,7 @@ protected:
 	}
 
 private:
+
 	bool m_caretVisible;
 };
 

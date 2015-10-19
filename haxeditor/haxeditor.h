@@ -3,6 +3,9 @@
 #define HAXEDITOR__H_
 
 #include <string>
+#include <iostream>
+
+#include <sigc++-2.0/sigc++/signal.h>
 
 
 /*!
@@ -32,7 +35,7 @@ class HaxEditorBase
 {
 public:
 
-    bool openFile(const std::string& filename)
+    bool openFile(const std::string& /*filename*/)
     {
         return false;
     }
@@ -73,12 +76,17 @@ public:
 	void SetOffset(uint64_t newOffset)
 	{
 		m_offset = std::min(GetDataLength(), newOffset);
+
+		// and tell everyone who cares about the new offset
+		signal_OffsetChanged.emit(newOffset);
 	}
 
 	uint64_t GetOffset() const
 	{
 		return m_offset;
 	}
+
+	sigc::signal<void, uint64_t> signal_OffsetChanged;
 
 private:
 
@@ -94,7 +102,8 @@ class HaxDataRenderer
 public:
 	HaxDataRenderer(HaxDocument& doc):
 		m_doc(doc)
-	{}
+	{
+	}
 
 	virtual ~HaxDataRenderer()
 	{}
@@ -115,6 +124,7 @@ public:
 	}
 
 protected:
+
 	HaxDocument& getDocument() const
 	{
 		return m_doc;
@@ -178,7 +188,7 @@ public:
 		}
 
 		bool moved = newOffset != currOffset;
-
+		std::cout << "moved" << " " << newOffset << std::endl;
 		if (moved)
 			getDocument().SetOffset(newOffset);
 
@@ -186,6 +196,7 @@ public:
 	}
 
 private:
+
 	// the width of the renderer
 	unsigned m_width;
 };
