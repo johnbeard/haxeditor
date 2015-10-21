@@ -58,7 +58,7 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
 
 	const uint64_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
 
-	performDeltaOffset(linesToScrollDown > 0, deltaOffset);
+	performDeltaOffset(deltaOffset, linesToScrollDown > 0);
 }
 
 void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down)
