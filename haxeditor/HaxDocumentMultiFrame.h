@@ -13,12 +13,50 @@
 
 #include <memory>
 
+/*!
+ * A generalised "view" into a document, which maintains state such as the
+ * view start offset, the cursor offset, etc
+ */
+class HaxDocumentView
+{
+protected:
+	HaxDocumentView():
+		m_startOffset(0),
+		m_cursorOffset(0)
+	{}
+
+	virtual ~HaxDocumentView()
+	{}
+
+	offset_t getStartOffset() const
+	{
+		return m_startOffset;
+	}
+
+	void setStartOffset(offset_t newStart)
+	{
+		m_startOffset = newStart;
+	}
+
+	/*!
+	 * Gets the size of the view (number of bytes shown)
+	 */
+	virtual offset_t getViewSize() const = 0;
+
+//private:
+	offset_t m_startOffset;
+
+	// the offset of the cursor (or the start of the cursor if it is longer
+	// than one byte
+	offset_t m_cursorOffset;
+};
+
 /*
  * The HaxDocumentMultiFrame is the core of the editor - if shows a set of
  * HaxFrames, which each contain a view of the data. These frames scroll
  * together - a line in one means a line in the others
  */
-class HaxDocumentMultiFrame
+class HaxDocumentMultiFrame: public HaxDocumentView
 {
 public:
 
@@ -56,6 +94,11 @@ public:
 	}
 
 protected:
+
+	offset_t getViewSize() const override
+	{
+		return m_rows * getRowLength();
+	}
 
 	void setNumVisibleRows(unsigned rowsToShow)
 	{

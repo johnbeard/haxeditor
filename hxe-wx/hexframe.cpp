@@ -78,7 +78,7 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 		HaxStringRenderer& renderer) :
 			HaxFrame(),
 			wxWindow(parent, id, pos, size),
-			m_caretPos(5, 20),
+			m_caretPos(0, 0),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer),
 			m_director(director),
@@ -203,20 +203,32 @@ void HexFrame::drawToBitmap(wxDC& dc)
 void HexFrame::SetOffset(uint64_t newOffset)
 {
 	m_pendingState.offset = newOffset;
+	DataChanged(false);
+}
+
+void HexFrame::SetCaretPosition(uint64_t newOffset)
+{
+	const offset_t caretPosInPage = newOffset - m_state.offset;
 
 	// work out the new care position
 	const unsigned w = m_renderer.GetWidth();
-	uint64_t div = newOffset / w;
-	uint64_t rem = newOffset % w;
+	uint64_t div = caretPosInPage / w;
+	uint64_t rem = caretPosInPage % w;
 
 	unsigned chPerCell = m_renderer.GetCellChars();
 	uint64_t cells = rem / chPerCell;
 	uint64_t chars = rem % chPerCell;
 
 	m_caretPos.y = div;
-	m_caretPos.x = cells * m_renderer.GetCellChars() + (cells - 1) + chars;
+	m_caretPos.x = cells * m_renderer.GetCellChars() + chars;
 
-	DataChanged(false);
+	// add the intercell gaps
+	if (cells)
+		m_caretPos.x += cells - 1;
+
+	std::cout << "new caret pos: " << m_caretPos.x << ", " << m_caretPos.y << std::endl;
+
+	moveCaret();
 }
 
 void HexFrame::OnSize(wxSizeEvent& /*event*/)

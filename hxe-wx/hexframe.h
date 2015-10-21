@@ -45,7 +45,8 @@ public:
 	void Paint(wxPaintEvent& event);
 	void OnSize(wxSizeEvent& event);
 
-	void SetOffset(uint64_t offset) override;
+	void SetOffset(offset_t offset) override;
+	void SetCaretPosition(offset_t newOffset);
 
 	/*!
 	 * Return the minimum width needed for the current data

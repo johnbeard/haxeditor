@@ -175,10 +175,30 @@ void HexMultiFrame::onOffsetChanged(uint64_t newOffset)
 {
 	std::cout << "Offset change cb: " << newOffset << std::endl;
 
-	// update each frame as needed
+	const offset_t start = getStartOffset();
+
+	// do we need to move the whole view, or just the caret?
+	const bool moveViewStart = newOffset < start
+			|| newOffset >= (start + getViewSize());
+
+	if (moveViewStart)
+	{
+		// move the view to a whole number of rows
+		const offset_t newStart = getRowLength() * (newOffset / getRowLength());
+
+		// update each frame as needed
+		for (auto& f: m_frames)
+		{
+			f->SetOffset(newStart);
+		}
+
+		setStartOffset(newStart);
+	}
+
+	// update each frame's caret
 	for (auto& f: m_frames)
 	{
-		f->SetOffset(newOffset);
+		f->SetCaretPosition(newOffset);
 	}
 
 	AdjustScrollBar();

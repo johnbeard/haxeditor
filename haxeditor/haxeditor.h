@@ -7,6 +7,7 @@
 
 #include <sigc++-2.0/sigc++/signal.h>
 
+typedef uint64_t offset_t;
 
 /*!
  * A transform to apply to a file for viewing (eg 2-s complement, XOR, ROT13,
