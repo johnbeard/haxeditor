@@ -1,3 +1,6 @@
+# CMake build for the haxeditor core library.
+# This library is what haxeditor implmentations (curses, wx, whatever)
+# all use internally
 
 set(srcFiles
     HaxDocumentMultiFrame.cpp
@@ -9,3 +12,5 @@ target_link_libraries(haxeditor
     ${SIGC2_LIBRARIES}
     fal
 )
+
+add_subdirectory(tests)
