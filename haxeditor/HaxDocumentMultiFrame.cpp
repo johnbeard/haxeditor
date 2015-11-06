@@ -87,7 +87,9 @@ void HaxDocumentMultiFrame::scrollPages(int pagesDown)
 void HaxDocumentMultiFrame::scrollRight(int unitsRight)
 {
 	std::cout << "Right: " << unitsRight << std::endl;
-	performDeltaOffset(unitsRight > 0, unitsRight);
+
+	// move one nibble
+	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0);
 }
 
 

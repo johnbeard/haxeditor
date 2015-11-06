@@ -210,23 +210,27 @@ void HexFrame::SetCaretPosition(uint64_t newOffset)
 {
 	const offset_t caretPosInPage = newOffset - m_state.offset;
 
+	const unsigned chPerCell = m_renderer.GetCellChars();
+	const unsigned bitsPerChar = m_renderer.GetBitsPerChar();
+	const unsigned bitsPerCell = bitsPerChar * chPerCell;
+
 	// work out the new care position
 	const unsigned w = m_renderer.GetWidth();
-	uint64_t div = caretPosInPage / w;
-	uint64_t rem = caretPosInPage % w;
+	uint64_t div = caretPosInPage / w; // in rows
+	uint64_t rem = caretPosInPage % w; // in bits
 
-	unsigned chPerCell = m_renderer.GetCellChars();
-	uint64_t cells = rem / chPerCell;
-	uint64_t chars = rem % chPerCell;
+	uint64_t cells = rem / bitsPerCell;
+	uint64_t chars = (rem % bitsPerCell) / bitsPerChar;
 
 	m_caretPos.y = div;
-	m_caretPos.x = cells * m_renderer.GetCellChars() + chars;
+	m_caretPos.x = cells * chPerCell + chars;
 
 	// add the intercell gaps
 	if (cells)
-		m_caretPos.x += cells - 1;
+		m_caretPos.x += cells;
 
-	std::cout << "new caret pos: " << m_caretPos.x << ", " << m_caretPos.y << std::endl;
+	std::cout << "new caret pos for offset " << newOffset << ": "
+			<< m_caretPos.x << ", " << m_caretPos.y << std::endl;
 
 	moveCaret();
 }
@@ -255,7 +259,8 @@ void HexFrame::Paint(wxPaintEvent& /*event*/)
 unsigned HexFrame::GetMinimumWidthForData() const
 {
 	const unsigned cells = m_renderer.GetCellsPerRow();
-	const unsigned cellW = m_renderer.GetCellChars()
+	const unsigned gapW = 1;
+	const unsigned cellW = (m_renderer.GetCellChars() + gapW)
 			* m_director->GetCharSize().GetWidth();
 
 	const unsigned margin = 5;

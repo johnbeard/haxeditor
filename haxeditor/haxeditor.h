@@ -7,6 +7,10 @@
 
 #include <sigc++-2.0/sigc++/signal.h>
 
+/*!
+ * The offset within a file, expressed in bits (not bytes) to allow for
+ * bitwise access
+ */
 typedef uint64_t offset_t;
 
 /*!
@@ -64,14 +68,17 @@ public:
 
 	}
 
-	const uint8_t* GetDataAt(uint64_t offset) const
+	/*!
+	 * Note: this will return the byte that contains this offset
+	 */
+	const uint8_t* GetDataAt(offset_t offset) const
 	{
-		return &m_data[offset];
+		return &m_data[offset / 8];
 	}
 
-	uint64_t GetDataLength() const
+	offset_t GetDataLength() const
 	{
-		return m_len;
+		return m_len * 8;
 	}
 
 	void SetOffset(uint64_t newOffset)
@@ -92,6 +99,8 @@ public:
 private:
 
 	std::vector<uint8_t> m_data;
+
+	// length in bytes
 	uint64_t m_len;
 
 	// location of the caret within the document
@@ -108,21 +117,6 @@ public:
 
 	virtual ~HaxDataRenderer()
 	{}
-
-	/*!
-	 * Implement to allow this renderer to move a caret
-	 *
-	 * Default disallows movement from this renderer
-	 */
-	virtual bool ReqMoveCaretDown(int /*steps*/)
-	{
-		return false;
-	}
-
-	virtual bool ReqMoveCaretRight(int /*steps*/)
-	{
-		return false;
-	}
 
 protected:
 
@@ -162,11 +156,19 @@ public:
 	virtual unsigned GetCellsPerRow() const = 0;
 
 	/*!
-	 * Get the cells chars needed to display the data
+	 * Get the chars per cell
+	 *
+	 * Eg XX XX XX XX is 2 chars
+	 *    YYYY YYYY   is 4 chars
 	 */
 	virtual unsigned GetCellChars() const = 0;
 
-	virtual std::string RenderLine(uint64_t offset) const = 0;
+	unsigned GetBitsPerChar() const
+	{
+		return GetWidth() / (GetCellsPerRow() * GetCellChars());
+	}
+
+	virtual std::string RenderLine(offset_t offset) const = 0;
 
 private:
 
@@ -191,7 +193,7 @@ private:
 		int lastOffset = std::min(offset + GetWidth(),
 				getDocument().GetDataLength());
 
-		for (int x = offset; x < lastOffset; ++x)
+		for (int x = offset; x < lastOffset; x += 8)
 		{
 			const uint8_t* d = getDocument().GetDataAt(x);
 			ss << std::setw(2) << static_cast<unsigned>(*d) << " ";
@@ -203,12 +205,12 @@ private:
 	unsigned GetCellsPerRow() const override
 	{
 		// TODO multiple formats?
-		return GetWidth();
+		return GetWidth() / 8; // one cell per byte = 2 nibbles
 	}
 
 	unsigned GetCellChars() const override
 	{
-		return 3;
+		return 2;
 	}
 };
 
@@ -226,7 +228,7 @@ public:
 		int lastOffset = std::min(offset + GetWidth(),
 				getDocument().GetDataLength());
 
-		for (int x = offset; x < lastOffset; ++x)
+		for (int x = offset; x < lastOffset; x += 8)
 		{
 			const uint8_t* d = getDocument().GetDataAt(x);
 			addCharToString((char)*d, ss);
@@ -251,7 +253,7 @@ private:
 
 	unsigned GetCellChars() const override
 	{
-		return GetWidth();
+		return GetWidth() / 8; // one char per byte
 	}
 };
 
@@ -268,8 +270,9 @@ public:
 
 		if (offset <= getDocument().GetDataLength())
 		{
+			const uint64_t byteOffset = offset / 8;
 			ss << std::hex << std::uppercase << std::setfill('0');
-			ss << std::setw(getAddrWidth()) << static_cast<uint64_t>(offset) << " ";
+			ss << std::setw(getAddrWidth()) << static_cast<uint64_t>(byteOffset) << " ";
 		}
 
 		return ss.str();
@@ -284,6 +287,7 @@ public:
 	{
 		return getAddrWidth();
 	}
+
 private:
 	unsigned getAddrWidth() const
 	{

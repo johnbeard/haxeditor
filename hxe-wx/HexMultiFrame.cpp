@@ -15,8 +15,8 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 		HaxDocumentMultiFrame(doc)
 {
 	// TODO abstract out of WX code?
-	const unsigned lineSize = 10;
-	setRowLength(10);
+	const unsigned lineSize = 10 * 8;
+	setRowLength(lineSize);
 
 	m_hexRenderer.reset(new HaxHexRenderer(doc));
 	m_hexRenderer->SetWidth(lineSize);
