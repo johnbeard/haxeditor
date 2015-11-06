@@ -29,6 +29,8 @@ public:
 
 	virtual unsigned GetMinimumWidthForData() const = 0;
 
+	virtual void SetCaretPosition(offset_t newPos) = 0;
+
 	virtual void moveCaret() = 0;
 
 protected:

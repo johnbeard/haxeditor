@@ -21,22 +21,11 @@ class HaxDocumentView
 {
 protected:
 	HaxDocumentView():
-		m_startOffset(0),
 		m_cursorOffset(0)
 	{}
 
 	virtual ~HaxDocumentView()
 	{}
-
-	offset_t getStartOffset() const
-	{
-		return m_startOffset;
-	}
-
-	void setStartOffset(offset_t newStart)
-	{
-		m_startOffset = newStart;
-	}
 
 	/*!
 	 * Gets the size of the view (number of bytes shown)
@@ -44,8 +33,6 @@ protected:
 	virtual offset_t getViewSize() const = 0;
 
 //private:
-	offset_t m_startOffset;
-
 	// the offset of the cursor (or the start of the cursor if it is longer
 	// than one byte
 	offset_t m_cursorOffset;
@@ -60,17 +47,8 @@ class HaxDocumentMultiFrame: public HaxDocumentView
 {
 public:
 
-	HaxDocumentMultiFrame(HaxDocument& doc):
-		m_doc(doc),
-		m_rowOffset(0),
-		m_rowLength(0),
-		m_rows(0)
-	{
-		doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
-	}
-
-	virtual ~HaxDocumentMultiFrame()
-	{}
+	HaxDocumentMultiFrame(HaxDocument& doc);
+	virtual ~HaxDocumentMultiFrame();
 
 	void scrollToStart();
 	void scrollToEnd();
@@ -100,10 +78,7 @@ protected:
 		return m_rows * getRowLength();
 	}
 
-	void setNumVisibleRows(unsigned rowsToShow)
-	{
-		m_rows = rowsToShow;
-	}
+	void setNumVisibleRows(unsigned rowsToShow);
 
 	/*!
 	 * Get the total length of the document, in rows, as rendered at the current
@@ -118,33 +93,38 @@ protected:
 	 */
 	uint64_t getMaximumOffsetRow() const;
 
-	void setRowLength(unsigned rowLength)
-	{
-		m_rowLength = rowLength;
-	}
-
-	unsigned getRowLength() const
-	{
-		return m_rowLength;
-	}
+	void setRowLength(unsigned rowLength);
+	unsigned getRowLength() const;
 
 	HaxDocument& m_doc;
+
+	// todo encapsulate
+	std::vector<HaxFrame*> m_frames;
 
 private:
 
 	virtual void performDeltaOffset(uint64_t offset, bool down);
 
 	/*!
-	 * Implement to handle an offset change
+	 * Handle an offset change
 	 * Called by the offset provider - probably the HaxDocument
 	 * @param newOffset new offset - guaranteed to be in the document
 	 */
-	virtual void onOffsetChanged(uint64_t newOffset) = 0;
+	void onOffsetChanged(uint64_t newOffset);
+
+	/*!
+	 * Implement this to do internal reactions to an offset change after
+	 * this class has worked out paging, etc
+	 * @param newOffset
+	 */
+	virtual void onOffsetChangeInt() = 0;
 
 	uint64_t m_rowOffset;
 
-	unsigned m_rowLength;
 	unsigned m_rows;
+
+	// logic for paging
+	std::unique_ptr<class PagedView> m_pagedView;
 };
 
 #endif /* HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_ */

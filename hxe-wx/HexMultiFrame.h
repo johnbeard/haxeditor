@@ -67,10 +67,8 @@ private:
 	/*!
 	 * Called when something has changed the offset
 	 */
-	void onOffsetChanged(uint64_t newOffset) override;
-	//void updateOffset() override;
+	void onOffsetChangeInt() override;
 
-	std::vector<HexFrame*> m_frames;
 	wxSizer* m_hexPanelSizer;
 
 	std::unique_ptr<HaxStringRenderer> m_hexRenderer;

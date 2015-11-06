@@ -154,7 +154,7 @@ void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
 	for (auto& f: m_frames)
 	{
 		const unsigned frameW = f->GetMinimumWidthForData();
-		f->SetMinSize(wxSize(frameW, 10));
+		static_cast<HexFrame*>(f)->SetMinSize(wxSize(frameW, 10));
 	}
 }
 
@@ -171,56 +171,8 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 	//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
 }
 
-void HexMultiFrame::onOffsetChanged(uint64_t newOffset)
+void HexMultiFrame::onOffsetChangeInt()
 {
-	std::cout << "Offset change cb: " << newOffset << std::endl;
-
-	const offset_t start = getStartOffset();
-	const offset_t viewSize = getViewSize();
-	const offset_t rowLen = getRowLength();
-
-	// do we need to move the whole view, or just the caret?
-	const bool movedOffTop = newOffset < start;
-
-	// nb - remeber we have an extra row
-	const bool movedOffBottom = newOffset >= (start + viewSize - getRowLength());
-
-	if (movedOffBottom || movedOffTop)
-	{
-		// set the new start offset such that the offset is on the top row
-		offset_t newStart = rowLen * (newOffset / rowLen);
-
-		if (movedOffBottom)
-		{
-			// moved off the bottom, the new offset should be at the bottom of
-			// the view
-			if (newStart < viewSize)
-			{
-				// now space above, move as far as possible
-				newStart = 0;
-			}
-			else
-			{
-				// move up one page
-				newStart -= viewSize - (rowLen * 2);
-			}
-		}
-
-		// update each frame as needed
-		for (auto& f: m_frames)
-		{
-			f->SetOffset(newStart);
-		}
-
-		setStartOffset(newStart);
-	}
-
-	// update each frame's caret
-	for (auto& f: m_frames)
-	{
-		f->SetCaretPosition(newOffset);
-	}
-
 	AdjustScrollBar();
 }
 

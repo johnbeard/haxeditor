@@ -81,7 +81,12 @@ public:
 		pageSize = newSize;
 	}
 
-	void SetRowLength(offset_t length)
+	unsigned GetRowLength() const
+	{
+		return rowLength;
+	}
+
+	void SetRowLength(unsigned length)
 	{
 		rowLength = length;
 	}
@@ -94,7 +99,7 @@ private:
 	offset_t pageSize;
 
 	// the length of a single row of data
-	offset_t rowLength;
+	unsigned rowLength;
 };
 
 

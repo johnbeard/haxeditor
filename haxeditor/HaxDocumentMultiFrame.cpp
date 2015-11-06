@@ -7,7 +7,42 @@
 
 #include "HaxDocumentMultiFrame.h"
 
+#include "PagedView.h"
+
 #include <math.h>
+
+HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
+	m_doc(doc),
+	m_rowOffset(0),
+	m_rows(0),
+	m_pagedView(std::unique_ptr<PagedView>(new PagedView()))
+{
+	doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
+}
+
+HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
+{}
+
+unsigned HaxDocumentMultiFrame::getRowLength() const
+{
+	return m_pagedView->GetRowLength();
+}
+
+void HaxDocumentMultiFrame::setRowLength(unsigned length)
+{
+	m_pagedView->SetRowLength(length);
+}
+
+void HaxDocumentMultiFrame::setNumVisibleRows(unsigned rowsToShow)
+{
+	m_rows = rowsToShow;
+
+	// update the paged view wit ha smaller size to leave row "free" at the
+	// bottom that is not part of the "visible area" - used to allow the last
+	// row to be partically hidden
+	m_pagedView->SetPageSize(getViewSize() - getRowLength());
+}
+
 
 uint64_t HaxDocumentMultiFrame::getTotalNumRows() const
 {
@@ -92,4 +127,24 @@ void HaxDocumentMultiFrame::scrollRight(int unitsRight)
 	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0);
 }
 
+void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
+{
+	std::cout << "Offset change cb: " << newOffset << std::endl;
 
+	if (m_pagedView->ScrollToKeepOffsetInView(newOffset))
+	{
+		const offset_t newStart = m_pagedView->GetPageStart();
+
+		// update each frame as needed
+		for (auto& f: m_frames)
+		{
+			f->SetOffset(newStart);
+		}
+	}
+
+	// update each frame's caret
+	for (auto& f: m_frames)
+	{
+		f->SetCaretPosition(newOffset);
+	}
+}
