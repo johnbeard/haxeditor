@@ -176,15 +176,35 @@ void HexMultiFrame::onOffsetChanged(uint64_t newOffset)
 	std::cout << "Offset change cb: " << newOffset << std::endl;
 
 	const offset_t start = getStartOffset();
+	const offset_t viewSize = getViewSize();
+	const offset_t rowLen = getRowLength();
 
 	// do we need to move the whole view, or just the caret?
-	const bool moveViewStart = newOffset < start
-			|| newOffset >= (start + getViewSize());
+	const bool movedOffTop = newOffset < start;
 
-	if (moveViewStart)
+	// nb - remeber we have an extra row
+	const bool movedOffBottom = newOffset >= (start + viewSize - getRowLength());
+
+	if (movedOffBottom || movedOffTop)
 	{
-		// move the view to a whole number of rows
-		const offset_t newStart = getRowLength() * (newOffset / getRowLength());
+		// set the new start offset such that the offset is on the top row
+		offset_t newStart = rowLen * (newOffset / rowLen);
+
+		if (movedOffBottom)
+		{
+			// moved off the bottom, the new offset should be at the bottom of
+			// the view
+			if (newStart < viewSize)
+			{
+				// now space above, move as far as possible
+				newStart = 0;
+			}
+			else
+			{
+				// move up one page
+				newStart -= viewSize - (rowLen * 2);
+			}
+		}
 
 		// update each frame as needed
 		for (auto& f: m_frames)
