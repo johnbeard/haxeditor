@@ -52,6 +52,34 @@ class HaxDocument
 {
 public:
 
+	class Selection
+	{
+	public:
+		Selection():
+			m_start(0),
+			m_end(0)
+		{}
+
+		offset_t GetStart() const
+		{
+			return m_start;
+		}
+
+		offset_t GetEnd() const
+		{
+			return m_end;
+		}
+
+		offset_t GetSize() const
+		{
+			return m_end - m_start;
+		}
+
+	private:
+		offset_t m_start;
+		offset_t m_end;
+	};
+
 	HaxDocument():
 		m_len(3003),
 		m_offset(0)
@@ -89,12 +117,13 @@ public:
 		signal_OffsetChanged.emit(newOffset);
 	}
 
-	uint64_t GetOffset() const
+	offset_t GetOffset() const
 	{
 		return m_offset;
 	}
 
-	sigc::signal<void, uint64_t> signal_OffsetChanged;
+	sigc::signal<void, offset_t> signal_OffsetChanged;
+	sigc::signal<void, const Selection&> signal_SelectionChanged;
 
 private:
 

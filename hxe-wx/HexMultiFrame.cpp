@@ -176,6 +176,11 @@ void HexMultiFrame::onOffsetChangeInt()
 	AdjustScrollBar();
 }
 
+void HexMultiFrame::onSelectionChangedInt()
+{
+
+}
+
 void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 {
 	if (event.GetWheelRotation() == 0)

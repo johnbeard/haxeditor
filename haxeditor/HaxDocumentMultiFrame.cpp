@@ -17,7 +17,9 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_rows(0),
 	m_pagedView(std::unique_ptr<PagedView>(new PagedView()))
 {
+	// connect the signals
 	doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
+	doc.signal_SelectionChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onSelectionChanged));
 }
 
 HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
@@ -147,4 +149,14 @@ void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
 	{
 		f->SetCaretPosition(newOffset);
 	}
+
+	onOffsetChangeInt();
+}
+
+void HaxDocumentMultiFrame::onSelectionChanged(const HaxDocument::Selection& selection)
+{
+	std::cout << "Multiframe selection: " << selection.GetStart() << ":"
+			<< selection.GetEnd() << std::endl;
+
+	onSelectionChangedInt();
 }

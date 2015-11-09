@@ -69,6 +69,11 @@ private:
 	 */
 	void onOffsetChangeInt() override;
 
+	/*!
+	 * Called when the selection changes
+	 */
+	void onSelectionChangedInt() override;
+
 	wxSizer* m_hexPanelSizer;
 
 	std::unique_ptr<HaxStringRenderer> m_hexRenderer;

@@ -110,7 +110,7 @@ private:
 	 * Called by the offset provider - probably the HaxDocument
 	 * @param newOffset new offset - guaranteed to be in the document
 	 */
-	void onOffsetChanged(uint64_t newOffset);
+	void onOffsetChanged(offset_t newOffset);
 
 	/*!
 	 * Implement this to do internal reactions to an offset change after
@@ -118,6 +118,20 @@ private:
 	 * @param newOffset
 	 */
 	virtual void onOffsetChangeInt() = 0;
+
+	/*!
+	 * Handle a new selection
+	 * Called by the selection provider - probably the HaxDocument
+	 * @param selection - the new selection
+	 */
+	void onSelectionChanged(const HaxDocument::Selection& selection);
+
+	/*!
+	 * Implement this to do internal reactions to a selection change, once
+	 * the base class has processed the basic aspects
+	 * @param newOffset
+	 */
+	virtual void onSelectionChangedInt() = 0;
 
 	uint64_t m_rowOffset;
 
