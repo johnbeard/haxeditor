@@ -197,6 +197,33 @@ public:
 		return GetWidth() / (GetCellsPerRow() * GetCellChars());
 	}
 
+	unsigned GetBitsPerCell() const
+	{
+		return GetCellChars() * GetBitsPerChar();
+	}
+
+	offset_t GetRowForOffset(offset_t offset) const
+	{
+		return offset / GetWidth();
+	}
+
+	/*!
+	 *
+	 * @param offset the offset to find the position of
+	 * @return the cell and char in the offsets row
+	 */
+	unsigned GetColForOffset(offset_t offset, unsigned* nChars) const
+	{
+		// in bits
+		auto col = offset % GetWidth();
+		auto nCells = col / GetBitsPerCell();
+
+		if (nChars)
+			*nChars = (col % GetBitsPerCell()) / GetBitsPerChar();
+
+		return nCells;
+	}
+
 	virtual std::string RenderLine(offset_t offset) const = 0;
 
 private:
@@ -211,8 +238,6 @@ public:
 	HaxHexRenderer(HaxDocument& doc):
 		HaxStringRenderer(doc)
 	{}
-
-private:
 
 	std::string RenderLine(uint64_t offset) const override
 	{
@@ -265,15 +290,6 @@ public:
 
 		return ss.str();
 	}
-private:
-
-	void addCharToString(const char c, std::stringstream& ss) const
-	{
-		if ((c >= 'a' && c <= 'z' ) || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-			ss << c;
-		else
-			ss << ".";
-	}
 
 	unsigned GetCellsPerRow() const override
 	{
@@ -283,6 +299,16 @@ private:
 	unsigned GetCellChars() const override
 	{
 		return GetWidth() / 8; // one char per byte
+	}
+
+private:
+
+	void addCharToString(const char c, std::stringstream& ss) const
+	{
+		if ((c >= 'a' && c <= 'z' ) || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+			ss << c;
+		else
+			ss << ".";
 	}
 };
 

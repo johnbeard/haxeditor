@@ -2,11 +2,13 @@
 
 set(srcFiles
     paged_view.cpp
+    hax_string_renderer.cpp
 )
 
 add_executable(haxeditor_tests ${srcFiles})
 
 target_link_libraries(haxeditor_tests
+    haxeditor
     haxtest
     ${GTEST_MAIN_LIBRARY}
 )
