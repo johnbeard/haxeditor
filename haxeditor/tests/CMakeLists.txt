@@ -12,3 +12,7 @@ target_link_libraries(haxeditor_tests
     haxtest
     ${GTEST_MAIN_LIBRARY}
 )
+
+add_test(haxeditor
+    haxeditor_tests
+)

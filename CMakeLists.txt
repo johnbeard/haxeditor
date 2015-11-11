@@ -18,6 +18,7 @@ include_directories(${SIGC2_INCLUDE_DIRS})
 
 # add testing support
 include(GoogleTestProjects)
+enable_testing()
 
 add_definitions(
     -Wall -Wextra -Wpedantic
