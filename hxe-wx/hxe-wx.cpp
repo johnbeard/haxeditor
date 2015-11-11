@@ -28,7 +28,7 @@ private:
 	void OnHello(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
 	void OnExitWindow(wxCloseEvent& event);
-	void OnAbout(wxCommandEvent& event);wxDECLARE_EVENT_TABLE();
+	void OnAbout(wxCommandEvent& event);
 
 	std::unique_ptr<HaxDocument> m_doc;
 	HexMultiFrame* m_mframe;
@@ -38,9 +38,6 @@ enum
 {
 	ID_Hello = 1
 };
-
-wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
-wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_APP( HaxEditorWX);
 
@@ -61,11 +58,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
 	wxMenuBar *menuBar = new wxMenuBar;
-	menuBar->Append(menuFile, "&File");
-	menuBar->Append(menuHelp, "&Help");
+	menuBar->Append(menuFile, wxT("&File"));
+	menuBar->Append(menuHelp, wxT("&Help"));
 	SetMenuBar(menuBar);
 	CreateStatusBar();
-	SetStatusText("Welcome to HaxEditor");
+	SetStatusText(wxT("Welcome to HaxEditor"));
 
 	// bind menu events
 	Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
@@ -113,6 +110,6 @@ void MyFrame::OnExitWindow(wxCloseEvent& event)
 
 void MyFrame::OnAbout(wxCommandEvent& /*event*/)
 {
-	wxMessageBox("HaxEditor is a proper hex editor.", "About HaxEditor",
+	wxMessageBox(wxT("HaxEditor is a proper hex editor."), wxT("About HaxEditor"),
 			wxOK | wxICON_INFORMATION);
 }
