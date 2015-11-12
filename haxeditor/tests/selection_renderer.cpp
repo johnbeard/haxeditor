@@ -32,6 +32,6 @@ TEST(SelectionRenderer, pathOneLine)
 	const auto& regions = spr.GetPaths();
 
 	EXPECT_EQ(1, regions.size());
-	EXPECT_EQ(4, regions[0].size());
+	EXPECT_EQ(2, regions[0].size());
 }
 
