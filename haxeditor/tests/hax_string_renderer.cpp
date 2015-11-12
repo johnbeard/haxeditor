@@ -46,4 +46,14 @@ TEST(HaxStringRendererTests, basicOffsetCalcs)
 	EXPECT_EQ(0, chars);
 }
 
+TEST(HaxStringRendererTests, testZeroWidth)
+{
+	HaxDocument doc;
+	HaxHexRenderer rdr(doc);
 
+	rdr.SetWidth(0); // 10 bytes
+
+	// shouldn't divide by zero!
+	EXPECT_EQ(0, rdr.GetColForOffset(0, nullptr));
+	EXPECT_EQ(0, rdr.GetRowForOffset(0));
+}

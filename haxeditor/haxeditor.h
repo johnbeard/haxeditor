@@ -65,6 +65,12 @@ public:
 			return m_start;
 		}
 
+		void SetRange(offset_t start, offset_t end)
+		{
+			m_start = start;
+			m_end = end;
+		}
+
 		offset_t GetEnd() const
 		{
 			return m_end;
@@ -204,7 +210,12 @@ public:
 
 	offset_t GetRowForOffset(offset_t offset) const
 	{
-		return offset / GetWidth();
+		const auto w = GetWidth();
+
+		if (!w)
+			return 0;
+
+		return offset / w;
 	}
 
 	/*!
@@ -214,6 +225,11 @@ public:
 	 */
 	unsigned GetColForOffset(offset_t offset, unsigned* nChars) const
 	{
+		const auto w = GetWidth();
+
+		if (!w)
+			return 0;
+
 		// in bits
 		auto col = offset % GetWidth();
 		auto nCells = col / GetBitsPerCell();
