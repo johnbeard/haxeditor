@@ -30,16 +30,27 @@ public:
 		int interCellGap;
 		int interRowGap;
 
-		int GetXForCell(unsigned cells)
+		int GetXForPos(const HaxStringRenderer::StringLinePos& pos, bool left) const
 		{
-			auto gaps = cells ? (cells - 1) : 0;
-			return (charW * cells) + (interCellGap * gaps);
+			auto x = charW * pos.chars + interCellGap * pos.gaps;
+
+			// trim off any gaps if we are on the right
+			if (!left && pos.gaps)
+				x -= interCellGap;
+
+			return x;
 		}
 
-		int GetYForRow(unsigned row)
+		int GetYForRow(const unsigned row, bool top) const
 		{
-			auto gaps = row ? (row - 1) : 0;
-			return (charH * row) + (interRowGap * gaps);
+			auto y = (charH + interRowGap) * row;
+
+			// add the current row body if we should be at the bottom of it
+			if (!top)
+				y += charH;
+
+			return y;
+
 		}
 	};
 
@@ -127,22 +138,26 @@ private:
 		const auto startRow = m_renderer.GetRowForOffset(start);
 		const auto endRow = m_renderer.GetRowForOffset(end);
 
+		//const auto bpc = m_renderer.GetBitsPerCell();
+
 		// all on one row, this one is easy!
 		if (startRow == endRow)
 		{
-			const auto startCell = m_renderer.GetColForOffset(start, nullptr);
-			const auto endCell = m_renderer.GetColForOffset(end, nullptr);
+			const auto posS = m_renderer.GetOffsetPosInLine(start);
+			const auto posE = m_renderer.GetOffsetPosInLine(end);
 
-			const auto startX = m_layout.GetXForCell(startCell);
-			const auto endX = m_layout.GetXForCell(endCell);
+			const auto startX = m_layout.GetXForPos(posS, true);
+			const auto endX = m_layout.GetXForPos(posE, false);
 
-			const auto startY = m_layout.GetYForRow(startRow);
-			const auto endY = m_layout.GetYForRow(endRow);
+			const auto startY = m_layout.GetYForRow(startRow, true);
+			const auto endY = m_layout.GetYForRow(endRow, false);
 
 			m_regions.emplace_back();
 			const auto pts = m_regions.begin();
 			pts->emplace_back(startX, startY);
+			pts->emplace_back(endX, startY);
 			pts->emplace_back(endX, endY);
+			pts->emplace_back(startX, endY);
 		}
 	}
 

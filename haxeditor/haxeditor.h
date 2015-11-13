@@ -210,34 +210,46 @@ public:
 
 	offset_t GetRowForOffset(offset_t offset) const
 	{
-		const auto w = GetWidth();
+		offset_t row = 0;
 
-		if (!w)
-			return 0;
+		if (auto w = GetWidth())
+			row = offset / w;
 
-		return offset / w;
+		return row;
 	}
 
 	/*!
-	 *
-	 * @param offset the offset to find the position of
-	 * @return the cell and char in the offsets row
+	 * Struct used to define position within a string renderer line. This is
+	 * made up of some number of "chars" and some number of "gaps". It's up to
+	 * the displayer what these mean
 	 */
-	unsigned GetColForOffset(offset_t offset, unsigned* nChars) const
+	struct StringLinePos
 	{
-		const auto w = GetWidth();
+		unsigned chars = 0;
+		unsigned gaps = 0;
+	};
 
-		if (!w)
-			return 0;
+	/*!
+	 * Get the position of an offset in terms of a StringLinePos
+	 *
+	 * @param offset the offset to get the pos of
+	 * @return
+	 */
+	StringLinePos GetOffsetPosInLine(offset_t offset) const
+	{
+		StringLinePos pos;
 
-		// in bits
-		auto col = offset % GetWidth();
-		auto nCells = col / GetBitsPerCell();
+		if (GetWidth() > 0)
+		{
+			const auto offsetInLine = offset % GetWidth();
+			const auto nChars = offsetInLine / GetBitsPerChar();
+			const auto nCells = nChars / GetCellChars();
 
-		if (nChars)
-			*nChars = (col % GetBitsPerCell()) / GetBitsPerChar();
+			pos.chars = nChars;
+			pos.gaps = nCells;
+		}
 
-		return nCells;
+		return pos;
 	}
 
 	virtual std::string RenderLine(offset_t offset) const = 0;

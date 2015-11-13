@@ -27,23 +27,23 @@ TEST(HaxStringRendererTests, basicOffsetCalcs)
 	EXPECT_EQ(1, rdr.GetRowForOffset(80));
 	EXPECT_EQ(10, rdr.GetRowForOffset(800));
 
-	unsigned cells, chars;
-	cells = rdr.GetColForOffset(0, &chars);
-	EXPECT_EQ(0, cells);
-	EXPECT_EQ(0, chars);
+	HaxStringRenderer::StringLinePos pos;
+	pos = rdr.GetOffsetPosInLine(0);
+	EXPECT_EQ(0, pos.chars);
+	EXPECT_EQ(0, pos.gaps);
 
-	cells = rdr.GetColForOffset(10, &chars); //bit 10 is cell 1, char 1
-	EXPECT_EQ(1, cells);
-	EXPECT_EQ(0, chars);
+	pos = rdr.GetOffsetPosInLine(10); //bit 10 is cell 1, char 1
+	EXPECT_EQ(2, pos.chars);
+	EXPECT_EQ(1, pos.gaps);
 
-	cells = rdr.GetColForOffset(15, &chars);
-	EXPECT_EQ(1, cells);
-	EXPECT_EQ(1, chars);
+	pos = rdr.GetOffsetPosInLine(15); // bit 15 is cell 1, char 2
+	EXPECT_EQ(3, pos.chars);
+	EXPECT_EQ(1, pos.gaps);
 
 	// new line
-	cells = rdr.GetColForOffset(80, &chars);
-	EXPECT_EQ(0, cells);
-	EXPECT_EQ(0, chars);
+	pos = rdr.GetOffsetPosInLine(80);
+	EXPECT_EQ(0, pos.chars);
+	EXPECT_EQ(0, pos.gaps);
 }
 
 TEST(HaxStringRendererTests, testZeroWidth)
@@ -54,6 +54,9 @@ TEST(HaxStringRendererTests, testZeroWidth)
 	rdr.SetWidth(0); // 10 bytes
 
 	// shouldn't divide by zero!
-	EXPECT_EQ(0, rdr.GetColForOffset(0, nullptr));
-	EXPECT_EQ(0, rdr.GetRowForOffset(0));
+	HaxStringRenderer::StringLinePos pos;
+	pos = rdr.GetOffsetPosInLine(0);
+
+	EXPECT_EQ(0, pos.chars);
+	EXPECT_EQ(0, pos.gaps);
 }
