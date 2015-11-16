@@ -54,7 +54,7 @@ public:
 	void scrollToEnd();
 	void scrollLines(int linesToScrollDown);
 	void scrollPages(int pagesDown);
-	void scrollRight(int unitsRight);
+	void scrollRight(int unitsRight, bool extendSelection);
 
 	void SetOffset(uint64_t newOffset)
 	{
@@ -139,6 +139,12 @@ private:
 
 	// logic for paging
 	std::unique_ptr<class PagedView> m_pagedView;
+
+	// the current selection made
+	HaxDocument::Selection m_selection;
+
+	// selection wrapper/driver
+	std::unique_ptr<class SelectionDriver> m_selectionDriver;
 };
 
 #endif /* HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_ */

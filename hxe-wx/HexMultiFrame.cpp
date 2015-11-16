@@ -217,7 +217,7 @@ void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 		break;
 	case WXK_LEFT:
 	case WXK_RIGHT:
-		scrollRight((keyCode == WXK_RIGHT) ? 1 : -1);
+		scrollRight((keyCode == WXK_RIGHT) ? 1 : -1, event.ShiftDown());
 		break;
 	default:
 		// unhandled key

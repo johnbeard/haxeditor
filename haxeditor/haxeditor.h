@@ -55,10 +55,6 @@ public:
 	class Selection
 	{
 	public:
-		Selection():
-			m_start(0),
-			m_end(0)
-		{}
 
 		offset_t GetStart() const
 		{
@@ -69,6 +65,8 @@ public:
 		{
 			m_start = start;
 			m_end = end;
+
+			signal_SelectionChanged.emit(*this);
 		}
 
 		offset_t GetEnd() const
@@ -81,9 +79,11 @@ public:
 			return m_end - m_start;
 		}
 
+		sigc::signal<void, const Selection&> signal_SelectionChanged;
+
 	private:
-		offset_t m_start;
-		offset_t m_end;
+		offset_t m_start = 0;
+		offset_t m_end = 0;
 	};
 
 	HaxDocument():
@@ -95,6 +95,9 @@ public:
 	    {
 	        m_data[i] = 3 * i;
 	    }
+
+		m_selection.signal_SelectionChanged.connect(sigc::mem_fun(this,
+				&HaxDocument::notifySelectionChanged));
 	}
 
 	~HaxDocument()
@@ -133,6 +136,12 @@ public:
 
 private:
 
+	void notifySelectionChanged(const Selection& changedSelection)
+	{
+		// forward to the document selection listeners
+		signal_SelectionChanged.emit(changedSelection);
+	}
+
 	std::vector<uint8_t> m_data;
 
 	// length in bytes
@@ -140,6 +149,10 @@ private:
 
 	// location of the caret within the document
 	uint64_t m_offset;
+
+	// the current selection in the document
+	// future: multiple selections per document
+	Selection m_selection;
 };
 
 class HaxDataRenderer

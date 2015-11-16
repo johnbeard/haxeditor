@@ -8,6 +8,7 @@
 #include "HaxDocumentMultiFrame.h"
 
 #include "PagedView.h"
+#include "SelectionDriver.h"
 
 #include <math.h>
 
@@ -15,11 +16,14 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_doc(doc),
 	m_rowOffset(0),
 	m_rows(0),
-	m_pagedView(std::unique_ptr<PagedView>(new PagedView()))
+	m_pagedView(std::unique_ptr<PagedView>(new PagedView())),
+	m_selectionDriver(new SelectionDriver(m_selection))
 {
 	// connect the signals
 	doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
 	doc.signal_SelectionChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onSelectionChanged));
+
+	doc.signal_OffsetChanged.connect(sigc::mem_fun(m_selectionDriver.get(), &SelectionDriver::onOffsetChanged));
 }
 
 HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
@@ -121,9 +125,12 @@ void HaxDocumentMultiFrame::scrollPages(int pagesDown)
 	scrollLines(pagesDown * (GetNumVisibleRows() - 2)); // leave a bit of overlap
 }
 
-void HaxDocumentMultiFrame::scrollRight(int unitsRight)
+void HaxDocumentMultiFrame::scrollRight(int unitsRight, bool extendSelection)
 {
 	std::cout << "Right: " << unitsRight << std::endl;
+
+	// activate/deactivate the selection
+	m_selectionDriver->SetActive(extendSelection);
 
 	// move one nibble
 	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0);
