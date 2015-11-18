@@ -33,13 +33,6 @@ public:
 	{
 	}
 
-	void Reset()
-	{
-		m_selectionActive = false;
-
-		// Reset the selection too?
-	}
-
 	bool IsActive() const
 	{
 		return m_selectionActive;
@@ -72,15 +65,12 @@ public:
 		if (!IsActive())
 			return;
 
-		// modify the selection
-		if (m_activeType == Left)
-		{
+		const auto start = m_selection.GetStart();
+		const auto end = m_selection.GetEnd();
 
-		}
-		else
-		{
-			m_selection.SetRange(0, 10);
-		}
+		auto endToKeep = (m_activeType == Right) ? start : end;
+
+		m_selection.SetRange(newOffset, endToKeep);
 	}
 
 private:

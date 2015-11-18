@@ -66,6 +66,10 @@ public:
 			m_start = start;
 			m_end = end;
 
+			// make sure start is less than end
+			if (m_start > m_end)
+				std::swap(m_start, m_end);
+
 			signal_SelectionChanged.emit(*this);
 		}
 

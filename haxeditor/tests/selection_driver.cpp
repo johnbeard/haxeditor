@@ -12,7 +12,9 @@
 class SelectionDriverTest: public ::testing::Test
 {
 public:
-	SelectionDriverTest()
+	SelectionDriverTest():
+		sel(),
+		driver(sel)
 	{
 		sel.signal_SelectionChanged.connect(sigc::mem_fun(this, &SelectionDriverTest::offsetChanged));
 	}
@@ -24,12 +26,11 @@ public:
 
 	bool m_callbackHit = false;
 	HaxDocument::Selection sel;
+	SelectionDriver driver;
 };
 
 TEST_F(SelectionDriverTest, basicRightwardsFromZero)
 {
-	SelectionDriver driver(sel);
-
 	// init to false
 	EXPECT_FALSE(driver.IsActive());
 
@@ -43,10 +44,75 @@ TEST_F(SelectionDriverTest, basicRightwardsFromZero)
 	driver.onOffsetChanged(10);
 
 	EXPECT_TRUE(m_callbackHit);
+	m_callbackHit = false;
 
 	EXPECT_EQ(0, sel.GetStart());
 	EXPECT_EQ(10, sel.GetEnd());
+
+	// and now shorten the offset
+	driver.onOffsetChanged(5);
+
+	EXPECT_TRUE(m_callbackHit);
+
+	EXPECT_EQ(0, sel.GetStart());
+	EXPECT_EQ(5, sel.GetEnd());
+
+	// and now move the left edge
+	driver.SetActiveType(SelectionDriver::Left);
+	driver.onOffsetChanged(2);
+
+	EXPECT_EQ(2, sel.GetStart());
+	EXPECT_EQ(5, sel.GetEnd());
+
+	// and move back
+	driver.onOffsetChanged(1);
+
+	EXPECT_EQ(1, sel.GetStart());
+	EXPECT_EQ(5, sel.GetEnd());
+
+	// and now "invert" by moving the start past the end
+	driver.onOffsetChanged(12);
+
+	EXPECT_EQ(5, sel.GetStart());
+	EXPECT_EQ(12, sel.GetEnd());
+
+	// and move the end past the start
+	driver.SetActiveType(SelectionDriver::Right);
+	driver.onOffsetChanged(4);
+
+	EXPECT_EQ(4, sel.GetStart());
+	EXPECT_EQ(5, sel.GetEnd());
 }
 
+TEST_F(SelectionDriverTest, activation)
+{
+	// init to false
+	EXPECT_FALSE(driver.IsActive());
 
+	// activate selection
+	driver.SetActive(true);
 
+	EXPECT_TRUE(driver.IsActive());
+
+	// move the right edge 10 units
+	driver.SetActiveType(SelectionDriver::Right);
+	driver.onOffsetChanged(10);
+
+	EXPECT_TRUE(m_callbackHit);
+	m_callbackHit = false;
+
+	EXPECT_EQ(0, sel.GetStart());
+	EXPECT_EQ(10, sel.GetEnd());
+
+	// activate selection
+	driver.SetActive(false);
+
+	EXPECT_FALSE(driver.IsActive());
+
+	driver.onOffsetChanged(100);
+
+	// unchanged
+	EXPECT_FALSE(m_callbackHit);
+	EXPECT_EQ(0, sel.GetStart());
+	EXPECT_EQ(10, sel.GetEnd());
+}
