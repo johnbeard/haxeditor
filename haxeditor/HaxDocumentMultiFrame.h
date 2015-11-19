@@ -140,9 +140,6 @@ private:
 	// logic for paging
 	std::unique_ptr<class PagedView> m_pagedView;
 
-	// the current selection made
-	HaxDocument::Selection m_selection;
-
 	// selection wrapper/driver
 	std::unique_ptr<class SelectionDriver> m_selectionDriver;
 };

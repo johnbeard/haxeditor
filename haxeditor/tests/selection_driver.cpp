@@ -16,7 +16,7 @@ public:
 		sel(),
 		driver(sel)
 	{
-		sel.signal_SelectionChanged.connect(sigc::mem_fun(this, &SelectionDriverTest::offsetChanged));
+		sel.signal_changed.connect(sigc::mem_fun(this, &SelectionDriverTest::offsetChanged));
 	}
 
 	void offsetChanged(const HaxDocument::Selection& /*changedSel*/)

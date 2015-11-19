@@ -70,7 +70,7 @@ public:
 			if (m_start > m_end)
 				std::swap(m_start, m_end);
 
-			signal_SelectionChanged.emit(*this);
+			signal_changed.emit(*this);
 		}
 
 		offset_t GetEnd() const
@@ -83,7 +83,7 @@ public:
 			return m_end - m_start;
 		}
 
-		sigc::signal<void, const Selection&> signal_SelectionChanged;
+		sigc::signal<void, const Selection&> signal_changed;
 
 	private:
 		offset_t m_start = 0;
@@ -100,7 +100,7 @@ public:
 	        m_data[i] = 3 * i;
 	    }
 
-		m_selection.signal_SelectionChanged.connect(sigc::mem_fun(this,
+		m_selection.signal_changed.connect(sigc::mem_fun(this,
 				&HaxDocument::notifySelectionChanged));
 	}
 
@@ -135,6 +135,26 @@ public:
 		return m_offset;
 	}
 
+	/*!
+	 * Get the document selection
+	 *
+	 * This can be used to get the selection for wrapping in a driver.
+	 *
+	 * Should have driver in the document too?
+	 */
+	Selection& GetSelection()
+	{
+		return m_selection;
+	}
+
+	/*!
+	 * Const selection, good for rendering
+	 */
+	const Selection& GetSelection() const
+	{
+		return m_selection;
+	}
+
 	sigc::signal<void, offset_t> signal_OffsetChanged;
 	sigc::signal<void, const Selection&> signal_SelectionChanged;
 
@@ -142,6 +162,7 @@ private:
 
 	void notifySelectionChanged(const Selection& changedSelection)
 	{
+		std::cout << "Document get selection change" << std::endl;
 		// forward to the document selection listeners
 		signal_SelectionChanged.emit(changedSelection);
 	}

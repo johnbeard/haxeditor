@@ -17,13 +17,10 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_rowOffset(0),
 	m_rows(0),
 	m_pagedView(std::unique_ptr<PagedView>(new PagedView())),
-	m_selectionDriver(new SelectionDriver(m_selection))
+	m_selectionDriver(new SelectionDriver(doc.GetSelection()))
 {
-	// connect the signals
 	doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
 	doc.signal_SelectionChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onSelectionChanged));
-
-	doc.signal_OffsetChanged.connect(sigc::mem_fun(m_selectionDriver.get(), &SelectionDriver::onOffsetChanged));
 }
 
 HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
@@ -132,6 +129,10 @@ void HaxDocumentMultiFrame::scrollRight(int unitsRight, bool extendSelection)
 	// activate/deactivate the selection
 	m_selectionDriver->SetActive(extendSelection);
 
+	// which end are we moving?
+	m_selectionDriver->SetActiveType((unitsRight > 0)
+			? SelectionDriver::Right : SelectionDriver::Left);
+
 	// move one nibble
 	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0);
 }
@@ -156,6 +157,9 @@ void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
 	{
 		f->SetCaretPosition(newOffset);
 	}
+
+	// update the selection
+	m_selectionDriver->onOffsetChanged(newOffset);
 
 	onOffsetChangeInt();
 }
