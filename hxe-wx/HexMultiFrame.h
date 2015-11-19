@@ -8,13 +8,13 @@
 #ifndef HXE_WX_HEXMULTIFRAME_H_
 #define HXE_WX_HEXMULTIFRAME_H_
 
+#include <hxe-wx/HexTextFrame.h>
 #include <wx/wx.h>
-#include "hexframe.h"
 #include "haxeditor/HaxDocumentMultiFrame.h"
 
 class HexMultiFrame: public wxScrolledWindow,
 					 public HaxDocumentMultiFrame,
-					 public HexFrame::Director
+					 public HexTextFrame::Director
 {
 public:
 	HexMultiFrame(wxWindow* parent, wxWindowID id, HaxDocument& m_doc);

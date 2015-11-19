@@ -5,8 +5,7 @@
  *      Author: john
  */
 
-#include "hexframe.h"
-
+#include <hxe-wx/HexTextFrame.h>
 #include "wx/wx.h"
 #include "wx/graphics.h"
 
@@ -72,7 +71,7 @@ private:
 	int m_blinkTimerMs;
 };
 
-HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
+HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
 		HaxStringRenderer& renderer) :
@@ -95,33 +94,33 @@ HexFrame::HexFrame(wxWindow* parent, wxWindowID id,
 	m_caret = new HexCaret(this, m_director->GetCharSize());
 	m_caret->Show();
 
-	Bind(wxEVT_PAINT, &HexFrame::Paint, this);
-	Bind(wxEVT_SIZE, &HexFrame::OnSize, this);
-	Bind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
-	m_caret->Bind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
-	Bind(wxEVT_LEFT_DOWN, &HexFrame::OnLeftMouseDown, this);
-	Bind(wxEVT_SET_FOCUS, &HexFrame::OnFocusSet, this);
-	Bind(wxEVT_KILL_FOCUS, &HexFrame::OnFocusSet, this);
+	Bind(wxEVT_PAINT, &HexTextFrame::Paint, this);
+	Bind(wxEVT_SIZE, &HexTextFrame::OnSize, this);
+	Bind(wxEVT_KEY_DOWN, &HexTextFrame::OnKeyboardInput, this);
+	m_caret->Bind(wxEVT_KEY_DOWN, &HexTextFrame::OnKeyboardInput, this);
+	Bind(wxEVT_LEFT_DOWN, &HexTextFrame::OnLeftMouseDown, this);
+	Bind(wxEVT_SET_FOCUS, &HexTextFrame::OnFocusSet, this);
+	Bind(wxEVT_KILL_FOCUS, &HexTextFrame::OnFocusSet, this);
 }
 
-HexFrame::~HexFrame()
+HexTextFrame::~HexTextFrame()
 {
-	Unbind(wxEVT_PAINT, &HexFrame::Paint, this);
-	Unbind(wxEVT_SIZE, &HexFrame::OnSize, this);
-	Unbind(wxEVT_KEY_DOWN, &HexFrame::OnKeyboardInput, this);
-	Unbind(wxEVT_LEFT_DOWN, &HexFrame::OnLeftMouseDown, this);
+	Unbind(wxEVT_PAINT, &HexTextFrame::Paint, this);
+	Unbind(wxEVT_SIZE, &HexTextFrame::OnSize, this);
+	Unbind(wxEVT_KEY_DOWN, &HexTextFrame::OnKeyboardInput, this);
+	Unbind(wxEVT_LEFT_DOWN, &HexTextFrame::OnLeftMouseDown, this);
 
-	Unbind(wxEVT_SET_FOCUS, &HexFrame::OnFocusSet, this);
-	Unbind(wxEVT_KILL_FOCUS, &HexFrame::OnFocusSet, this);
+	Unbind(wxEVT_SET_FOCUS, &HexTextFrame::OnFocusSet, this);
+	Unbind(wxEVT_KILL_FOCUS, &HexTextFrame::OnFocusSet, this);
 }
 
-void HexFrame::onCharSizeChanged()
+void HexTextFrame::onCharSizeChanged()
 {
 	const wxSize charSize(m_director->GetCharSize());
 	DataChanged(false);
 }
 
-void HexFrame::moveCaret()
+void HexTextFrame::moveCaret()
 {
 	if (!m_caret)
 		return;
@@ -133,7 +132,7 @@ void HexFrame::moveCaret()
 			m_caretPos.y * charSize.y);
 }
 
-void HexFrame::DataChanged(bool force)
+void HexTextFrame::DataChanged(bool force)
 {
 	moveCaret();
 
@@ -180,7 +179,7 @@ void HexFrame::DataChanged(bool force)
 	Refresh();
 }
 
-void HexFrame::drawToBitmap(wxDC& dc)
+void HexTextFrame::drawToBitmap(wxDC& dc)
 {
 	dc.SetBrush(wxBrush(m_bgColour));
 	dc.DrawRectangle(0, 0, dc.GetSize().x, dc.GetSize().y);
@@ -200,13 +199,13 @@ void HexFrame::drawToBitmap(wxDC& dc)
 	}
 }
 
-void HexFrame::SetOffset(uint64_t newOffset)
+void HexTextFrame::SetOffset(uint64_t newOffset)
 {
 	m_pendingState.offset = newOffset;
 	DataChanged(false);
 }
 
-void HexFrame::SetCaretPosition(uint64_t newOffset)
+void HexTextFrame::SetCaretPosition(uint64_t newOffset)
 {
 	const offset_t caretPosInPage = newOffset - m_state.offset;
 
@@ -235,14 +234,14 @@ void HexFrame::SetCaretPosition(uint64_t newOffset)
 	moveCaret();
 }
 
-void HexFrame::OnSize(wxSizeEvent& /*event*/)
+void HexTextFrame::OnSize(wxSizeEvent& /*event*/)
 {
 //	std::cout << "Height " << GetSize().GetHeight() << std::endl;
 	// we resize - we might need to redraw the image
 	DataChanged(false);
 }
 
-void HexFrame::Paint(wxPaintEvent& /*event*/)
+void HexTextFrame::Paint(wxPaintEvent& /*event*/)
 {
 	wxClientDC dc( this );
 	std::unique_ptr<wxGraphicsContext> gc(wxGraphicsContext::Create(dc));
@@ -256,7 +255,7 @@ void HexFrame::Paint(wxPaintEvent& /*event*/)
 	gc->DrawBitmap(m_bmpBuffer, 0.0, 0.0, w, h);
 }
 
-unsigned HexFrame::GetMinimumWidthForData() const
+unsigned HexTextFrame::GetMinimumWidthForData() const
 {
 	const unsigned cells = m_renderer.GetCellsPerRow();
 	const unsigned gapW = 1;
@@ -267,7 +266,7 @@ unsigned HexFrame::GetMinimumWidthForData() const
 	return cells * cellW + margin;
 }
 
-void HexFrame::OnKeyboardInput(wxKeyEvent& event)
+void HexTextFrame::OnKeyboardInput(wxKeyEvent& event)
 {
 	std::cout << "HexFrame key: " << event.GetKeyCode() << std::endl;
 
@@ -283,13 +282,13 @@ void HexFrame::OnKeyboardInput(wxKeyEvent& event)
 	wxPostEvent(GetParent(), event);
 }
 
-void HexFrame::OnLeftMouseDown(wxMouseEvent& event)
+void HexTextFrame::OnLeftMouseDown(wxMouseEvent& event)
 {
 	// pass it on until we can deal with it? so as to avoid focus loss
 	event.Skip();
 }
 
-void HexFrame::OnFocusSet(wxFocusEvent& /*event*/)
+void HexTextFrame::OnFocusSet(wxFocusEvent& /*event*/)
 {
 	// TOD: needs to be more persistant than just focus?
 	if (HasFocus())

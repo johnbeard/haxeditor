@@ -5,8 +5,8 @@
  *      Author: john
  */
 
-#ifndef HXE_WX_HEXFRAME_H_
-#define HXE_WX_HEXFRAME_H_
+#ifndef HXE_WX_HEXTEXTFRAME_H_
+#define HXE_WX_HEXTEXTFRAME_H_
 
 #include <wx/wx.h>
 
@@ -20,7 +20,7 @@
 
 #include "HugeScrollBar.h"
 
-class HexFrame: public HaxFrame,
+class HexTextFrame: public HaxFrame,
 				public wxWindow
 {
 public:
@@ -34,11 +34,11 @@ public:
 		virtual	const wxSize& GetFrameMargin() const = 0;
 	};
 
-	HexFrame(wxWindow *parent, wxWindowID id,
+	HexTextFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
 			HaxStringRenderer& renderer);
-	~HexFrame();
+	~HexTextFrame();
 
 	void DataChanged(bool force);
 
@@ -102,4 +102,4 @@ private:
 	wxColour m_bgColour;
 };
 
-#endif /* HXE_WX_HEXFRAME_H_ */
+#endif /* HXE_WX_HEXTEXTFRAME_H_ */

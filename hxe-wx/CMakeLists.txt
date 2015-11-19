@@ -1,6 +1,6 @@
 set(srcFiles
     hxe-wx.cpp
-    hexframe.cpp
+    HexTextFrame.cpp
     HexMultiFrame.cpp
     HugeScrollBar.cpp
 )

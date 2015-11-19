@@ -30,23 +30,23 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 	m_hexPanelSizer = new wxBoxSizer(wxHORIZONTAL);
 	SetSizer(m_hexPanelSizer);
 
-	std::unique_ptr<HexFrame> f;
+	std::unique_ptr<HexTextFrame> f;
 
-	f = std::unique_ptr<HexFrame>(new HexFrame(
+	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 				this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 				this, *m_addrRenderer));
 	m_frames.push_back(f.get());
 	m_hexPanelSizer->Add(f.get(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
 	f.release();
 
-	f = std::unique_ptr<HexFrame>(new HexFrame(
+	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 			this, *m_hexRenderer));
 	m_frames.push_back(f.get());
 	m_hexPanelSizer->Add(f.release(), 100, wxALIGN_RIGHT | wxEXPAND, 0);
 	f.release();
 
-	f = std::unique_ptr<HexFrame>(new HexFrame(
+	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 			this, *m_textRenderer));
 	m_frames.push_back(f.get());
@@ -154,7 +154,7 @@ void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
 	for (auto& f: m_frames)
 	{
 		const unsigned frameW = f->GetMinimumWidthForData();
-		static_cast<HexFrame*>(f)->SetMinSize(wxSize(frameW, 10));
+		static_cast<HexTextFrame*>(f)->SetMinSize(wxSize(frameW, 10));
 	}
 }
 
