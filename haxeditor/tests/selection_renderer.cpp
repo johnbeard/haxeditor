@@ -10,32 +10,43 @@
 
 #include "haxeditor/SelectionRenderer.h"
 
-static void checkSaneRectangle(const SelectionPathRenderer::PointList& rectRegion)
+class SelectionPathRendererTest: public ::testing::Test
 {
-	EXPECT_EQ(rectRegion[0].x, rectRegion[3].x);
-	EXPECT_EQ(rectRegion[1].x, rectRegion[2].x);
+public:
+	SelectionPathRendererTest():
+		hexR(doc),
+		spr(hexR)
+	{
+		hexR.SetWidth(80);
 
-	EXPECT_EQ(rectRegion[0].y, rectRegion[1].y);
-	EXPECT_EQ(rectRegion[2].y, rectRegion[3].y);
-}
+		SelectionRenderer::Layout layout;
 
-TEST(SelectionRenderer, pathOneLine)
-{
+		layout.charH = 12;
+		layout.charW = 7;
+		layout.interCellGap = 6;
+		layout.interRowGap = 8;
+
+		spr.SetLayout(layout);
+	}
+
 	HaxDocument doc;
-	HaxHexRenderer hexR(doc);
-	SelectionPathRenderer spr(hexR);
-	hexR.SetWidth(80);
-
-	SelectionRenderer::Layout layout;
-	layout.charH = 12;
-	layout.charW = 7;
-	layout.interCellGap = 6;
-	layout.interRowGap = 8;
-
-	spr.SetLayout(layout);
-
+	HaxHexRenderer hexR;
+	SelectionPathRenderer spr;
 	HaxDocument::Selection selection;
 
+protected:
+	void checkSaneRectangle(const SelectionPathRenderer::PointList& rectRegion) const
+	{
+		EXPECT_EQ(rectRegion[0].x, rectRegion[3].x);
+		EXPECT_EQ(rectRegion[1].x, rectRegion[2].x);
+
+		EXPECT_EQ(rectRegion[0].y, rectRegion[1].y);
+		EXPECT_EQ(rectRegion[2].y, rectRegion[3].y);
+	}
+};
+
+TEST_F(SelectionPathRendererTest, pathOneLine)
+{
 	{
 		selection.SetRange(0, 16); // select the first two bytes
 		spr.UpdateSelection(selection);
@@ -71,7 +82,22 @@ TEST(SelectionRenderer, pathOneLine)
 
 		checkSaneRectangle(regions[0]);
 	}
-
-
 }
 
+
+TEST_F(SelectionPathRendererTest, pathTwoLines)
+{
+	{
+		selection.SetRange(72, 88); // select the last byte on line 0 and first on line 1
+		spr.UpdateSelection(selection);
+
+		const auto& regions = spr.GetPaths();
+
+		// 1 joined-up region
+		EXPECT_EQ(1, regions.size());
+		EXPECT_EQ(8, regions[0].size());
+
+		EXPECT_EQ(9 * (2 * 7) + 9 * 6, regions[0][0].x);
+		//EXPECT_EQ(10 * (2 * 7) + 10 * 6, regions[0][1].x);
+	}
+}

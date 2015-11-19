@@ -159,6 +159,60 @@ private:
 			pts->emplace_back(endX, endY);
 			pts->emplace_back(startX, endY);
 		}
+		else
+		{
+			/*
+			 * For more than one row, we get something like this:
+			 *
+			 *                   (t0)                 (t1)
+			 *                   +--------------------+
+			 *  (m0              |                    |
+			 *  +----------------+(t3)                +(t2)
+			 *  |                                     |
+			 *  +(b0)  (b1)+--------------------------+(m1)
+			 *  |          |
+			 *  +----------+
+			 *  (b3)      (b2)
+			 *
+			 * Using this approach:
+			 *  * Work out the box for the top row (pts t[0:3])
+			 *  * Work out the box for the bottom row (pts b[0:3])
+			 *  * m[0:1] are then known
+			 * * Join the points in order
+			 */
+
+			// Top block
+			const auto topS = m_renderer.GetOffsetPosInLine(start);
+			const auto topE = m_renderer.GetLineEndPos();
+
+			const auto t0X = m_layout.GetXForPos(topS, true);
+			const auto t1X = m_layout.GetXForPos(topE, false);
+
+			const auto t0Y = m_layout.GetYForRow(startRow, true);
+			const auto t2Y = m_layout.GetYForRow(startRow, false);
+
+			// bottom block
+			const auto btmS = m_renderer.GetLineStartPos();
+			const auto btmE = m_renderer.GetOffsetPosInLine(end);
+
+			const auto b0X = m_layout.GetXForPos(btmS, true);
+			const auto b1X = m_layout.GetXForPos(btmE, false);
+
+			const auto b0Y = m_layout.GetYForRow(endRow, true);
+			const auto b2Y = m_layout.GetYForRow(endRow, false);
+
+			m_regions.emplace_back();
+			const auto pts = m_regions.begin();
+
+			pts->emplace_back(t0X, t0Y); // t0
+			pts->emplace_back(t1X, t0Y); // t1
+			pts->emplace_back(t1X, b0Y); // m1
+			pts->emplace_back(b1X, b0Y); // b1
+			pts->emplace_back(b1X, b2Y); // b2
+			pts->emplace_back(b0X, b2Y); // b3
+			pts->emplace_back(b0X, t2Y); // m0
+			pts->emplace_back(t0X, t2Y); // t3
+		}
 	}
 
 	// the list of points making up the current selection
