@@ -46,6 +46,28 @@ TEST(HaxStringRendererTests, basicOffsetCalcs)
 	EXPECT_EQ(0, pos.gaps);
 }
 
+TEST(HaxStringRendererTests, lineEndPos)
+{
+	HaxDocument doc;
+	HaxHexRenderer rdr(doc);
+
+	rdr.SetWidth(80); // 10 bytes
+
+	{
+		const auto pos = rdr.GetLineStartPos();
+
+		EXPECT_EQ(0, pos.chars);
+		EXPECT_EQ(0, pos.gaps);
+	}
+
+	{
+		const auto pos = rdr.GetLineEndPos();
+
+		EXPECT_EQ(20, pos.chars); // 10 bytes * 2 chars / byte
+		EXPECT_EQ(10, pos.gaps);
+	}
+}
+
 TEST(HaxStringRendererTests, testZeroWidth)
 {
 	HaxDocument doc;

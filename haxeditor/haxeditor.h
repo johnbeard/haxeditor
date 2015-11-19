@@ -290,6 +290,31 @@ public:
 		return pos;
 	}
 
+	/*!
+	 * Get the position of the end of a line (this is the same for all lines)
+	 * @return the position
+	 */
+	StringLinePos GetLineEndPos() const
+	{
+		StringLinePos pos;
+
+		const auto nCells = GetCellsPerRow();
+		pos.chars = GetCellChars() * nCells;
+		pos.gaps = nCells;
+
+		return pos;
+	}
+
+	StringLinePos GetLineStartPos() const
+	{
+		StringLinePos pos;
+
+		pos.chars = 0;
+		pos.gaps = 0;
+
+		return pos;
+	}
+
 	virtual std::string RenderLine(offset_t offset) const = 0;
 
 private:
