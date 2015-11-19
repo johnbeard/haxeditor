@@ -10,6 +10,8 @@
 
 #include <sigc++-2.0/sigc++/sigc++.h>
 
+#include "haxeditor/haxeditor.h"
+
 /*!
  * The main type of data view in haxeditor: a frame filled will some sort
  * of cells, arranged in rows
@@ -17,10 +19,7 @@
 class HaxFrame
 {
 public:
-	HaxFrame():
-		m_caretVisible(true)
-	{
-	}
+	HaxFrame(HaxDocument::Selection& selection);
 
 	virtual ~HaxFrame()
 	{}
@@ -46,6 +45,12 @@ protected:
 	}
 
 private:
+
+	/*!
+	 * Implement to handle a selection change
+	 * @param selection the new selection
+	 */
+	virtual void selectionChanged(const HaxDocument::Selection& selection) = 0;
 
 	bool m_caretVisible;
 };

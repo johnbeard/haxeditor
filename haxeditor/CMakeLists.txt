@@ -3,6 +3,7 @@
 # all use internally
 
 set(srcFiles
+    HaxFrame.cpp
     HaxDocumentMultiFrame.cpp
 )
 

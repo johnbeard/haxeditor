@@ -17,6 +17,7 @@
 
 #include "haxeditor/haxeditor.h"
 #include "haxeditor/HaxFrame.h"
+#include "haxeditor/SelectionRenderer.h"
 
 #include "HugeScrollBar.h"
 
@@ -37,7 +38,8 @@ public:
 	HexTextFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
-			HaxStringRenderer& renderer);
+			HaxStringRenderer& renderer,
+			HaxDocument::Selection& selection);
 	~HexTextFrame();
 
 	void DataChanged(bool force);
@@ -55,6 +57,8 @@ public:
 protected:
 	wxPoint   m_caretPos;	// position (in text coords) of the caret
 private:
+
+	void selectionChanged(const HaxDocument::Selection& selection) override;
 
 	void OnKeyboardInput(wxKeyEvent& event);
 	void OnLeftMouseDown(wxMouseEvent& event);
@@ -100,6 +104,10 @@ private:
 	Director* m_director;
 	class HexCaret* m_caret;
 	wxColour m_bgColour;
+
+	// the render to use for the selection
+	SelectionPathRenderer m_selectionRenderer;
+	wxPointList m_selectionPolygon;
 };
 
 #endif /* HXE_WX_HEXTEXTFRAME_H_ */

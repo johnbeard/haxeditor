@@ -74,14 +74,16 @@ private:
 HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
-		HaxStringRenderer& renderer) :
-			HaxFrame(),
+		HaxStringRenderer& renderer,
+		HaxDocument::Selection& selection) :
+			HaxFrame(selection),
 			wxWindow(parent, id, pos, size),
 			m_caretPos(0, 0),
 			m_bmpBuffer(0, 0),
 			m_renderer(renderer),
 			m_director(director),
-			m_bgColour(*wxWHITE)
+			m_bgColour(*wxWHITE),
+			m_selectionRenderer(renderer)
 {
 	wxColour c(*wxWHITE);
 	SetBackgroundColour(c);
@@ -162,6 +164,21 @@ void HexTextFrame::DataChanged(bool force)
 	const int bmpH = m_state.m_rows * rowH + m_state.m_margin.y;
 	const int bmpW = GetSize().GetWidth();
 
+	// set up selection renderer //FIXME where does this go?
+	{
+		SelectionRenderer::Layout selLayout;
+
+		selLayout.charH = m_state.m_charSize.y;
+		selLayout.charW = m_state.m_charSize.x;
+
+		// a full char intercell gap
+		selLayout.interCellGap = m_state.m_charSize.x;
+
+		selLayout.interRowGap = m_state.m_margin.y; // reuse of margin.y for gap?
+
+		m_selectionRenderer.SetLayout(selLayout);
+	}
+
 	// can't make zero sized bitmaps
 	if (bmpH == 0 || bmpW == 0)
 		return;
@@ -183,6 +200,12 @@ void HexTextFrame::drawToBitmap(wxDC& dc)
 {
 	dc.SetBrush(wxBrush(m_bgColour));
 	dc.DrawRectangle(0, 0, dc.GetSize().x, dc.GetSize().y);
+
+	// draw the selection outline
+	//TODO move out to separate window?
+	dc.SetBrush(wxColour(0, 100, 255, 50));
+	dc.SetPen(wxColour(50, 50, 50, 255));
+	dc.DrawPolygon(&m_selectionPolygon);
 
 	int yPos = m_state.m_margin.y;
 	uint64_t lineOffset = m_state.offset;
@@ -298,4 +321,28 @@ void HexTextFrame::OnFocusSet(wxFocusEvent& /*event*/)
 
 	DataChanged(true); // FIXME force
 
+}
+
+// selection change notification
+void HexTextFrame::selectionChanged(const HaxDocument::Selection& selection)
+{
+	m_selectionRenderer.UpdateSelection(selection);
+
+	const auto regions = m_selectionRenderer.GetPaths();
+
+	// TODO: fix multiregions
+	for(auto& region: regions)
+	{
+		m_selectionPolygon.Clear();
+
+		//std::cout << "Selection polygon: ";
+		for (auto& pt: region)
+		{
+			//std::cout << "(" << pt.x << ", " << pt.y << "), ";
+			m_selectionPolygon.Append(new wxPoint(pt.x, pt.y));
+		}
+		//std::cout << std::endl;
+	}
+
+	DataChanged(true); // FIXME force
 }
