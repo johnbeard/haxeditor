@@ -45,45 +45,62 @@ protected:
 	}
 };
 
-TEST_F(SelectionPathRendererTest, pathOneLine)
+TEST_F(SelectionPathRendererTest, pathOneLineStart)
 {
-	{
-		selection.SetRange(0, 16); // select the first two bytes
-		spr.UpdateSelection(selection);
+	selection.SetRange(0, 16); // select the first two bytes
+	spr.UpdateSelection(selection);
 
-		const auto& regions = spr.GetPaths();
+	const auto& regions = spr.GetPaths();
 
-		EXPECT_EQ(1, regions.size());
-		EXPECT_EQ(4, regions[0].size());
+	EXPECT_EQ(1, regions.size());
+	EXPECT_EQ(4, regions[0].size());
 
-		EXPECT_EQ(0, regions[0][0].x);
-		EXPECT_EQ(14 * 2 + 6, regions[0][1].x);
+	EXPECT_EQ(0, regions[0][0].x);
+	EXPECT_EQ(14 * 2 + 6, regions[0][1].x);
 
-		EXPECT_EQ(0, regions[0][0].y);
-		EXPECT_EQ(12, regions[0][2].y);
+	EXPECT_EQ(0, regions[0][0].y);
+	EXPECT_EQ(12, regions[0][2].y);
 
-		checkSaneRectangle(regions[0]);
-	}
-
-	{
-		selection.SetRange(8, 16); // select the first two bytes
-		spr.UpdateSelection(selection);
-
-		const auto& regions = spr.GetPaths();
-
-		EXPECT_EQ(1, regions.size());
-		EXPECT_EQ(4, regions[0].size());
-
-		EXPECT_EQ(14 + 6, regions[0][0].x);
-		EXPECT_EQ(14 * 2 + 6, regions[0][1].x);
-
-		EXPECT_EQ(0, regions[0][0].y);
-		EXPECT_EQ(12, regions[0][2].y);
-
-		checkSaneRectangle(regions[0]);
-	}
+	checkSaneRectangle(regions[0]);
 }
 
+TEST_F(SelectionPathRendererTest, pathOneLineMiddle)
+{
+	selection.SetRange(8, 16); // select the second byte only
+	spr.UpdateSelection(selection);
+
+	const auto& regions = spr.GetPaths();
+
+	EXPECT_EQ(1, regions.size());
+	EXPECT_EQ(4, regions[0].size());
+
+	EXPECT_EQ(14 + 6, regions[0][0].x);
+	EXPECT_EQ(14 * 2 + 6, regions[0][1].x);
+
+	EXPECT_EQ(0, regions[0][0].y);
+	EXPECT_EQ(12, regions[0][2].y);
+
+	checkSaneRectangle(regions[0]);
+}
+
+TEST_F(SelectionPathRendererTest, pathOneLineEnd)
+{
+	selection.SetRange(72, 80); // select the end
+	spr.UpdateSelection(selection);
+
+	const auto& regions = spr.GetPaths();
+
+	EXPECT_EQ(1, regions.size());
+	EXPECT_EQ(4, regions[0].size());
+
+	EXPECT_EQ(14 * 9 + 6 * 9, regions[0][0].x);
+	EXPECT_EQ(14 * 10 + 6 * 9, regions[0][1].x);
+
+	EXPECT_EQ(0, regions[0][0].y);
+	EXPECT_EQ(12, regions[0][2].y);
+
+	checkSaneRectangle(regions[0]);
+}
 
 TEST_F(SelectionPathRendererTest, pathTwoLines)
 {

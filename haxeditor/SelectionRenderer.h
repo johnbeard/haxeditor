@@ -26,18 +26,24 @@ public:
 	struct Layout
 	{
 	public:
+
+		/*
+		 * Layout of char/gap based data is in a grid with lines like this:
+		 *
+		 * | char | char |gap| char |gap| char | char |
+		 *
+		 * Note, chars are not necessarily evenly spaced - it's up to the
+		 * renderer to tell you how many chars and gaps there are for a specific
+		 * offset in a specific line
+		 */
+
 		int charW, charH;
 		int interCellGap;
 		int interRowGap;
 
-		int GetXForPos(const HaxStringRenderer::StringLinePos& pos, bool left) const
+		int GetXForPos(const HaxStringRenderer::StringLinePos& pos) const
 		{
 			auto x = charW * pos.chars + interCellGap * pos.gaps;
-
-			// trim off any gaps if we are on the right
-			if (!left && pos.gaps)
-				x -= interCellGap;
-
 			return x;
 		}
 
@@ -135,19 +141,17 @@ private:
 		const auto start = m_sel.GetStart();
 		const auto end = m_sel.GetEnd();
 
-		const auto startRow = m_renderer.GetRowForOffset(start);
-		const auto endRow = m_renderer.GetRowForOffset(end);
-
-		//const auto bpc = m_renderer.GetBitsPerCell();
+		const auto startRow = m_renderer.GetRowForOffset(start, true);
+		const auto endRow = m_renderer.GetRowForOffset(end, false);
 
 		// all on one row, this one is easy!
 		if (startRow == endRow)
 		{
-			const auto posS = m_renderer.GetOffsetPosInLine(start);
-			const auto posE = m_renderer.GetOffsetPosInLine(end);
+			const auto posS = m_renderer.GetOffsetPosInLine(start, true);
+			const auto posE = m_renderer.GetOffsetPosInLine(end, false);
 
-			const auto startX = m_layout.GetXForPos(posS, true);
-			const auto endX = m_layout.GetXForPos(posE, false);
+			const auto startX = m_layout.GetXForPos(posS);
+			const auto endX = m_layout.GetXForPos(posE);
 
 			const auto startY = m_layout.GetYForRow(startRow, true);
 			const auto endY = m_layout.GetYForRow(endRow, false);
@@ -182,21 +186,21 @@ private:
 			 */
 
 			// Top block
-			const auto topS = m_renderer.GetOffsetPosInLine(start);
+			const auto topS = m_renderer.GetOffsetPosInLine(start, true);
 			const auto topE = m_renderer.GetLineEndPos();
 
-			const auto t0X = m_layout.GetXForPos(topS, true);
-			const auto t1X = m_layout.GetXForPos(topE, false);
+			const auto t0X = m_layout.GetXForPos(topS);
+			const auto t1X = m_layout.GetXForPos(topE);
 
 			const auto t0Y = m_layout.GetYForRow(startRow, true);
 			const auto t2Y = m_layout.GetYForRow(startRow, false);
 
 			// bottom block
 			const auto btmS = m_renderer.GetLineStartPos();
-			const auto btmE = m_renderer.GetOffsetPosInLine(end);
+			const auto btmE = m_renderer.GetOffsetPosInLine(end, false);
 
-			const auto b0X = m_layout.GetXForPos(btmS, true);
-			const auto b1X = m_layout.GetXForPos(btmE, false);
+			const auto b0X = m_layout.GetXForPos(btmS);
+			const auto b1X = m_layout.GetXForPos(btmE);
 
 			const auto b0Y = m_layout.GetYForRow(endRow, true);
 			const auto b2Y = m_layout.GetYForRow(endRow, false);

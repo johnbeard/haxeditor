@@ -61,6 +61,11 @@ public:
 			return m_start;
 		}
 
+		/*!
+		 * Set the range. Start is inclusive, end is exclusive.
+		 *
+		 * So [0,1) is just a one-unit selection.
+		 */
 		void SetRange(offset_t start, offset_t end)
 		{
 			m_start = start;
@@ -246,12 +251,18 @@ public:
 		return GetCellChars() * GetBitsPerChar();
 	}
 
-	offset_t GetRowForOffset(offset_t offset) const
+	offset_t GetRowForOffset(offset_t offset, bool leftEdge) const
 	{
 		offset_t row = 0;
 
 		if (auto w = GetWidth())
+		{
 			row = offset / w;
+
+			// end is on a row boundary, but we want the left edge
+			if (!leftEdge && (offset % w == 0))
+				row -= 1;
+		}
 
 		return row;
 	}
@@ -273,18 +284,39 @@ public:
 	 * @param offset the offset to get the pos of
 	 * @return
 	 */
-	StringLinePos GetOffsetPosInLine(offset_t offset) const
+	StringLinePos GetOffsetPosInLine(offset_t offset, bool leftEdge) const
 	{
 		StringLinePos pos;
+		const auto w = GetWidth();
 
-		if (GetWidth() > 0)
+		if (!w)
+			return pos;
+
+		auto offsetInLine = offset % w;
+
+		if (!leftEdge && (offsetInLine == 0))
 		{
-			const auto offsetInLine = offset % GetWidth();
-			const auto nChars = offsetInLine / GetBitsPerChar();
-			const auto nCells = nChars / GetCellChars();
+			// this means we are asking for the offset on a line boundary
+			// we were asked for the right edge, which is the end of the
+			// first line
+			offsetInLine = w;
 
-			pos.chars = nChars;
-			pos.gaps = nCells;
+			// the left edge is still zero
+		}
+
+		const auto nChars = offsetInLine / GetBitsPerChar();
+		const auto nCells = nChars / GetCellChars();
+
+		pos.chars = nChars;
+		pos.gaps = nCells;
+
+		// if we are on a cell boundary, remove the gap if a right edge is wanted
+		// and we are not at the start of the line already
+		if (offsetInLine % GetBitsPerCell() == 0
+				&& !leftEdge
+				&& (offsetInLine != 0))
+		{
+			pos.gaps -= 1;
 		}
 
 		return pos;
@@ -296,23 +328,14 @@ public:
 	 */
 	StringLinePos GetLineEndPos() const
 	{
-		StringLinePos pos;
-
-		const auto nCells = GetCellsPerRow();
-		pos.chars = GetCellChars() * nCells;
-		pos.gaps = nCells;
-
-		return pos;
+		// special case defer to general case
+		return GetOffsetPosInLine(GetWidth(), false);
 	}
 
 	StringLinePos GetLineStartPos() const
 	{
-		StringLinePos pos;
-
-		pos.chars = 0;
-		pos.gaps = 0;
-
-		return pos;
+		// special case defer to general case
+		return GetOffsetPosInLine(0, true);
 	}
 
 	virtual std::string RenderLine(offset_t offset) const = 0;
