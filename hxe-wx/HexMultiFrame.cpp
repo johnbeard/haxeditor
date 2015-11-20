@@ -206,10 +206,8 @@ void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 		scrollToEnd();
 		break;
 	case WXK_PAGEDOWN:
-		scrollPages(1, false);
-		break;
 	case WXK_PAGEUP:
-		scrollPages(-1, false);
+		scrollPages((keyCode == WXK_PAGEDOWN) ? 1 :-1, false);
 		break;
 	case WXK_UP:
 	case WXK_DOWN:
