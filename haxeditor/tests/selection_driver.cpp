@@ -116,3 +116,15 @@ TEST_F(SelectionDriverTest, activation)
 	EXPECT_EQ(0, sel.GetStart());
 	EXPECT_EQ(10, sel.GetEnd());
 }
+
+TEST_F(SelectionDriverTest, setToNonZeroStart)
+{
+	driver.ResetOffset(16);
+	driver.SetActive(true);
+
+	driver.SetActiveType(SelectionDriver::Left);
+	driver.onOffsetChanged(8);
+
+	EXPECT_EQ(8, sel.GetStart());
+	EXPECT_EQ(16, sel.GetEnd());
+}

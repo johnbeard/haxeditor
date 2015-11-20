@@ -108,7 +108,7 @@ void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
 	if (extendSelection && !m_selectionDriver->IsActive())
 	{
 		// selection starts (and ends) at the current offset
-		m_doc.GetSelection().SetRange(currOffset, currOffset);
+		m_selectionDriver->ResetOffset(currOffset);
 
 		// which end are we moving?
 		m_selectionDriver->SetActiveType(down

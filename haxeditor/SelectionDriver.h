@@ -52,6 +52,11 @@ public:
 		m_activeType = type;
 	}
 
+	void ResetOffset(offset_t offset)
+	{
+		m_selection.SetRange(offset, offset);
+	}
+
 	/*!
 	 * Handle an offset change.
 	 *
@@ -69,6 +74,14 @@ public:
 		const auto end = m_selection.GetEnd();
 
 		auto endToKeep = (m_activeType == Right) ? start : end;
+
+		// look out for "inversions" which mean we swap the sense of the
+		// selection (eg moving the left edge, but we move rightwards, past the
+		// existing right edge, then we _become_ the right edge!
+		if (m_activeType == Left && newOffset > end)
+			m_activeType = Right;
+		else if (newOffset < start)
+			m_activeType = Left;
 
 		m_selection.SetRange(newOffset, endToKeep);
 	}

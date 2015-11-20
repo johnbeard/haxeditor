@@ -36,18 +36,18 @@ class HMFTest: public ::testing::Test
 public:
 
 	HMFTest():
-		mf(doc)
+		mf(doc),
+		sel(doc.GetSelection())
 	{
 	}
 
 	HaxDocument doc;
 	TestMultiFrame mf;
+	const HaxDocument::Selection& sel; // handy shorthand
 };
 
 TEST_F(HMFTest, simpleMovement)
 {
-	const HaxDocument::Selection& sel = doc.GetSelection();
-
 	// start at 0
 	EXPECT_EQ(0, doc.GetOffset());
 
@@ -82,5 +82,39 @@ TEST_F(HMFTest, simpleMovement)
 	EXPECT_EQ(8, sel.GetEnd());
 }
 
+TEST_F(HMFTest, selectionWithInversion)
+{
+	// start at 0
+	EXPECT_EQ(0, doc.GetOffset());
 
+	// move a bit to the right
+	mf.scrollRight(5, false);
 
+	// select one to the left
+	mf.scrollRight(-1, true);
+
+	EXPECT_EQ(32, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(32, sel.GetStart());
+	EXPECT_EQ(40, sel.GetEnd());
+
+	// and back to start
+	mf.scrollRight(1, true);
+
+	EXPECT_EQ(40, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(40, sel.GetStart());
+	EXPECT_EQ(40, sel.GetEnd());
+
+	// and now "invert" past the original selection start
+	mf.scrollRight(1, true);
+
+	EXPECT_EQ(48, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(40, sel.GetStart());
+	EXPECT_EQ(48, sel.GetEnd());
+
+	// and keep going
+	mf.scrollRight(1, true);
+
+	EXPECT_EQ(56, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(40, sel.GetStart());
+	EXPECT_EQ(56, sel.GetEnd());
+}
