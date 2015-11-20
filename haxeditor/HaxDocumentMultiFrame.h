@@ -52,7 +52,7 @@ public:
 
 	void scrollToStart();
 	void scrollToEnd();
-	void scrollLines(int linesToScrollDown);
+	void scrollLines(int linesToScrollDown, bool moveCaret);
 	void scrollPages(int pagesDown);
 	void scrollRight(int unitsRight, bool extendSelection);
 
@@ -133,15 +133,18 @@ private:
 	 */
 	virtual void onSelectionChangedInt() = 0;
 
-	uint64_t m_rowOffset;
+	uint64_t m_rowOffset = 0;
 
-	unsigned m_rows;
+	unsigned m_rows = 0;
 
 	// logic for paging
 	std::unique_ptr<class PagedView> m_pagedView;
 
 	// selection wrapper/driver
 	std::unique_ptr<class SelectionDriver> m_selectionDriver;
+
+	// are we moving the caret?
+	bool m_movingCaret = false;
 };
 
 #endif /* HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_ */

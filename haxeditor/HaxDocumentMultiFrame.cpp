@@ -14,8 +14,6 @@
 
 HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_doc(doc),
-	m_rowOffset(0),
-	m_rows(0),
 	m_pagedView(std::unique_ptr<PagedView>(new PagedView())),
 	m_selectionDriver(new SelectionDriver(doc.GetSelection()))
 {
@@ -89,10 +87,12 @@ void HaxDocumentMultiFrame::scrollToEnd()
 	m_doc.SetOffset(m_doc.GetDataLength());
 }
 
-void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown)
+void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown, bool moveCaret)
 {
 	if (linesToScrollDown == 0)
 		return; //nothing to do
+
+	m_movingCaret = moveCaret;
 
 	const uint64_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
 
@@ -119,7 +119,7 @@ void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down)
 
 void HaxDocumentMultiFrame::scrollPages(int pagesDown)
 {
-	scrollLines(pagesDown * (GetNumVisibleRows() - 2)); // leave a bit of overlap
+	scrollLines(pagesDown * (GetNumVisibleRows() - 2), false); // leave a bit of overlap
 }
 
 void HaxDocumentMultiFrame::scrollRight(int unitsRight, bool extendSelection)
@@ -141,6 +141,7 @@ void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
 {
 	std::cout << "Offset change cb: " << newOffset << std::endl;
 
+	// did we move?
 	if (m_pagedView->ScrollToKeepOffsetInView(newOffset))
 	{
 		const offset_t newStart = m_pagedView->GetPageStart();
@@ -153,13 +154,16 @@ void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
 	}
 
 	// update each frame's caret
-	for (auto& f: m_frames)
+	if (m_movingCaret)
 	{
-		f->SetCaretPosition(newOffset);
-	}
+		for (auto& f: m_frames)
+		{
+			f->SetCaretPosition(newOffset);
+		}
 
-	// update the selection
-	m_selectionDriver->onOffsetChanged(newOffset);
+		// update the selection
+		m_selectionDriver->onOffsetChanged(newOffset);
+	}
 
 	onOffsetChangeInt();
 }
