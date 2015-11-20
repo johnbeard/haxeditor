@@ -46,8 +46,22 @@ public:
 
 TEST_F(HMFTest, simpleMovement)
 {
-	 EXPECT_EQ(0, doc.GetOffset());
+	const HaxDocument::Selection& sel = doc.GetSelection();
 
+	// start at 0
+	EXPECT_EQ(0, doc.GetOffset());
+
+	// move one to the right
+	mf.scrollRight(1, false);
+
+	// moves one byte
+	EXPECT_EQ(8, doc.GetOffset());
+
+	// select one byte right
+	mf.scrollRight(1, true);
+	EXPECT_EQ(16, doc.GetOffset());
+	EXPECT_EQ(8, sel.GetStart());
+	EXPECT_EQ(16, sel.GetEnd());
 
 }
 

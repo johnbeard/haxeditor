@@ -103,9 +103,13 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown,
 void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
 		bool extendSelection)
 {
+	const auto currOffset = m_doc.GetOffset();
 	// new selection
 	if (extendSelection && !m_selectionDriver->IsActive())
 	{
+		// selection starts (and ends) at the current offset
+		m_doc.GetSelection().SetRange(currOffset, currOffset);
+
 		// which end are we moving?
 		m_selectionDriver->SetActiveType(down
 				? SelectionDriver::Right : SelectionDriver::Left);
@@ -114,8 +118,7 @@ void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
 	// activate/deactivate the selection
 	m_selectionDriver->SetActive(extendSelection);
 
-
-	uint64_t newOffset = m_doc.GetOffset();
+	auto newOffset = currOffset;
 	if (down) // down
 	{
 		newOffset = std::min(m_doc.GetDataLength(), newOffset + delta);
@@ -141,8 +144,10 @@ void HaxDocumentMultiFrame::scrollRight(int unitsRight, bool extendSelection)
 {
 	std::cout << "Right: " << unitsRight << std::endl;
 
+	m_movingCaret = true;
+
 	// move one nibble
-	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0, extendSelection);
+	performDeltaOffset(std::abs(unitsRight) * 8, unitsRight > 0, extendSelection);
 }
 
 void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
