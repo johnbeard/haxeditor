@@ -45,6 +45,16 @@ protected:
 	}
 };
 
+TEST_F(SelectionPathRendererTest, pathNullSelection)
+{
+	selection.SetRange(8, 8); // select nothing
+	spr.UpdateSelection(selection);
+
+	const auto& regions = spr.GetPaths();
+
+	EXPECT_EQ(0, regions.size());
+}
+
 TEST_F(SelectionPathRendererTest, pathOneLineStart)
 {
 	selection.SetRange(0, 16); // select the first two bytes

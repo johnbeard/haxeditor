@@ -141,6 +141,10 @@ private:
 		const auto start = m_sel.GetStart();
 		const auto end = m_sel.GetEnd();
 
+		// null selection - there are no paths for this
+		if (start == end)
+			return;
+
 		const auto startRow = m_renderer.GetRowForOffset(start, true);
 		const auto endRow = m_renderer.GetRowForOffset(end, false);
 

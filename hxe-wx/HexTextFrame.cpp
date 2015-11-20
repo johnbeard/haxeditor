@@ -2,7 +2,7 @@
  * hexframe.cpp
  *
  *  Created on: 8 Sep 2015
- *      Author: john
+ *      Author: John Beard
  */
 
 #include <hxe-wx/HexTextFrame.h>

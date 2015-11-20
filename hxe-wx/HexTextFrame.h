@@ -2,7 +2,7 @@
  * hexframe.h
  *
  *  Created on: 8 Sep 2015
- *      Author: john
+ *      Author: John Beard
  */
 
 #ifndef HXE_WX_HEXTEXTFRAME_H_

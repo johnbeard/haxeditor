@@ -63,6 +63,23 @@ TEST_F(HMFTest, simpleMovement)
 	EXPECT_EQ(8, sel.GetStart());
 	EXPECT_EQ(16, sel.GetEnd());
 
+	// and another
+	mf.scrollRight(1, true);
+	EXPECT_EQ(24, doc.GetOffset());
+	EXPECT_EQ(8, sel.GetStart());
+	EXPECT_EQ(24, sel.GetEnd());
+
+	// and now go back
+	mf.scrollRight(-2, true);
+	EXPECT_EQ(8, doc.GetOffset());
+	EXPECT_EQ(8, sel.GetStart());
+	EXPECT_EQ(8, sel.GetEnd());
+
+	// and now go back one more
+	mf.scrollRight(-1, true);
+	EXPECT_EQ(0, doc.GetOffset());
+	EXPECT_EQ(0, sel.GetStart());
+	EXPECT_EQ(8, sel.GetEnd());
 }
 
 
