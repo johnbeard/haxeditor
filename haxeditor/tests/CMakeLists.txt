@@ -2,9 +2,11 @@
 
 set(srcFiles
     paged_view.cpp
+    hax_document_multiframe.cpp
     hax_string_renderer.cpp
     selection_renderer.cpp
     selection_driver.cpp
+
 )
 
 add_executable(haxeditor_tests ${srcFiles})
