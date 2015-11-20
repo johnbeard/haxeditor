@@ -87,7 +87,8 @@ void HaxDocumentMultiFrame::scrollToEnd()
 	m_doc.SetOffset(m_doc.GetDataLength());
 }
 
-void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown, bool moveCaret)
+void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown,
+		bool extendSelection, bool moveCaret)
 {
 	if (linesToScrollDown == 0)
 		return; //nothing to do
@@ -96,11 +97,24 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown, bool moveCaret)
 
 	const uint64_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
 
-	performDeltaOffset(deltaOffset, linesToScrollDown > 0);
+	performDeltaOffset(deltaOffset, linesToScrollDown > 0, extendSelection);
 }
 
-void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down)
+void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
+		bool extendSelection)
 {
+	// new selection
+	if (extendSelection && !m_selectionDriver->IsActive())
+	{
+		// which end are we moving?
+		m_selectionDriver->SetActiveType(down
+				? SelectionDriver::Right : SelectionDriver::Left);
+	}
+
+	// activate/deactivate the selection
+	m_selectionDriver->SetActive(extendSelection);
+
+
 	uint64_t newOffset = m_doc.GetOffset();
 	if (down) // down
 	{
@@ -117,24 +131,18 @@ void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down)
 	m_doc.SetOffset(newOffset);
 }
 
-void HaxDocumentMultiFrame::scrollPages(int pagesDown)
+void HaxDocumentMultiFrame::scrollPages(int pagesDown, bool extendSelection)
 {
-	scrollLines(pagesDown * (GetNumVisibleRows() - 2), false); // leave a bit of overlap
+	const auto rowsToScroll = GetNumVisibleRows() - 2; // leave a bit of overlap
+	scrollLines(pagesDown * rowsToScroll, extendSelection, false);
 }
 
 void HaxDocumentMultiFrame::scrollRight(int unitsRight, bool extendSelection)
 {
 	std::cout << "Right: " << unitsRight << std::endl;
 
-	// activate/deactivate the selection
-	m_selectionDriver->SetActive(extendSelection);
-
-	// which end are we moving?
-	m_selectionDriver->SetActiveType((unitsRight > 0)
-			? SelectionDriver::Right : SelectionDriver::Left);
-
 	// move one nibble
-	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0);
+	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0, extendSelection);
 }
 
 void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)

@@ -166,7 +166,7 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 	const int64_t lineDelta = m_hugeScrollBar->GetThumbPosition() - currRow;
 
 	if (lineDelta)
-		scrollLines(lineDelta, false);
+		scrollLines(lineDelta, false, false);
 
 	//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
 }
@@ -189,7 +189,7 @@ void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 	const bool goingDown = event.GetWheelRotation() < 0;
 	const int lineDelta = event.GetLinesPerAction();
 
-	scrollLines(lineDelta * (goingDown ? 1 : -1), false);
+	scrollLines(lineDelta * (goingDown ? 1 : -1), false, false);
 }
 
 void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
@@ -206,14 +206,14 @@ void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 		scrollToEnd();
 		break;
 	case WXK_PAGEDOWN:
-		scrollPages(1);
+		scrollPages(1, false);
 		break;
 	case WXK_PAGEUP:
-		scrollPages(-1);
+		scrollPages(-1, false);
 		break;
 	case WXK_UP:
 	case WXK_DOWN:
-		scrollLines((keyCode == WXK_DOWN) ? 1: -1, true);
+		scrollLines((keyCode == WXK_DOWN) ? 1: -1, event.ShiftDown(), true);
 		break;
 	case WXK_LEFT:
 	case WXK_RIGHT:

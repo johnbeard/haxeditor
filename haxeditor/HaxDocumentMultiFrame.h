@@ -52,8 +52,8 @@ public:
 
 	void scrollToStart();
 	void scrollToEnd();
-	void scrollLines(int linesToScrollDown, bool moveCaret);
-	void scrollPages(int pagesDown);
+	void scrollLines(int linesToScrollDown, bool extendSelection, bool moveCaret);
+	void scrollPages(int pagesDown, bool extendSelection);
 	void scrollRight(int unitsRight, bool extendSelection);
 
 	void SetOffset(uint64_t newOffset)
@@ -103,7 +103,8 @@ protected:
 
 private:
 
-	virtual void performDeltaOffset(uint64_t offset, bool down);
+	virtual void performDeltaOffset(uint64_t offset, bool down,
+			bool extendSelection);
 
 	/*!
 	 * Handle an offset change
