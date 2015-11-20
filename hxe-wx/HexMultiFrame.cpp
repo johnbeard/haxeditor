@@ -42,6 +42,8 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 			this, *m_hexRenderer, m_doc.GetSelection()));
+	f->signal_offsetChanged.connect(sigc::mem_fun(this,
+			&HexMultiFrame::onFrameSetsOffset));
 	m_frames.push_back(f.get());
 	m_hexPanelSizer->Add(f.release(), 100, wxALIGN_RIGHT | wxEXPAND, 0);
 	f.release();
@@ -179,6 +181,12 @@ void HexMultiFrame::onOffsetChangeInt()
 void HexMultiFrame::onSelectionChangedInt()
 {
 
+}
+
+void HexMultiFrame::onFrameSetsOffset(offset_t offset)
+{
+	std::cout << "Frame set new offset: " << offset << std::endl;
+	scrollTo(offset, false, true);
 }
 
 void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)

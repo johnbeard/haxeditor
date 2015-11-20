@@ -118,3 +118,21 @@ TEST_F(HMFTest, selectionWithInversion)
 	EXPECT_EQ(40, sel.GetStart());
 	EXPECT_EQ(56, sel.GetEnd());
 }
+
+TEST_F(HMFTest, scrollTo)
+{
+	// start at 0
+	EXPECT_EQ(0, doc.GetOffset());
+
+	mf.scrollTo(100, false, false);
+
+	// check the document offset is updated
+	EXPECT_EQ(100, doc.GetOffset());
+
+	mf.scrollTo(55, true, true); // need to move caret to do selection!
+
+	// check selection extend works
+	EXPECT_EQ(55, doc.GetOffset());
+	EXPECT_EQ(55, sel.GetStart());
+	EXPECT_EQ(100, sel.GetEnd());
+}

@@ -74,6 +74,11 @@ private:
 	 */
 	void onSelectionChangedInt() override;
 
+	/*!
+	 * Called when a subframe is requesting an offset change (maybe by a click?)
+	 */
+	void onFrameSetsOffset(offset_t offset);
+
 	wxSizer* m_hexPanelSizer;
 
 	std::unique_ptr<HaxStringRenderer> m_hexRenderer;

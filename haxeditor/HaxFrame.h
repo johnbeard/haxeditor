@@ -32,6 +32,12 @@ public:
 
 	virtual void moveCaret() = 0;
 
+	// signalled when a click or similar is driving the offset
+	sigc::signal<void, offset_t> signal_offsetChanged;
+
+	// signalled when a frame has been made active
+	sigc::signal<void, bool> signal_frameActive;
+
 protected:
 
 	bool isCaretVisible() const

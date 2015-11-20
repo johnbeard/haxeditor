@@ -50,6 +50,7 @@ public:
 	HaxDocumentMultiFrame(HaxDocument& doc);
 	virtual ~HaxDocumentMultiFrame();
 
+	void scrollTo(offset_t newOffset, bool extendSelection, bool moveCaret);
 	void scrollToStart();
 	void scrollToEnd();
 	void scrollLines(int linesToScrollDown, bool extendSelection, bool moveCaret);

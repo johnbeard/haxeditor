@@ -100,6 +100,22 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown,
 	performDeltaOffset(deltaOffset, linesToScrollDown > 0, extendSelection);
 }
 
+void HaxDocumentMultiFrame::scrollTo(offset_t newOffset, bool extendSelection,
+		bool moveCaret)
+{
+	// transform to a delta move
+	// TOOO reverse this?
+
+	m_movingCaret = moveCaret;
+
+	const auto currOffset = m_doc.GetOffset();
+	const bool down = newOffset > currOffset;
+
+	const auto delta = (down) ? (newOffset - currOffset) : (currOffset - newOffset);
+
+	performDeltaOffset(delta, down, extendSelection);
+}
+
 void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
 		bool extendSelection)
 {

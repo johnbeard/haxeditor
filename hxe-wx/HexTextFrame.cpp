@@ -307,6 +307,16 @@ void HexTextFrame::OnKeyboardInput(wxKeyEvent& event)
 
 void HexTextFrame::OnLeftMouseDown(wxMouseEvent& event)
 {
+	// TODO activate, and send signal
+	signal_frameActive.emit(true);
+
+	// find out the click offset from the location
+	const auto pos = event.GetPosition();
+
+	const auto offset = m_selectionRenderer.GetOffsetForPosition(pos.x, pos.y);
+
+	signal_offsetChanged.emit(offset);
+
 	// pass it on until we can deal with it? so as to avoid focus loss
 	event.Skip();
 }

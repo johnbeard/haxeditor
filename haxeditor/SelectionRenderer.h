@@ -132,6 +132,24 @@ public:
 		return m_regions;
 	}
 
+	/*!
+	 * Returns the offset from a given location in the cell grid according
+	 * to the current layout.
+	 *
+	 * TODO: SPlit layout out to a separate class, probably near the string
+	 * renderer class, and then provide a new wrapper for this fuctionality?
+	 */
+	offset_t GetOffsetForPosition(int x, int y)
+	{
+		const auto rowInPage = y / (m_layout.charH + m_layout.interRowGap);
+
+		const auto charS = m_renderer.GetBitsPerChar();
+
+		offset_t offset = rowInPage * m_renderer.GetWidth();
+
+		return offset;
+	}
+
 private:
 
 	void regenerateSelection() override
