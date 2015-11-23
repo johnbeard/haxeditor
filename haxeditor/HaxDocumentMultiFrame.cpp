@@ -22,6 +22,8 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 
 	m_pagedView->signal_pageStartChanged.connect(sigc::mem_fun(this,
 			&HaxDocumentMultiFrame::onPageStartChanged));
+
+	m_pagedView->SetMaximumOffset(doc.GetDataLength());
 }
 
 HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
@@ -211,7 +213,8 @@ void HaxDocumentMultiFrame::onSelectionChanged(const HaxDocument::Selection& sel
 
 void HaxDocumentMultiFrame::onPageStartChanged(const PagedView& /*changedView*/)
 {
-	const offset_t newStart = m_pagedView->GetPageStart();
+	// don't scroll past the end of the data
+	const auto newStart = m_pagedView->GetPageStart();
 
 	// update each frame as needed
 	for (auto& f: m_frames)

@@ -17,10 +17,7 @@
 class PagedView
 {
 public:
-	PagedView():
-		pageStart(0),
-		pageSize(0),
-		rowLength(0)
+	PagedView()
 	{}
 
 	virtual ~PagedView()
@@ -76,6 +73,13 @@ public:
 		pageSize = newSize;
 	}
 
+	void SetMaximumOffset(offset_t newMax)
+	{
+		m_maximumOffset = newMax;
+
+		// TODO: relocate on a smaller maximum?
+	}
+
 	unsigned GetRowLength() const
 	{
 		return rowLength;
@@ -115,19 +119,39 @@ private:
 
 	void changePageStart(offset_t newStart)
 	{
-		pageStart = newStart;
+		if (m_maximumOffset)
+		{
+			// see if we hit the max
+			if (newStart + pageSize > m_maximumOffset)
+			{
+				if (pageSize > m_maximumOffset)
+					newStart = 0;
+				else
+					newStart = m_maximumOffset - pageSize;
+			}
+		}
 
-		signal_pageStartChanged.emit(*this);
+		// change if needed
+		if (pageStart != newStart)
+		{
+			pageStart = newStart;
+
+			signal_pageStartChanged.emit(*this);
+		}
 	}
 
 	// Where the page starts
-	offset_t pageStart;
+	offset_t pageStart = 0;
 
 	// amount of data shown in a single page
-	offset_t pageSize;
+	offset_t pageSize = 0;
+
+	// maximum offset this pagedview will show
+	// 0 for no limit
+	offset_t m_maximumOffset = 0;
 
 	// the length of a single row of data
-	unsigned rowLength;
+	unsigned rowLength = 0;
 };
 
 
