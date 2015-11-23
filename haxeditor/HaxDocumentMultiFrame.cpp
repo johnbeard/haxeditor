@@ -14,11 +14,14 @@
 
 HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_doc(doc),
-	m_pagedView(std::unique_ptr<PagedView>(new PagedView())),
+	m_pagedView(new PagedView()),
 	m_selectionDriver(new SelectionDriver(doc.GetSelection()))
 {
 	doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
 	doc.signal_SelectionChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onSelectionChanged));
+
+	m_pagedView->signal_pageStartChanged.connect(sigc::mem_fun(this,
+			&HaxDocumentMultiFrame::onPageStartChanged));
 }
 
 HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
@@ -73,6 +76,11 @@ uint64_t HaxDocumentMultiFrame::getMaximumOffsetRow() const
 	return totalRows - pageRows;
 }
 
+offset_t HaxDocumentMultiFrame::GetPageOffset() const
+{
+	return m_pagedView->GetPageStart();
+}
+
 
 void HaxDocumentMultiFrame::scrollToStart()
 {
@@ -114,6 +122,11 @@ void HaxDocumentMultiFrame::scrollTo(offset_t newOffset, bool extendSelection,
 	const auto delta = (down) ? (newOffset - currOffset) : (currOffset - newOffset);
 
 	performDeltaOffset(delta, down, extendSelection);
+}
+
+void HaxDocumentMultiFrame::scrollPageStart(int linesToMovePageBy)
+{
+	m_pagedView->MovePageStartByLines(linesToMovePageBy);
 }
 
 void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
@@ -170,17 +183,8 @@ void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)
 {
 	std::cout << "Offset change cb: " << newOffset << std::endl;
 
-	// did we move?
-	if (m_pagedView->ScrollToKeepOffsetInView(newOffset))
-	{
-		const offset_t newStart = m_pagedView->GetPageStart();
-
-		// update each frame as needed
-		for (auto& f: m_frames)
-		{
-			f->SetOffset(newStart);
-		}
-	}
+	// this will fire off page start changes if needed
+	m_pagedView->ScrollToKeepOffsetInView(newOffset);
 
 	// update each frame's caret
 	if (m_movingCaret)
@@ -203,4 +207,17 @@ void HaxDocumentMultiFrame::onSelectionChanged(const HaxDocument::Selection& sel
 			<< selection.GetEnd() << std::endl;
 
 	onSelectionChangedInt();
+}
+
+void HaxDocumentMultiFrame::onPageStartChanged(const PagedView& /*changedView*/)
+{
+	const offset_t newStart = m_pagedView->GetPageStart();
+
+	// update each frame as needed
+	for (auto& f: m_frames)
+	{
+		f->SetOffset(newStart);
+	}
+
+	onPageStartChangedInt();
 }

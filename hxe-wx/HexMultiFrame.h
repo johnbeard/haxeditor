@@ -75,6 +75,11 @@ private:
 	void onSelectionChangedInt() override;
 
 	/*!
+	 * Called by base class when the page start changes
+	 */
+	void onPageStartChangedInt() override;
+
+	/*!
 	 * Called when a subframe is requesting an offset change (maybe by a click?)
 	 */
 	void onFrameSetsOffset(offset_t offset);

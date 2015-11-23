@@ -127,7 +127,7 @@ void HexMultiFrame::OnFontChange()
 void HexMultiFrame::AdjustScrollBar()
 {
 	const uint64_t dataRows = m_doc.GetDataLength() / getRowLength();
-	const uint64_t rowOffset = m_doc.GetOffset() / getRowLength();
+	const uint64_t rowOffset = GetPageOffset() / getRowLength();
 
 	const unsigned rows = GetNumVisibleRows();
 
@@ -164,7 +164,7 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 {
 	// take the position from the HugeScrollBar
 	// (which must have already processed the event!)
-	const uint64_t currRow = m_doc.GetOffset() / getRowLength();
+	const uint64_t currRow = GetPageOffset() / getRowLength();
 	const int64_t lineDelta = m_hugeScrollBar->GetThumbPosition() - currRow;
 
 	if (lineDelta)
@@ -175,12 +175,15 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 
 void HexMultiFrame::onOffsetChangeInt()
 {
-	AdjustScrollBar();
 }
 
 void HexMultiFrame::onSelectionChangedInt()
 {
+}
 
+void HexMultiFrame::onPageStartChangedInt()
+{
+	AdjustScrollBar();
 }
 
 void HexMultiFrame::onFrameSetsOffset(offset_t offset)
@@ -197,7 +200,8 @@ void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 	const bool goingDown = event.GetWheelRotation() < 0;
 	const int lineDelta = event.GetLinesPerAction();
 
-	scrollLines(lineDelta * (goingDown ? 1 : -1), false, false);
+	// scroll the page not the offset
+	scrollPageStart(lineDelta * (goingDown ? 1 : -1));
 }
 
 void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)

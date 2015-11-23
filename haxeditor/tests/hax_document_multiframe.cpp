@@ -22,12 +22,14 @@ private:
 
 	void onOffsetChangeInt() override
 	{
-
 	}
 
 	void onSelectionChangedInt() override
 	{
+	}
 
+	void onPageStartChangedInt() override
+	{
 	}
 };
 
@@ -135,4 +137,18 @@ TEST_F(HMFTest, scrollTo)
 	EXPECT_EQ(55, doc.GetOffset());
 	EXPECT_EQ(55, sel.GetStart());
 	EXPECT_EQ(100, sel.GetEnd());
+}
+
+TEST_F(HMFTest, movePageStart)
+{
+	// start at 0
+	EXPECT_EQ(0, mf.GetPageOffset());
+
+	mf.scrollPageStart(2);
+
+	EXPECT_EQ(160, mf.GetPageOffset());
+
+	mf.scrollPageStart(-1);
+
+	EXPECT_EQ(80, mf.GetPageOffset());
 }

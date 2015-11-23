@@ -26,12 +26,11 @@ public:
 	virtual ~PagedView()
 	{}
 
-	bool ScrollToKeepOffsetInView(offset_t newOffset)
+	void ScrollToKeepOffsetInView(offset_t newOffset)
 	{
 		if (!rowLength)
-			return false;
+			return;
 
-		bool moved = false;
 		// do we need to move the whole view, or just the caret?
 		const bool movedOffTop = newOffset < pageStart;
 		const bool movedOffBottom = newOffset >= (pageStart + pageSize);
@@ -58,12 +57,8 @@ public:
 				}
 			}
 
-			// TODO: notify..
-			pageStart = newStart;
-			moved = true;
+			changePageStart(newStart);
 		}
-
-		return moved;
 	}
 
 	offset_t GetPageSize() const
@@ -91,7 +86,40 @@ public:
 		rowLength = length;
 	}
 
+	void MovePageStartByLines(int linesToMovePageBy)
+	{
+		auto pageOff = pageStart;
+		const auto delta = std::abs(linesToMovePageBy) * GetRowLength();
+
+		if (linesToMovePageBy < 0)
+		{
+			if (delta > pageStart)
+				pageOff = 0;
+			else
+				pageOff -= delta;
+		}
+		else
+		{
+			pageOff += delta;
+		}
+
+		changePageStart(pageOff);
+	}
+
+	/*!
+	 * This signal will tell you if a PagedView has changed its start offset
+	 */
+	sigc::signal<void, const PagedView&> signal_pageStartChanged;
+
 private:
+
+	void changePageStart(offset_t newStart)
+	{
+		pageStart = newStart;
+
+		signal_pageStartChanged.emit(*this);
+	}
+
 	// Where the page starts
 	offset_t pageStart;
 

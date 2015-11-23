@@ -56,6 +56,7 @@ public:
 	void scrollLines(int linesToScrollDown, bool extendSelection, bool moveCaret);
 	void scrollPages(int pagesDown, bool extendSelection);
 	void scrollRight(int unitsRight, bool extendSelection);
+	void scrollPageStart(int linesToMovePage);
 
 	void SetOffset(uint64_t newOffset)
 	{
@@ -71,6 +72,11 @@ public:
 	{
 		return m_rows;
 	}
+
+	/*!
+	 * @return the offset at the start of the page
+	 */
+	offset_t GetPageOffset() const;
 
 protected:
 
@@ -134,6 +140,17 @@ private:
 	 * @param newOffset
 	 */
 	virtual void onSelectionChangedInt() = 0;
+
+	/*!
+	 * Called when the paged view page start changes
+	 */
+	virtual void onPageStartChanged(const class PagedView& changedView);
+
+	/*!
+	 * Implement this to respond to page start (not necessarily document offset)
+	 * changes
+	 */
+	virtual void onPageStartChangedInt() = 0;
 
 	uint64_t m_rowOffset = 0;
 
