@@ -137,17 +137,32 @@ public:
 	 * to the current layout.
 	 *
 	 * TODO: SPlit layout out to a separate class, probably near the string
-	 * renderer class, and then provide a new wrapper for this fuctionality?
+	 * renderer class, and then provide a new wrapper for this functionality?
 	 */
 	offset_t GetOffsetForPosition(int x, int y)
 	{
 		const auto rowInPage = y / (m_layout.charH + m_layout.interRowGap);
 
-		const auto charS = m_renderer.GetBitsPerChar();
+		const auto charSize = m_renderer.GetBitsPerChar();
 
 		offset_t offset = rowInPage * m_renderer.GetWidth();
 
 		HaxStringRenderer::CellList cellsInRow(m_renderer.GetRowCells(offset));
+
+		decltype(x) xInRow = 0;
+
+		for (const auto& cellChars: cellsInRow)
+		{
+			xInRow += cellChars * m_layout.charW + m_layout.interCellGap;
+
+			// stop when we find the click position
+			if (xInRow > x)
+			{
+				break;
+			}
+
+			offset += charSize * cellChars;
+		}
 
 		return offset;
 	}

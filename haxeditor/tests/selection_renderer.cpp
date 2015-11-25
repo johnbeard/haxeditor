@@ -114,17 +114,33 @@ TEST_F(SelectionPathRendererTest, pathOneLineEnd)
 
 TEST_F(SelectionPathRendererTest, pathTwoLines)
 {
-	{
-		selection.SetRange(72, 88); // select the last byte on line 0 and first on line 1
-		spr.UpdateSelection(selection);
+	selection.SetRange(72, 88); // select the last byte on line 0 and first on line 1
+	spr.UpdateSelection(selection);
 
-		const auto& regions = spr.GetPaths();
+	const auto& regions = spr.GetPaths();
 
-		// 1 joined-up region
-		EXPECT_EQ(1, regions.size());
-		EXPECT_EQ(8, regions[0].size());
+	// 1 joined-up region
+	EXPECT_EQ(1, regions.size());
+	EXPECT_EQ(8, regions[0].size());
 
-		EXPECT_EQ(9 * (2 * 7) + 9 * 6, regions[0][0].x);
-		//EXPECT_EQ(10 * (2 * 7) + 10 * 6, regions[0][1].x);
-	}
+	EXPECT_EQ(9 * (2 * 7) + 9 * 6, regions[0][0].x);
+	//EXPECT_EQ(10 * (2 * 7) + 10 * 6, regions[0][1].x);
+}
+
+TEST_F(SelectionPathRendererTest, rowPositionsForOffset)
+{
+	// check origin
+	EXPECT_EQ(0, spr.GetOffsetForPosition(0, 0));
+
+	// check that the row to row offset works
+	EXPECT_EQ(0, spr.GetOffsetForPosition(0, 12));
+	EXPECT_EQ(0, spr.GetOffsetForPosition(0, 12 + 8 - 1));
+	EXPECT_EQ(80, spr.GetOffsetForPosition(0, 12 + 8));
+
+	// anywhere in the first cell or first gap is 0
+	EXPECT_EQ(0, spr.GetOffsetForPosition(14, 0));
+	EXPECT_EQ(0, spr.GetOffsetForPosition(14 + 6 - 1, 0));
+
+	// and the second cell starts _after_ the first gap
+	EXPECT_EQ(8, spr.GetOffsetForPosition(14 + 6, 0));
 }
