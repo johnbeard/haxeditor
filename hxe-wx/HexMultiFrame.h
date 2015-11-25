@@ -82,7 +82,7 @@ private:
 	/*!
 	 * Called when a subframe is requesting an offset change (maybe by a click?)
 	 */
-	void onFrameSetsOffset(offset_t offset);
+	void onFrameSetsOffset(offset_t offset, bool extendSelection);
 
 	wxSizer* m_hexPanelSizer;
 

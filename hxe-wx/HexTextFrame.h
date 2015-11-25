@@ -62,6 +62,7 @@ private:
 
 	void OnKeyboardInput(wxKeyEvent& event);
 	void OnLeftMouseDown(wxMouseEvent& event);
+	void OnMouseMotion(wxMouseEvent& event);
 	void OnFocusSet(wxFocusEvent& event);
 
 	void drawToBitmap(wxDC& dc);

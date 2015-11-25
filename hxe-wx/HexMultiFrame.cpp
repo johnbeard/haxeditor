@@ -186,10 +186,10 @@ void HexMultiFrame::onPageStartChangedInt()
 	AdjustScrollBar();
 }
 
-void HexMultiFrame::onFrameSetsOffset(offset_t offset)
+void HexMultiFrame::onFrameSetsOffset(offset_t offset, bool extendSelection)
 {
 	std::cout << "Frame set new offset: " << offset << std::endl;
-	scrollTo(offset, false, true);
+	scrollTo(offset, extendSelection, true);
 }
 
 void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)

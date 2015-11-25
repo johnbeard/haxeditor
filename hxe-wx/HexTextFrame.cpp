@@ -101,6 +101,7 @@ HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 	Bind(wxEVT_KEY_DOWN, &HexTextFrame::OnKeyboardInput, this);
 	m_caret->Bind(wxEVT_KEY_DOWN, &HexTextFrame::OnKeyboardInput, this);
 	Bind(wxEVT_LEFT_DOWN, &HexTextFrame::OnLeftMouseDown, this);
+	Bind(wxEVT_MOTION, &HexTextFrame::OnMouseMotion, this);
 	Bind(wxEVT_SET_FOCUS, &HexTextFrame::OnFocusSet, this);
 	Bind(wxEVT_KILL_FOCUS, &HexTextFrame::OnFocusSet, this);
 }
@@ -111,7 +112,7 @@ HexTextFrame::~HexTextFrame()
 	Unbind(wxEVT_SIZE, &HexTextFrame::OnSize, this);
 	Unbind(wxEVT_KEY_DOWN, &HexTextFrame::OnKeyboardInput, this);
 	Unbind(wxEVT_LEFT_DOWN, &HexTextFrame::OnLeftMouseDown, this);
-
+	Unbind(wxEVT_MOTION, &HexTextFrame::OnMouseMotion, this);
 	Unbind(wxEVT_SET_FOCUS, &HexTextFrame::OnFocusSet, this);
 	Unbind(wxEVT_KILL_FOCUS, &HexTextFrame::OnFocusSet, this);
 }
@@ -315,10 +316,22 @@ void HexTextFrame::OnLeftMouseDown(wxMouseEvent& event)
 
 	const auto offset = m_selectionRenderer.GetOffsetForPosition(pos.x, pos.y);
 
-	signal_offsetChanged.emit(offset);
+	signal_offsetChanged.emit(offset, false);
 
 	// pass it on until we can deal with it? so as to avoid focus loss
 	event.Skip();
+}
+
+void HexTextFrame::OnMouseMotion(wxMouseEvent& event)
+{
+	if (event.Dragging())
+	{
+		const auto pos = event.GetPosition();
+
+		const auto offset = m_selectionRenderer.GetOffsetForPosition(pos.x, pos.y);
+
+		signal_offsetChanged.emit(offset, true);
+	}
 }
 
 void HexTextFrame::OnFocusSet(wxFocusEvent& /*event*/)

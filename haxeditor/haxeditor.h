@@ -458,6 +458,7 @@ public:
 	}
 
 private:
+
 	unsigned getAddrWidth() const
 	{
 		// FIXME
