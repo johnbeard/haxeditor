@@ -74,9 +74,8 @@ private:
 HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
-		HaxStringRenderer& renderer,
-		HaxDocument::Selection& selection) :
-			HaxFrame(selection),
+		HaxStringRenderer& renderer) :
+			HaxFrame(),
 			wxWindow(parent, id, pos, size),
 			m_caretPos(0, 0),
 			m_bmpBuffer(0, 0),
@@ -147,6 +146,8 @@ void HexTextFrame::DataChanged(bool force)
 	m_pendingState.m_rows = m_director->GetNumRowsToShow();
 	m_pendingState.m_cols = m_renderer.GetWidth();
 
+	m_pendingState.m_selectionActive = m_selectionPolygon.GetCount();
+
 	// see if we need to redraw (force to override and recompute anyway!)
 	if (!force && !m_state.redrawNeeded(m_pendingState))
 	{
@@ -202,11 +203,17 @@ void HexTextFrame::drawToBitmap(wxDC& dc)
 	dc.SetBrush(wxBrush(m_bgColour));
 	dc.DrawRectangle(0, 0, dc.GetSize().x, dc.GetSize().y);
 
+	//std::cout << "Drawing..." << std::endl;
+
 	// draw the selection outline
 	//TODO move out to separate window?
-	dc.SetBrush(wxColour(0, 100, 255, 50));
-	dc.SetPen(wxColour(50, 50, 50, 255));
-	dc.DrawPolygon(&m_selectionPolygon);
+	if (m_state.m_selectionActive)
+	{
+		//std::cout << "Selection poly " << m_selectionPolygon.GetCount() << " items" << std::endl;
+		dc.SetBrush(wxColour(0, 100, 255, 50));
+		dc.SetPen(wxColour(50, 50, 50, 255));
+		dc.DrawPolygon(&m_selectionPolygon);
+	}
 
 	int yPos = m_state.m_margin.y;
 	uint64_t lineOffset = m_state.offset;
@@ -347,24 +354,33 @@ void HexTextFrame::OnFocusSet(wxFocusEvent& /*event*/)
 }
 
 // selection change notification
-void HexTextFrame::selectionChanged(const HaxDocument::Selection& selection)
+void HexTextFrame::ChangeSelection(const HaxDocument::Selection& selection,
+		bool active)
 {
-	m_selectionRenderer.UpdateSelection(selection);
-
-	const auto regions = m_selectionRenderer.GetPaths();
-
-	// TODO: fix multiregions
-	for(auto& region: regions)
+	if (!active)
 	{
+		// inactive selection - no polygon to draw...
 		m_selectionPolygon.Clear();
+	}
+	else
+	{
+		m_selectionRenderer.UpdateSelection(selection);
 
-		//std::cout << "Selection polygon: ";
-		for (auto& pt: region)
+		const auto regions = m_selectionRenderer.GetPaths();
+
+		// TODO: fix multiregions
+		for(auto& region: regions)
 		{
-			//std::cout << "(" << pt.x << ", " << pt.y << "), ";
-			m_selectionPolygon.Append(new wxPoint(pt.x, pt.y));
+			m_selectionPolygon.Clear();
+
+			//std::cout << "Selection polygon: ";
+			for (auto& pt: region)
+			{
+				//std::cout << "(" << pt.x << ", " << pt.y << "), ";
+				m_selectionPolygon.Append(new wxPoint(pt.x, pt.y));
+			}
+			//std::cout << std::endl;
 		}
-		//std::cout << std::endl;
 	}
 
 	DataChanged(true); // FIXME force

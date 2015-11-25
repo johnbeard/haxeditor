@@ -7,12 +7,10 @@
 
 #include "HaxFrame.h"
 
-HaxFrame::HaxFrame(HaxDocument::Selection& selection):
+HaxFrame::HaxFrame():
 	m_caretVisible(true)
 {
-	// when the selection changes, we might want to draw it?
-	selection.signal_changed.connect(sigc::mem_fun(this,
-			&HaxFrame::selectionChanged));
+
 }
 
 

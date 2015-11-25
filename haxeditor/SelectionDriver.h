@@ -40,7 +40,16 @@ public:
 
 	void SetActive(bool active)
 	{
-		m_selectionActive = active;
+		if (active != m_selectionActive)
+		{
+			m_selectionActive = active;
+
+			if (!active)
+			{
+				// reset (will notify)
+				m_selection.SetRange(0, 0);
+			}
+		}
 	}
 
 	/*!

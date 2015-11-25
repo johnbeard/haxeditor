@@ -109,12 +109,20 @@ TEST_F(SelectionDriverTest, activation)
 
 	EXPECT_FALSE(driver.IsActive());
 
+	// we got an update
+	EXPECT_TRUE(m_callbackHit);
+	m_callbackHit = false;
+
+	// reset to 0
+	EXPECT_EQ(0, sel.GetStart());
+	EXPECT_EQ(0, sel.GetEnd());
+
 	driver.onOffsetChanged(100);
 
 	// unchanged
 	EXPECT_FALSE(m_callbackHit);
 	EXPECT_EQ(0, sel.GetStart());
-	EXPECT_EQ(10, sel.GetEnd());
+	EXPECT_EQ(0, sel.GetEnd());
 }
 
 TEST_F(SelectionDriverTest, setToNonZeroStart)

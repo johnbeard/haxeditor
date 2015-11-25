@@ -19,7 +19,7 @@
 class HaxFrame
 {
 public:
-	HaxFrame(HaxDocument::Selection& selection);
+	HaxFrame();
 
 	virtual ~HaxFrame()
 	{}
@@ -31,6 +31,13 @@ public:
 	virtual void SetCaretPosition(offset_t newPos) = 0;
 
 	virtual void moveCaret() = 0;
+
+	/*!
+	 * Implement to handle a selection change
+	 * @param selection the new selection
+	 */
+	virtual void ChangeSelection(const HaxDocument::Selection& selection,
+			bool active) = 0;
 
 	// signalled when a click or similar is driving the offset
 	sigc::signal<void, offset_t, bool> signal_offsetChanged;
@@ -51,12 +58,6 @@ protected:
 	}
 
 private:
-
-	/*!
-	 * Implement to handle a selection change
-	 * @param selection the new selection
-	 */
-	virtual void selectionChanged(const HaxDocument::Selection& selection) = 0;
 
 	bool m_caretVisible;
 };

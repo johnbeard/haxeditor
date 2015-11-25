@@ -208,6 +208,12 @@ void HaxDocumentMultiFrame::onSelectionChanged(const HaxDocument::Selection& sel
 	std::cout << "Multiframe selection: " << selection.GetStart() << ":"
 			<< selection.GetEnd() << std::endl;
 
+	// all the subframes need to know this
+	for (auto& f: m_frames)
+	{
+		f->ChangeSelection(selection, m_selectionDriver->IsActive());
+	}
+
 	onSelectionChangedInt();
 }
 

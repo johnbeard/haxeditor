@@ -34,14 +34,14 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 
 	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 				this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-				this, *m_addrRenderer, m_doc.GetSelection()));
+				this, *m_addrRenderer));
 	m_frames.push_back(f.get());
 	m_hexPanelSizer->Add(f.get(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
 	f.release();
 
 	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_hexRenderer, m_doc.GetSelection()));
+			this, *m_hexRenderer));
 	f->signal_offsetChanged.connect(sigc::mem_fun(this,
 			&HexMultiFrame::onFrameSetsOffset));
 	m_frames.push_back(f.get());
@@ -50,7 +50,7 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 
 	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_textRenderer, m_doc.GetSelection()));
+			this, *m_textRenderer));
 	m_frames.push_back(f.get());
 	m_hexPanelSizer->Add(f.release(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
 	f.release();

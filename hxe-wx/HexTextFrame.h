@@ -26,6 +26,9 @@ class HexTextFrame: public HaxFrame,
 {
 public:
 
+	/*!
+	 * Class to tell a text frame how to draw itself
+	 */
 	class Director
 	{
 	public:
@@ -38,8 +41,7 @@ public:
 	HexTextFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
-			HaxStringRenderer& renderer,
-			HaxDocument::Selection& selection);
+			HaxStringRenderer& renderer);
 	~HexTextFrame();
 
 	void DataChanged(bool force);
@@ -58,7 +60,7 @@ protected:
 	wxPoint   m_caretPos;	// position (in text coords) of the caret
 private:
 
-	void selectionChanged(const HaxDocument::Selection& selection) override;
+	void ChangeSelection(const HaxDocument::Selection& selection, bool active) override;
 
 	void OnKeyboardInput(wxKeyEvent& event);
 	void OnLeftMouseDown(wxMouseEvent& event);
@@ -82,11 +84,13 @@ private:
 		uint64_t offset;
 		wxPoint m_margin; // the margin around the text
 		wxSize m_charSize;
+		bool m_selectionActive;
 
 		State():
 			m_rows(0),
 			m_cols(0),
-			offset(0)
+			offset(0),
+			m_selectionActive(false)
 		{}
 
 		bool redrawNeeded(const State& other) const
@@ -94,7 +98,8 @@ private:
 			 return offset != other.offset
 					 || m_rows != other.m_rows
 					 || m_cols != other.m_cols
-					 || m_margin != other.m_margin;
+					 || m_margin != other.m_margin
+					 || m_selectionActive != other.m_selectionActive;
 		}
 	};
 
