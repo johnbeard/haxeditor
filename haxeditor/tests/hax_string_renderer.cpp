@@ -89,7 +89,7 @@ TEST(HaxStringRendererTests, testZeroWidth)
 	HaxDocument doc;
 	HaxHexRenderer rdr(doc);
 
-	rdr.SetWidth(0); // 10 bytes
+	rdr.SetWidth(0); // zero bytes
 
 	// shouldn't divide by zero!
 	HaxStringRenderer::StringLinePos pos;
@@ -97,4 +97,19 @@ TEST(HaxStringRendererTests, testZeroWidth)
 
 	EXPECT_EQ(0, pos.chars);
 	EXPECT_EQ(0, pos.gaps);
+}
+
+TEST(HaxStringRendererTests, hexCellList)
+{
+	HaxDocument doc;
+	HaxHexRenderer rdr(doc);
+
+	rdr.SetWidth(80);
+
+	// shouldn't divide by zero!
+	HaxStringRenderer::StringLinePos pos;
+	HaxStringRenderer::CellList cells = rdr.GetRowCells(0);
+
+	EXPECT_EQ(10, cells.size());
+	EXPECT_EQ(2, cells[0]);
 }

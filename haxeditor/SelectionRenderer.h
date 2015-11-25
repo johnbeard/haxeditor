@@ -147,6 +147,8 @@ public:
 
 		offset_t offset = rowInPage * m_renderer.GetWidth();
 
+		HaxStringRenderer::CellList cellsInRow(m_renderer.GetRowCells(offset));
+
 		return offset;
 	}
 

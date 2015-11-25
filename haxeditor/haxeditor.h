@@ -340,6 +340,17 @@ public:
 
 	virtual std::string RenderLine(offset_t offset) const = 0;
 
+	/*!
+	 * List of cell lengths within a row
+	 * Entries are the lengths of cells
+	 */
+	typedef std::vector<int> CellList;
+
+	/*!
+	 * Get the cells (and their lengths) for a row in the renderer.
+	 */
+	virtual CellList GetRowCells(offset_t rowOffset) const = 0;
+
 private:
 
 	// the width of the renderer
@@ -380,6 +391,15 @@ public:
 	{
 		return 2;
 	}
+
+	CellList GetRowCells(offset_t /*offset*/) const override
+	{
+		CellList cl;
+
+		// all cells are the same length (2 chars)
+		cl.insert(cl.begin(), GetCellsPerRow(), GetCellChars());
+		return cl;
+	}
 };
 
 class HaxTextRenderer: public HaxStringRenderer
@@ -413,6 +433,16 @@ public:
 	unsigned GetCellChars() const override
 	{
 		return GetWidth() / 8; // one char per byte
+	}
+
+	CellList GetRowCells(offset_t /*offset*/) const override
+	{
+		CellList cl;
+
+		// one cell
+		// TODO should be n cells...
+		cl.push_back(GetCellChars());
+		return cl;
 	}
 
 private:
@@ -455,6 +485,15 @@ public:
 	unsigned GetCellChars() const override
 	{
 		return getAddrWidth();
+	}
+
+	CellList GetRowCells(offset_t /*offset*/) const override
+	{
+		CellList cl;
+
+		//  one cell of the whole width
+		cl.push_back(GetCellChars());
+		return cl;
 	}
 
 private:
