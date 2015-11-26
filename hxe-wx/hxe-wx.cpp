@@ -7,11 +7,46 @@
 #endif
 
 #include "HexMultiFrame.h"
+#include "haxeditor/HaxOffsetRenderer.h"
 
 class HaxEditorWX: public wxApp
 {
 public:
 	virtual bool OnInit();
+};
+
+class HwxStatusBar
+{
+public:
+
+	HwxStatusBar(wxStatusBar& sb):
+		m_statusBar(sb)
+	{
+		m_statusBar.SetFieldsCount(NUM_Fields, nullptr);
+
+		// set up the fields to start
+		SetOffset(0);
+	}
+
+	void SetOffset(offset_t offset)
+	{
+		m_offsetRender.SetOffset(offset);
+		m_statusBar.SetStatusText(m_offsetRender.RenderOffset(), OffsetField);
+	}
+
+private:
+	enum Field
+	{
+		OffsetField = 0,
+		NUM_Fields
+	};
+
+	// the status bar - note that we are not going to own this,
+	// the main frame owns it and we just hold a reference
+	wxStatusBar& m_statusBar;
+
+	// TODO: switchable renderer?
+	HaxOffsetRendererDecimal m_offsetRender;
 };
 
 class MyFrame: public wxFrame
@@ -32,6 +67,8 @@ private:
 
 	std::unique_ptr<HaxDocument> m_doc;
 	HexMultiFrame* m_mframe;
+
+	std::unique_ptr<HwxStatusBar> m_statusBar;
 };
 
 enum
@@ -61,8 +98,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 	menuBar->Append(menuFile, wxT("&File"));
 	menuBar->Append(menuHelp, wxT("&Help"));
 	SetMenuBar(menuBar);
-	CreateStatusBar();
-	SetStatusText(wxT("Welcome to HaxEditor"));
+
+	m_statusBar = std::make_unique<HwxStatusBar>(*CreateStatusBar());
 
 	// bind menu events
 	Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
@@ -85,7 +122,7 @@ MyFrame::~MyFrame()
 
 void MyFrame::SetData()
 {
-	m_doc.reset(new HaxDocument());
+	m_doc = std::make_unique<HaxDocument>();
 
 	m_mframe = new HexMultiFrame(this, wxID_ANY, *m_doc);
 
@@ -94,6 +131,9 @@ void MyFrame::SetData()
 	sz->Show(true);
 	sz->Add(m_mframe, 100, wxALIGN_RIGHT | wxEXPAND, 10);
 
+	// bind document events
+	m_doc->signal_OffsetChanged.connect(sigc::mem_fun(m_statusBar.get(),
+			&HwxStatusBar::SetOffset));
 }
 
 void MyFrame::OnExit(wxCommandEvent& /*event*/)

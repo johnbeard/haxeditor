@@ -5,7 +5,10 @@
 #include <string>
 #include <iostream>
 
+#include "utils/CompilerSupport.h"
+
 #include <sigc++-2.0/sigc++/signal.h>
+
 
 /*!
  * The offset within a file, expressed in bits (not bytes) to allow for
@@ -160,8 +163,8 @@ public:
 		return m_selection;
 	}
 
-	sigc::signal<void, offset_t> signal_OffsetChanged;
-	sigc::signal<void, const Selection&> signal_SelectionChanged;
+	mutable sigc::signal<void, offset_t> signal_OffsetChanged;
+	mutable sigc::signal<void, const Selection&> signal_SelectionChanged;
 
 private:
 

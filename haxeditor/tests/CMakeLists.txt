@@ -3,6 +3,7 @@
 set(srcFiles
     paged_view.cpp
     hax_document_multiframe.cpp
+    hax_offset_renderer.cpp
     hax_string_renderer.cpp
     selection_renderer.cpp
     selection_driver.cpp
