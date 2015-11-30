@@ -24,8 +24,14 @@ public:
 	{
 		m_statusBar.SetFieldsCount(NUM_Fields, nullptr);
 
+		// reuse the offset renderer for the range renderer (we probably
+		// want them to be the same, but easy to change later)
+		m_rangeRender.SetRenderer(&m_offsetRender);
+
 		// set up the fields to start
 		SetOffset(0);
+
+		SetSelectionRange(HaxDocument::Selection());
 	}
 
 	void SetOffset(offset_t offset)
@@ -34,10 +40,20 @@ public:
 		m_statusBar.SetStatusText(m_offsetRender.RenderOffset(), OffsetField);
 	}
 
+	void SetSelectionRange(const HaxDocument::Selection& selection)
+	{
+		m_rangeRender.SetRange(selection.GetStart() / BYTE, selection.GetEnd() / BYTE);
+
+		m_statusBar.SetStatusText(m_rangeRender.RenderRange(), RangeField);
+		m_statusBar.SetStatusText(m_rangeRender.RenderRangeSize(), RangeSizeField);
+	}
+
 private:
 	enum Field
 	{
 		OffsetField = 0,
+		RangeField,
+		RangeSizeField,
 		NUM_Fields
 	};
 
@@ -47,6 +63,8 @@ private:
 
 	// TODO: switchable renderer?
 	HaxOffsetRendererDecimal m_offsetRender;
+
+	HaxRangeRenderer m_rangeRender;
 };
 
 class MyFrame: public wxFrame
@@ -134,6 +152,9 @@ void MyFrame::SetData()
 	// bind document events
 	m_doc->signal_OffsetChanged.connect(sigc::mem_fun(m_statusBar.get(),
 			&HwxStatusBar::SetOffset));
+
+	m_doc->signal_SelectionChanged.connect(sigc::mem_fun(m_statusBar.get(),
+			&HwxStatusBar::SetSelectionRange));
 }
 
 void MyFrame::OnExit(wxCommandEvent& /*event*/)
