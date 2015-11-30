@@ -50,17 +50,19 @@ before_script:
     - cmake --version
 
 script:
-    - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then
-        mkdir build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=Debug
-        cmake --build .
-        ;
+    - if [ "${COVERITY_SCAN_BRANCH}" == 1 ]; then
+        echo "Not building on Coverity scan branch";
+        exit 0;
       fi
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=Debug ..
+    - cmake --build .
 
 after_script:
     # abort if this is a coverity scan branch
-    - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then
-        make test
-        ;
-      fi
+    - if [ "${COVERITY_SCAN_BRANCH}" == 1 ]; then
+        echo "Not building on Coverity scan branch";
+        exit 0;
+     fi
+    - ctest -v
