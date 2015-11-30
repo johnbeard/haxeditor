@@ -11,6 +11,23 @@ before_install:
   - sudo apt-get install -y libwxgtk3.0-dev g++-4.8 gcc-4.8 libsigc++-2.0-dev cmake cmake-data
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
+
+env:
+  global:
+    # COVERITY_SCAN_TOKEN
+    - secure: "D3sPCm/RIAURESmi8IDbTuiqVSvPwKIjf6oQjyascC0QCUbLGdsPlYYriGV2OpFY/Z+PlL5Pcc6WVpcqnXE24DAfV5n3VBlWAY7BfDeL+G77LTbell8woFcSn0rfmwhlvJ6/HE4ZsFelMJ+yA9o6Gk+v8uKMwO+EcI6LnQiiH/4Doii8Rxquj0j8i0A5m97+zAnAZsKXOToC4+G8qI1xIuENqvDUacG5L+XXY0c/5WKE+rE3nuDCBnqNICqE0i9LjGopkQdBI6GQtrvaT/5FK+s8iBtujTQ8JVZX7HSvlBAeXk96Qjrhbve0KD9vj1vGzespQQVPmY5Z9s5B/F/t1ebAS92bz33N57CSjpmqj/G1bo8UYpHKTlMBksmtOo5U1pm+4pNR2mkJhA63ZvCWOKgzbk8qXzV/nxFvHa2cz3GhXZ/BwCNkycUrKJIw3OdEcc1DrCyHpB3LQrmS0WsSLzWgMVTGBOrlNrCopvcYHpydGRm+6eYEMZ82KJsmXgwG9LkELVNz0+yI8INI8sDKK5YWQ6grg56F4JVEiQucbqJG2OoQsmNaIAA2/m+voi3VlL01rB86k+5XQAkUMVczB1YqRiakLzMaUImcyytvdJtnzn2S2bT/txLQrHb4/cwn1IFXHpOAvMC1MazGIiuXw+IzNWH+BEtBxhfCgzNEKYo="
+
+addons:
+  coverity_scan:
+    project:
+      name: johnbeard/haxeditor
+      description: "HaxEditor"
+    notification_email: john.j.beard+coverity@gmail.com
+    build_command_prepend: cmake -DCMAKE_BUILD_TYPE=Debug .
+    build_command: cmake --build .
+    branch_pattern: coverity_scan
+
+#
 #addons:
 #  apt:
 #    sources:
@@ -32,10 +49,18 @@ before_script:
     - g++ --version
     - cmake --version
 
-    - mkdir build
-    - cd build
-    - cmake ..
-
 script:
-    - make
-    - make test
+    - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Debug
+        cmake --build .
+        ;
+      fi
+
+after_script:
+    # abort if this is a coverity scan branch
+    - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then
+        make test
+        ;
+      fi
