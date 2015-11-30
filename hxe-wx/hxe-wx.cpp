@@ -30,7 +30,7 @@ public:
 
 	void SetOffset(offset_t offset)
 	{
-		m_offsetRender.SetOffset(offset);
+		m_offsetRender.SetOffset(offset / BYTE);
 		m_statusBar.SetStatusText(m_offsetRender.RenderOffset(), OffsetField);
 	}
 

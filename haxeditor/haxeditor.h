@@ -16,6 +16,8 @@
  */
 typedef uint64_t offset_t;
 
+constexpr offset_t BYTE = 8;
+
 /*!
  * A transform to apply to a file for viewing (eg 2-s complement, XOR, ROT13,
  * etc)
