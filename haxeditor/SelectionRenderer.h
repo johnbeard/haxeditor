@@ -37,9 +37,10 @@ public:
 		 * offset in a specific line
 		 */
 
-		int charW, charH;
-		int interCellGap;
-		int interRowGap;
+		int charW = 0;
+		int charH = 0;
+		int interCellGap = 0;
+		int interRowGap = 0;
 
 		int GetXForPos(const HaxStringRenderer::StringLinePos& pos) const
 		{
