@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.12)
 if (${CMAKE_EXTRA_GENERATOR} MATCHES "Eclipse CDT4")
     set(CMAKE_CXX_COMPILER_ARG1 "-std=c++11" CACHE STRING "C++ version for eclipse" FORCE)
     set(CMAKE_ECLIPSE_VERSION "4.4" CACHE STRING "Eclipse version" FORCE)
-endif() 
+endif()
 
 project(haxeditor)
 
@@ -19,6 +19,18 @@ include_directories(${SIGC2_INCLUDE_DIRS})
 # add testing support
 include(GoogleTestProjects)
 enable_testing()
+
+# target to gather test dependencies
+add_custom_target(check_targets)
+
+# target to build tests
+add_custom_target(check
+    COMMAND ${CMAKE_CTEST_COMMAND}
+    DEPENDS check_targets
+)
+
+# code coverage for tests
+include(CodeCoverage)
 
 add_definitions(
     -Wall -Wextra -Wpedantic
@@ -36,3 +48,4 @@ add_subdirectory(fal)
 add_subdirectory(haxeditor)
 #add_subdirectory(hxe-curses)
 add_subdirectory(hxe-wx)
+

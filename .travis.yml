@@ -8,9 +8,6 @@ before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:george-edison55/precise-backports -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y libwxgtk3.0-dev g++-4.8 gcc-4.8 libsigc++-2.0-dev cmake cmake-data
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
 
 env:
   global:
@@ -42,12 +39,17 @@ addons:
 #      - gcc-4.8
 
 install:
+    - sudo apt-get install -y libwxgtk3.0-dev g++-4.8 gcc-4.8 libsigc++-2.0-dev cmake cmake-data lcov rubygems
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
+    - gem install lcoveralls
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 before_script:
     - gcc --version
     - g++ --version
     - cmake --version
+    - lcov --version
 
 script:
     - if [ "${COVERITY_SCAN_BRANCH}" == 1 ]; then
@@ -57,12 +59,19 @@ script:
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug ..
-    - cmake --build .
+    # make sure everything builds
+    - make -j2 all
+    # make sure the tests run (clean coverage beforehand)
+    - make -j2 coverage_clean check
 
-after_script:
-    # abort if this is a coverity scan branch
-    - if [ "${COVERITY_SCAN_BRANCH}" == 1 ]; then
-        echo "Not building on Coverity scan branch";
-        exit 0;
-     fi
-    - ctest -v
+after_success:
+    # abort if this is a coverity scan build
+    - >
+      if [ "${COVERITY_SCAN_BRANCH}" == 1 ]; then
+        echo "Not building on Coverity scan branch"
+        exit 0
+      fi
+      # generate coverage info from any tests that ran
+    - make coverage
+      # Report code coverage to coveralls.io
+    - lcoveralls --retry-count 5 --root=. $TRAVIS_BUILD_DIR/build/coverage.info

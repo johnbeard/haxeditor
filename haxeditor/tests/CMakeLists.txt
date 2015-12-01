@@ -18,6 +18,9 @@ target_link_libraries(haxeditor_tests
     ${GTEST_MAIN_LIBRARY}
 )
 
-add_test(haxeditor
-    haxeditor_tests
+add_test(
+    NAME haxeditor
+    COMMAND $<TARGET_FILE:haxeditor_tests>
 )
+
+add_dependencies(check_targets haxeditor_tests)
