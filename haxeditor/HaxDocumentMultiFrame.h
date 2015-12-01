@@ -98,10 +98,10 @@ protected:
 	 * Get the row index of the maximum row you can scroll too (so that you
 	 * don't scroll into a mostly black page at the end
 	 */
-	uint64_t getMaximumOffsetRow() const;
+	offset_t getMaximumOffsetRow() const;
 
 	void setRowLength(unsigned rowLength);
-	unsigned getRowLength() const;
+	offset_t getRowLength() const;
 
 	HaxDocument& m_doc;
 

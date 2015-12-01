@@ -29,7 +29,7 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 HaxDocumentMultiFrame::~HaxDocumentMultiFrame()
 {}
 
-unsigned HaxDocumentMultiFrame::getRowLength() const
+offset_t HaxDocumentMultiFrame::getRowLength() const
 {
 	return m_pagedView->GetRowLength();
 }
@@ -105,7 +105,7 @@ void HaxDocumentMultiFrame::scrollLines(int linesToScrollDown,
 
 	m_movingCaret = moveCaret;
 
-	const uint64_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
+	const offset_t deltaOffset = std::abs(linesToScrollDown) * getRowLength();
 
 	performDeltaOffset(deltaOffset, linesToScrollDown > 0, extendSelection);
 }

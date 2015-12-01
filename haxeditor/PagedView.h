@@ -80,12 +80,12 @@ public:
 		// TODO: relocate on a smaller maximum?
 	}
 
-	unsigned GetRowLength() const
+	offset_t GetRowLength() const
 	{
 		return rowLength;
 	}
 
-	void SetRowLength(unsigned length)
+	void SetRowLength(offset_t length)
 	{
 		rowLength = length;
 	}
@@ -151,7 +151,7 @@ private:
 	offset_t m_maximumOffset = 0;
 
 	// the length of a single row of data
-	unsigned rowLength = 0;
+	offset_t rowLength = 0;
 };
 
 
