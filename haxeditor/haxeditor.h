@@ -226,12 +226,12 @@ public:
 	/*!
 	 * Gets the width in elements (char width depends on the format...)
 	 */
-	unsigned GetWidth() const
+	offset_t GetWidth() const
 	{
 		return m_width;
 	}
 
-	void SetWidth(unsigned width)
+	void SetWidth(offset_t width)
 	{
 		m_width = width;
 	}
@@ -358,8 +358,8 @@ public:
 
 private:
 
-	// the width of the renderer
-	unsigned m_width;
+	// the width of the renderer, in bits
+	offset_t m_width;
 };
 
 class HaxHexRenderer: public HaxStringRenderer
@@ -437,7 +437,7 @@ public:
 
 	unsigned GetCellChars() const override
 	{
-		return GetWidth() / 8; // one char per byte
+		return GetWidth() / BYTE; // one char per byte
 	}
 
 	CellList GetRowCells(offset_t /*offset*/) const override
