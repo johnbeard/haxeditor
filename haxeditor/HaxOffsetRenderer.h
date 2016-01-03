@@ -83,7 +83,7 @@ public:
 
 			ss << " : ";
 
-			m_renderer->SetOffset(end);
+			m_renderer->SetOffset(end - 1); // don't include the end point!
 			ss << m_renderer->RenderOffset();
 		}
 

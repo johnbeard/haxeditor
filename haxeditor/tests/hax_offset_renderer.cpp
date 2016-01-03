@@ -31,6 +31,9 @@ TEST(HaxRangeRendererTests, basic)
 	EXPECT_STREQ("No selection", rr.RenderRange().c_str());
 
 	rr.SetRange(10, 23);
-	EXPECT_STREQ("10 : 23", rr.RenderRange().c_str());
+
+	// remember, the range is really [10:23), not [10:23]
+	EXPECT_STREQ("10 : 22", rr.RenderRange().c_str());
+	// but that's still 13 units!
 	EXPECT_STREQ("13", rr.RenderRangeSize().c_str());
 }
