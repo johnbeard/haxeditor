@@ -42,7 +42,7 @@ TEST_F(PagedViewTest, basicSetup)
 	pv.SetPageSize(100);
 	pv.SetRowLength(10);
 
-	EXPECT_EQ(100, pv.GetPageSize());
+	EXPECT_EQ(100u, pv.GetPageSize());
 
 	// scroll _down_ to show offset 200
 	pv.ScrollToKeepOffsetInView(200);
@@ -52,14 +52,14 @@ TEST_F(PagedViewTest, basicSetup)
 
 	// and the starting row should be the start of row 11, such that row 20 is
 	// showing
-	EXPECT_EQ(110, pv.GetPageStart());
+	EXPECT_EQ(110u, pv.GetPageStart());
 
 	// scrolling to the same place should do nothing
 	pv.ScrollToKeepOffsetInView(200);
 
 	// didn't move
 	EXPECT_FALSE(getAndResetScrolledFlag());
-	EXPECT_EQ(110, pv.GetPageStart());
+	EXPECT_EQ(110u, pv.GetPageStart());
 
 
 	// scrolling up less than a page from the current position als doesn't
@@ -68,7 +68,7 @@ TEST_F(PagedViewTest, basicSetup)
 
 	// didn't move
 	EXPECT_FALSE(getAndResetScrolledFlag());
-	EXPECT_EQ(110, pv.GetPageStart());
+	EXPECT_EQ(110u, pv.GetPageStart());
 
 	// scrolling up more than a page from the current position does the scroll
 	pv.ScrollToKeepOffsetInView(65);
@@ -77,7 +77,7 @@ TEST_F(PagedViewTest, basicSetup)
 	EXPECT_TRUE(getAndResetScrolledFlag());
 
 	// page start is on a row boundary
-	EXPECT_EQ(60, pv.GetPageStart());
+	EXPECT_EQ(60u, pv.GetPageStart());
 }
 
 TEST_F(PagedViewTest, maxOffsetNone)
@@ -88,7 +88,7 @@ TEST_F(PagedViewTest, maxOffsetNone)
 	// no max offset, no limit
 	pv.ScrollToKeepOffsetInView(1000000);
 
-	EXPECT_EQ(1000000 - 90, pv.GetPageStart());
+	EXPECT_EQ(1000000u - 90u, pv.GetPageStart());
 }
 
 TEST_F(PagedViewTest, maxOffsetSet)
@@ -100,18 +100,18 @@ TEST_F(PagedViewTest, maxOffsetSet)
 	// scroll within range is fine
 	pv.ScrollToKeepOffsetInView(100);
 
-	EXPECT_EQ(10, pv.GetPageStart());
+	EXPECT_EQ(10u, pv.GetPageStart());
 
 	// end of range
 	pv.ScrollToKeepOffsetInView(1000);
 
 	EXPECT_TRUE(getAndResetScrolledFlag());
-	EXPECT_EQ(900, pv.GetPageStart());
+	EXPECT_EQ(900u, pv.GetPageStart());
 
 	pv.ScrollToKeepOffsetInView(2000);
 
 	EXPECT_FALSE(getAndResetScrolledFlag());
-	EXPECT_EQ(900, pv.GetPageStart());
+	EXPECT_EQ(900u, pv.GetPageStart());
 }
 
 TEST_F(PagedViewTest, maxOffsetVeryShort)
@@ -124,5 +124,5 @@ TEST_F(PagedViewTest, maxOffsetVeryShort)
 	pv.ScrollToKeepOffsetInView(70);
 
 	EXPECT_FALSE(getAndResetScrolledFlag());
-	EXPECT_EQ(0, pv.GetPageStart());
+	EXPECT_EQ(0u, pv.GetPageStart());
 }
