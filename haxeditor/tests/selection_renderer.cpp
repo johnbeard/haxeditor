@@ -2,7 +2,7 @@
  * selection_renderer.cpp
  *
  *  Created on: 12 Nov 2015
- *      Author: john
+ *      Author: John Beard
  */
 
 
@@ -52,7 +52,7 @@ TEST_F(SelectionPathRendererTest, pathNullSelection)
 
 	const auto& regions = spr.GetPaths();
 
-	EXPECT_EQ(0, regions.size());
+	EXPECT_EQ(0u, regions.size());
 }
 
 TEST_F(SelectionPathRendererTest, pathOneLineStart)
@@ -62,8 +62,8 @@ TEST_F(SelectionPathRendererTest, pathOneLineStart)
 
 	const auto& regions = spr.GetPaths();
 
-	EXPECT_EQ(1, regions.size());
-	EXPECT_EQ(4, regions[0].size());
+	EXPECT_EQ(1u, regions.size());
+	EXPECT_EQ(4u, regions[0].size());
 
 	EXPECT_EQ(0, regions[0][0].x);
 	EXPECT_EQ(14 * 2 + 6, regions[0][1].x);
@@ -81,8 +81,8 @@ TEST_F(SelectionPathRendererTest, pathOneLineMiddle)
 
 	const auto& regions = spr.GetPaths();
 
-	EXPECT_EQ(1, regions.size());
-	EXPECT_EQ(4, regions[0].size());
+	EXPECT_EQ(1u, regions.size());
+	EXPECT_EQ(4u, regions[0].size());
 
 	EXPECT_EQ(14 + 6, regions[0][0].x);
 	EXPECT_EQ(14 * 2 + 6, regions[0][1].x);
@@ -100,8 +100,8 @@ TEST_F(SelectionPathRendererTest, pathOneLineEnd)
 
 	const auto& regions = spr.GetPaths();
 
-	EXPECT_EQ(1, regions.size());
-	EXPECT_EQ(4, regions[0].size());
+	EXPECT_EQ(1u, regions.size());
+	EXPECT_EQ(4u, regions[0].size());
 
 	EXPECT_EQ(14 * 9 + 6 * 9, regions[0][0].x);
 	EXPECT_EQ(14 * 10 + 6 * 9, regions[0][1].x);
@@ -120,8 +120,8 @@ TEST_F(SelectionPathRendererTest, pathTwoLines)
 	const auto& regions = spr.GetPaths();
 
 	// 1 joined-up region
-	EXPECT_EQ(1, regions.size());
-	EXPECT_EQ(8, regions[0].size());
+	EXPECT_EQ(1u, regions.size());
+	EXPECT_EQ(8u, regions[0].size());
 
 	EXPECT_EQ(9 * (2 * 7) + 9 * 6, regions[0][0].x);
 	//EXPECT_EQ(10 * (2 * 7) + 10 * 6, regions[0][1].x);
@@ -130,17 +130,17 @@ TEST_F(SelectionPathRendererTest, pathTwoLines)
 TEST_F(SelectionPathRendererTest, rowPositionsForOffset)
 {
 	// check origin
-	EXPECT_EQ(0, spr.GetOffsetForPosition(0, 0));
+	EXPECT_EQ(0u, spr.GetOffsetForPosition(0, 0));
 
 	// check that the row to row offset works
-	EXPECT_EQ(0, spr.GetOffsetForPosition(0, 12));
-	EXPECT_EQ(0, spr.GetOffsetForPosition(0, 12 + 8 - 1));
-	EXPECT_EQ(80, spr.GetOffsetForPosition(0, 12 + 8));
+	EXPECT_EQ(0u, spr.GetOffsetForPosition(0, 12));
+	EXPECT_EQ(0u, spr.GetOffsetForPosition(0, 12 + 8 - 1));
+	EXPECT_EQ(80u, spr.GetOffsetForPosition(0, 12 + 8));
 
 	// anywhere in the first cell or first gap is 0
-	EXPECT_EQ(0, spr.GetOffsetForPosition(14, 0));
-	EXPECT_EQ(0, spr.GetOffsetForPosition(14 + 6 - 1, 0));
+	EXPECT_EQ(0u, spr.GetOffsetForPosition(14, 0));
+	EXPECT_EQ(0u, spr.GetOffsetForPosition(14 + 6 - 1, 0));
 
 	// and the second cell starts _after_ the first gap
-	EXPECT_EQ(8, spr.GetOffsetForPosition(14 + 6, 0));
+	EXPECT_EQ(8u, spr.GetOffsetForPosition(14 + 6, 0));
 }

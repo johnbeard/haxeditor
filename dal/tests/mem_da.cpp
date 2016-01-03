@@ -17,5 +17,5 @@ TEST(MemDA, basicSetup)
 	// TODO this will change...
 	EXPECT_TRUE(mda.IsReadOnly());
 
-	EXPECT_EQ(0, mda.GetBaseDataLength());
+	EXPECT_EQ(0u, mda.GetBaseDataLength());
 }
