@@ -11,7 +11,7 @@ add_library(haxeditor ${srcFiles})
 
 target_link_libraries(haxeditor
     ${SIGC2_LIBRARIES}
-    fal
+    dal
 )
 
 add_subdirectory(tests)

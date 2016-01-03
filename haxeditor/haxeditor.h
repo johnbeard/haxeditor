@@ -9,14 +9,7 @@
 
 #include <sigc++-2.0/sigc++/signal.h>
 
-
-/*!
- * The offset within a file, expressed in bits (not bytes) to allow for
- * bitwise access
- */
-typedef uint64_t offset_t;
-
-constexpr offset_t BYTE = 8;
+#include "dal/DataAbstractionLayer.h"
 
 /*!
  * A transform to apply to a file for viewing (eg 2-s complement, XOR, ROT13,
@@ -50,8 +43,6 @@ public:
         return false;
     }
 };
-
-#include <vector>
 
 class HaxDocument
 {
@@ -101,14 +92,19 @@ public:
 	};
 
 	HaxDocument():
-		m_len(3003),
 		m_offset(0)
 	{
-		m_data.resize(m_len);
-	    for (uint64_t i = 0; i < m_len; ++i)
+		// fill DA in with some fake data until we get the file IO
+		// sorted!
+		offset_t len = 3003;
+		std::vector<uint8_t> data;
+		data.resize(len);
+	    for (uint64_t i = 0; i < len; ++i)
 	    {
-	        m_data[i] = 3 * i;
+	        data[i] = 3 * i;
 	    }
+
+	    m_data = std::make_unique<MemoryDataAbstraction>(data.data(), len);
 
 		m_selection.signal_changed.connect(sigc::mem_fun(this,
 				&HaxDocument::notifySelectionChanged));
@@ -124,12 +120,12 @@ public:
 	 */
 	const uint8_t* GetDataAt(offset_t offset) const
 	{
-		return &m_data[offset / 8];
+		return m_data->GetDataAtOffset(offset);
 	}
 
 	offset_t GetDataLength() const
 	{
-		return m_len * 8;
+		return m_data->GetCurrentDataLength() * 8;
 	}
 
 	void SetOffset(uint64_t newOffset)
@@ -177,10 +173,7 @@ private:
 		signal_SelectionChanged.emit(changedSelection);
 	}
 
-	std::vector<uint8_t> m_data;
-
-	// length in bytes
-	uint64_t m_len;
+	std::unique_ptr<DataAbstraction> m_data;
 
 	// location of the caret within the document
 	uint64_t m_offset;

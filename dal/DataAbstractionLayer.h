@@ -13,6 +13,14 @@
 typedef uint64_t datasize_t;
 
 /*!
+ * The offset within a file, expressed in bits (not bytes) to allow for
+ * bitwise access
+ */
+typedef uint64_t offset_t;
+
+constexpr offset_t BYTE = 8;
+
+/*!
  * The DataAbstraction class is the base class for all data "files" handled
  * by HaxEditor.
  *
@@ -42,6 +50,13 @@ public:
 	 * made. Bear in mind that "saving" the data will cause this to change.
 	 */
 	virtual datasize_t GetBaseDataLength() const = 0;
+
+	/*!
+	 * Returns a pointer to the data at the offset (with changes applied)
+	 *
+	 * TODO: return some sort of iterator, not a pointer
+	 */
+	virtual const uint8_t* GetDataAtOffset(offset_t offset) const = 0;
 
 	/*!
 	 * Returns if this DA is read-only and can't save data back.
@@ -107,7 +122,12 @@ public:
 
 	datasize_t GetBaseDataLength() const override
 	{
-		return m_buffer.size();
+		return m_buffer.size() * BYTE;
+	}
+
+	const uint8_t* GetDataAtOffset(offset_t offset) const override
+	{
+		return &m_buffer[offset / BYTE];
 	}
 
 private:
