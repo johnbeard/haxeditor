@@ -17,6 +17,9 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_pagedView(new PagedView()),
 	m_selectionDriver(new SelectionDriver(doc.GetSelection()))
 {
+	// multiframes handle the selections on a byte-wise basis
+	m_selectionDriver->SetRoundingUnit(BYTE);
+
 	doc.signal_OffsetChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onOffsetChanged));
 	doc.signal_SelectionChanged.connect(sigc::mem_fun(this, &HaxDocumentMultiFrame::onSelectionChanged));
 
@@ -178,7 +181,7 @@ void HaxDocumentMultiFrame::scrollRight(int unitsRight, bool extendSelection)
 	m_movingCaret = true;
 
 	// move one nibble
-	performDeltaOffset(std::abs(unitsRight) * 8, unitsRight > 0, extendSelection);
+	performDeltaOffset(std::abs(unitsRight) * 4, unitsRight > 0, extendSelection);
 }
 
 void HaxDocumentMultiFrame::onOffsetChanged(offset_t newOffset)

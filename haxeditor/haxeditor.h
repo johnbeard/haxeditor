@@ -11,6 +11,8 @@
 
 #include "dal/DataAbstractionLayer.h"
 
+#include <cassert>
+
 /*!
  * A transform to apply to a file for viewing (eg 2-s complement, XOR, ROT13,
  * etc)

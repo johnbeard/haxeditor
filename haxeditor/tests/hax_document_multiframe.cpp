@@ -57,28 +57,24 @@ TEST_F(HMFTest, simpleMovement)
 	mf.scrollRight(1, false);
 
 	// moves one byte
-	EXPECT_EQ(8u, doc.GetOffset());
+	EXPECT_EQ(4u, doc.GetOffset());
 
-	// select one byte right
+	// select one nibble right
+	// note that because we round out to bytes including the next one,
+	// we now select two bytes!
 	mf.scrollRight(1, true);
-	EXPECT_EQ(16u, doc.GetOffset());
-	EXPECT_EQ(8u, sel.GetStart());
+	EXPECT_EQ(8u, doc.GetOffset());
+	EXPECT_EQ(0u, sel.GetStart());
 	EXPECT_EQ(16u, sel.GetEnd());
 
-	// and another
-	mf.scrollRight(1, true);
-	EXPECT_EQ(24u, doc.GetOffset());
-	EXPECT_EQ(8u, sel.GetStart());
+	// and another byte
+	mf.scrollRight(2, true);
+	EXPECT_EQ(16u, doc.GetOffset());
+	EXPECT_EQ(0u, sel.GetStart());
 	EXPECT_EQ(24u, sel.GetEnd());
 
-	// and now go back
-	mf.scrollRight(-2, true);
-	EXPECT_EQ(8u, doc.GetOffset());
-	EXPECT_EQ(8u, sel.GetStart());
-	EXPECT_EQ(8u, sel.GetEnd());
-
-	// and now go back one more
-	mf.scrollRight(-1, true);
+	// and now go back two bytes
+	mf.scrollRight(-4, true);
 	EXPECT_EQ(0u, doc.GetOffset());
 	EXPECT_EQ(0u, sel.GetStart());
 	EXPECT_EQ(8u, sel.GetEnd());
@@ -90,35 +86,35 @@ TEST_F(HMFTest, selectionWithInversion)
 	EXPECT_EQ(0u, doc.GetOffset());
 
 	// move a bit to the right
-	mf.scrollRight(5, false);
+	mf.scrollRight(10, false);
 
 	// select one to the left
-	mf.scrollRight(-1, true);
+	mf.scrollRight(-2, true);
 
-	EXPECT_EQ(32u, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(32u, doc.GetOffset()); // now at byte 4 start
 	EXPECT_EQ(32u, sel.GetStart());
-	EXPECT_EQ(40u, sel.GetEnd());
+	EXPECT_EQ(48u, sel.GetEnd()); // including the original byte, so 4,5
 
 	// and back to start
-	mf.scrollRight(1, true);
+	mf.scrollRight(2, true);
 
 	EXPECT_EQ(40u, doc.GetOffset()); // now at byte 5 start
 	EXPECT_EQ(40u, sel.GetStart());
-	EXPECT_EQ(40u, sel.GetEnd());
+	EXPECT_EQ(48u, sel.GetEnd()); // just the original byte: 5
 
 	// and now "invert" past the original selection start
-	mf.scrollRight(1, true);
+	mf.scrollRight(2, true);
 
-	EXPECT_EQ(48u, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(48u, doc.GetOffset()); // now at byte 6 start
 	EXPECT_EQ(40u, sel.GetStart());
-	EXPECT_EQ(48u, sel.GetEnd());
+	EXPECT_EQ(56u, sel.GetEnd()); // selecting bytes 5,6
 
 	// and keep going
-	mf.scrollRight(1, true);
+	mf.scrollRight(2, true);
 
-	EXPECT_EQ(56u, doc.GetOffset()); // now at byte 5 start
+	EXPECT_EQ(56u, doc.GetOffset()); // now at byte 7 start
 	EXPECT_EQ(40u, sel.GetStart());
-	EXPECT_EQ(56u, sel.GetEnd());
+	EXPECT_EQ(64u, sel.GetEnd()); // selecting bytes 5,6,7
 }
 
 TEST_F(HMFTest, scrollTo)
@@ -135,8 +131,8 @@ TEST_F(HMFTest, scrollTo)
 
 	// check selection extend works
 	EXPECT_EQ(55u, doc.GetOffset());
-	EXPECT_EQ(55u, sel.GetStart());
-	EXPECT_EQ(100u, sel.GetEnd());
+	EXPECT_EQ(48u, sel.GetStart()); // should round of to % 8
+	EXPECT_EQ(104u, sel.GetEnd());
 }
 
 TEST_F(HMFTest, movePageStart)

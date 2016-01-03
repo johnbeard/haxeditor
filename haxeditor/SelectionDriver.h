@@ -9,6 +9,7 @@
 #define HAXEDITOR_SELECTIONDRIVER_H_
 
 #include "haxeditor/haxeditor.h"
+#include "utils/MathsUtils.h"
 
 #include <memory>
 
@@ -27,8 +28,6 @@ public:
 	};
 
 	SelectionDriver(HaxDocument::Selection& selection):
-		m_selectionActive(false),
-		m_activeType(Left),
 		m_selection(selection)
 	{
 	}
@@ -61,9 +60,17 @@ public:
 		m_activeType = type;
 	}
 
-	void ResetOffset(offset_t offset)
+	void ResetOffset(offset_t offset);
+
+	/*!
+	 * Set the rounding unit of the selection driver - this is the "blocks"
+	 * that the selection will snap to. For example, if the unit is "8", a
+	 * requested selection of 1:6 will actually be 0:8, and 1:8 will actually
+	 * be 0:16.
+	 */
+	void SetRoundingUnit(unsigned unit)
 	{
-		m_selection.SetRange(offset, offset);
+		m_roundingUnit = unit;
 	}
 
 	/*!
@@ -74,34 +81,18 @@ public:
 	 *
 	 * @param newOffset
 	 */
-	void onOffsetChanged(offset_t newOffset)
-	{
-		if (!IsActive())
-			return;
-
-		const auto start = m_selection.GetStart();
-		const auto end = m_selection.GetEnd();
-
-		auto endToKeep = (m_activeType == Right) ? start : end;
-
-		// look out for "inversions" which mean we swap the sense of the
-		// selection (eg moving the left edge, but we move rightwards, past the
-		// existing right edge, then we _become_ the right edge!
-		if (m_activeType == Left && newOffset > end)
-			m_activeType = Right;
-		else if (newOffset < start)
-			m_activeType = Left;
-
-		m_selection.SetRange(newOffset, endToKeep);
-	}
+	void onOffsetChanged(offset_t newOffset);
 
 private:
 
 	// is the client currently acting on the selection?
-	bool m_selectionActive;
+	bool m_selectionActive = false;
+
+	// round the ends of the selection to multiples of these
+	unsigned m_roundingUnit = 1;
 
 	// which end is growing?
-	ActiveType m_activeType;
+	ActiveType m_activeType = Left;
 
 	// the actual selection is provided externally
 	HaxDocument::Selection& m_selection;
