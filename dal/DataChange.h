@@ -8,6 +8,10 @@
 #ifndef DAL_DATACHANGE_H_
 #define DAL_DATACHANGE_H_
 
+#include "dal/DalTypes.h"
+
+#include "dal/DataAbstractionLayer.h"
+
 /*!
  * Modification to some data - could be insertion, deletion, modification
  * (are there more?)
@@ -38,6 +42,14 @@ public:
 		return m_offset;
 	}
 
+	/*!
+	 * Move this change to start at a new offset
+	 */
+	void SetChangeOffset(offset_t newOffset)
+	{
+		m_offset = newOffset;
+	}
+
 	virtual offset_t GetChangeSize() const = 0;
 
 	/*!
@@ -45,9 +57,9 @@ public:
 	 * @return the data pointer - use GetChangeSize() to find out how
 	 * much data there is.
 	 *
-	 * TODO: return a vector?
+	 * TODO: return a vector/iterator
 	 */
-	virtual const char* GetChangeData() const = 0;
+	virtual const uint8_t* GetChangeData() const = 0;
 
 private:
 	offset_t m_offset;
@@ -69,14 +81,46 @@ public:
 	 * The data in the inserted block
 	 * @return
 	 */
-	const char* GetChangeData() const
+	const uint8_t* GetChangeData() const
 	{
-		return &m_insData.front();
+		return m_insData.data();
 	}
 
 private:
 
 	std::vector<uint8_t> m_insData; // the inserted data
+};
+
+class ModifyChange: public DataChange // can share with ins?
+{
+public:
+	ModifyChange(datasize_t length)
+	{
+		// TODO Init the dat array!
+		m_modData.resize(length);
+	}
+
+	/*!
+	 * The size of the inserted block
+	 * @return
+	 */
+	offset_t GetChangeSize() const override
+	{
+		return m_modData.size();
+	}
+
+	/*!
+	 * The data in the inserted block
+	 * @return
+	 */
+	const uint8_t* GetChangeData() const
+	{
+		return m_modData.data();
+	}
+
+private:
+
+	std::vector<uint8_t> m_modData; // the modified data
 };
 
 

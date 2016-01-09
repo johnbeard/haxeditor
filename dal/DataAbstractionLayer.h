@@ -8,17 +8,7 @@
 #ifndef DAL_DATAABSTRACTIONLAYER_H_
 #define DAL_DATAABSTRACTIONLAYER_H_
 
-#include <stdint.h>
-
-typedef uint64_t datasize_t;
-
-/*!
- * The offset within a file, expressed in bits (not bytes) to allow for
- * bitwise access
- */
-typedef uint64_t offset_t;
-
-constexpr offset_t BYTE = 8;
+#include <dal/DalTypes.h>
 
 /*!
  * The DataAbstraction class is the base class for all data "files" handled

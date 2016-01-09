@@ -4,6 +4,7 @@
 
 set(srcFiles
     DataAbstractionLayer.cpp
+    ChangeStack.cpp
 )
 
 add_library(dal ${srcFiles})

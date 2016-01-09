@@ -2,6 +2,7 @@
 
 set(srcFiles
     mem_da.cpp
+    change_stack.cpp
 )
 
 add_executable(dal_tests ${srcFiles})
