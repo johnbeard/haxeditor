@@ -66,6 +66,13 @@ public:
 	 */
 	const ChList& GetChangeList() const;
 
+	/*!
+	 * Returns the total amount that the whole change stack changes the
+	 * data length by
+	 * @return the different in BYTES
+	 */
+	offset_t GetLengthModification() const;
+
 private:
 
 	class PImpl;

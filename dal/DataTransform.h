@@ -16,13 +16,26 @@
  * the transform can be reversed, and if so, you can edit the file through
  * the transform
  */
-class DataTransform
+class DataStreamFilter
 {
 public:
-    virtual ~DataTransform()
+    virtual ~DataStreamFilter()
     {}
 
-    virtual bool isReversible() const = 0;
+    /*!
+     * Implement and indicate if your filter is reversible
+     * @return
+     */
+    virtual bool IsReversible() const = 0;
+};
+
+class InvertingFilter: public DataStreamFilter
+{
+public:
+	bool IsReversible() const
+	{
+		return true;
+	}
 };
 
 #endif /* DAL_DATATRANSFORM_H_ */

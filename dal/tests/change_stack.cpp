@@ -34,21 +34,21 @@ public:
 TEST_F(ChangeStackTest, null)
 {
 	// no changes in the list
-	EXPECT_EQ(0, cs.GetChangeList().size());
+	EXPECT_EQ(0u, cs.GetChangeList().size());
 }
 
 TEST_F(ChangeStackTest, singleChange)
 {
 	cs.AddChange(constructModification(5), 10);
 
-	EXPECT_EQ(1, list().size());
+	EXPECT_EQ(1u, list().size());
 
 	const auto chIt = list().begin();
 
 	// expect just the inserted change
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(5, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(5u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, disjointChange)
@@ -56,20 +56,20 @@ TEST_F(ChangeStackTest, disjointChange)
 	cs.AddChange(constructModification(5), 10);
 	cs.AddChange(constructModification(6), 20);
 
-	EXPECT_EQ(2, list().size());
+	EXPECT_EQ(2u, list().size());
 
 	auto chIt = list().begin();
 
 	// both changes should be as they were inserted
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(5, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(5u, (*chIt)->end);
 
 	chIt++;
 
-	EXPECT_EQ(20, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(6, (*chIt)->end);
+	EXPECT_EQ(20u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(6u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, disjointChangeReverse)
@@ -79,21 +79,21 @@ TEST_F(ChangeStackTest, disjointChangeReverse)
 
 	// ...222....111....
 
-	EXPECT_EQ(2, list().size());
+	EXPECT_EQ(2u, list().size());
 
 	auto chIt = list().begin();
 
 	// both changes should be as they were inserted
 	// but the other way around
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(5, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(5u, (*chIt)->end);
 
 	chIt++;
 
-	EXPECT_EQ(20, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(6, (*chIt)->end);
+	EXPECT_EQ(20u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(6u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, abuttingChange)
@@ -101,20 +101,20 @@ TEST_F(ChangeStackTest, abuttingChange)
 	cs.AddChange(constructModification(5), 10);
 	cs.AddChange(constructModification(6), 15);
 
-	EXPECT_EQ(2, list().size());
+	EXPECT_EQ(2u, list().size());
 
 	auto chIt = list().begin();
 
 	// both changes should be as they were inserted
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(5, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(5u, (*chIt)->end);
 
 	chIt++;
 
-	EXPECT_EQ(15, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(6, (*chIt)->end);
+	EXPECT_EQ(15u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(6u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, secondOverlapsFirstEnd)
@@ -125,21 +125,21 @@ TEST_F(ChangeStackTest, secondOverlapsFirstEnd)
 	// ....111111...
 	// ......2222222...
 
-	EXPECT_EQ(2, list().size());
+	EXPECT_EQ(2u, list().size());
 
 	auto chIt = list().begin();
 
 	// first change is just the start of the first one
-	EXPECT_EQ(8, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(2, (*chIt)->end);
+	EXPECT_EQ(8u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(2u, (*chIt)->end);
 
 	chIt++;
 
 	// followed by the complete later change
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(6, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(6u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, secondOverlapsFirstExactly)
@@ -150,14 +150,14 @@ TEST_F(ChangeStackTest, secondOverlapsFirstExactly)
 	// ...11111...
 	// ...22222...
 
-	ASSERT_EQ(1, list().size());
+	ASSERT_EQ(1u, list().size());
 
 	auto chIt = list().begin();
 
 	// the later change took precendence and replaces the first one exacty
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(5, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(5u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, secondOverlapsFirstWithDoubleOverhang)
@@ -168,14 +168,14 @@ TEST_F(ChangeStackTest, secondOverlapsFirstWithDoubleOverhang)
 	// .....1111....
 	// ...2222222...
 
-	EXPECT_EQ(1, list().size());
+	EXPECT_EQ(1u, list().size());
 
 	auto chIt = list().begin();
 
 	// only the later change is there and it is pristine
-	EXPECT_EQ(8, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(12, (*chIt)->end);
+	EXPECT_EQ(8u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(12u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, secondOverlapsFirstStart)
@@ -183,21 +183,21 @@ TEST_F(ChangeStackTest, secondOverlapsFirstStart)
 	cs.AddChange(constructModification(5), 10);
 	cs.AddChange(constructModification(4), 8);
 
-	EXPECT_EQ(2, list().size());
+	EXPECT_EQ(2u, list().size());
 
 	auto chIt = list().begin();
 
 	// later change is pristine
-	EXPECT_EQ(8, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(4, (*chIt)->end);
+	EXPECT_EQ(8u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(4u, (*chIt)->end);
 
 	chIt++;
 
 	// older change has the front missing
-	EXPECT_EQ(10, (*chIt)->changeOffset);
-	EXPECT_EQ(2, (*chIt)->start);
-	EXPECT_EQ(5, (*chIt)->end);
+	EXPECT_EQ(10u, (*chIt)->changeOffset);
+	EXPECT_EQ(2u, (*chIt)->start);
+	EXPECT_EQ(5u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, changeOverlapsMultipleCompletely)
@@ -209,14 +209,14 @@ TEST_F(ChangeStackTest, changeOverlapsMultipleCompletely)
 	// ...11...22...
 	// .3333333333..
 
-	ASSERT_EQ(1, list().size());
+	ASSERT_EQ(1u, list().size());
 
 	auto chIt = list().begin();
 
 	// later change is pristine
-	EXPECT_EQ(5, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(50, (*chIt)->end);
+	EXPECT_EQ(5u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(50u, (*chIt)->end);
 }
 
 TEST_F(ChangeStackTest, changeOverlapsOneCompletelyAndOnePartly)
@@ -228,19 +228,19 @@ TEST_F(ChangeStackTest, changeOverlapsOneCompletelyAndOnePartly)
 	// ...11...2222..
 	// .333333333....
 
-	ASSERT_EQ(2, list().size());
+	ASSERT_EQ(2u, list().size());
 
 	auto chIt = list().begin();
 
 	// later change is pristine
-	EXPECT_EQ(6, (*chIt)->changeOffset);
-	EXPECT_EQ(0, (*chIt)->start);
-	EXPECT_EQ(18, (*chIt)->end);
+	EXPECT_EQ(6u, (*chIt)->changeOffset);
+	EXPECT_EQ(0u, (*chIt)->start);
+	EXPECT_EQ(18u, (*chIt)->end);
 
 	chIt++;
 
 	// first change is gone, second is truncated
-	EXPECT_EQ(20, (*chIt)->changeOffset);
-	EXPECT_EQ(4, (*chIt)->start);
-	EXPECT_EQ(6, (*chIt)->end);
+	EXPECT_EQ(20u, (*chIt)->changeOffset);
+	EXPECT_EQ(4u, (*chIt)->start);
+	EXPECT_EQ(6u, (*chIt)->end);
 }

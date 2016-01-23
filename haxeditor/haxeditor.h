@@ -9,7 +9,7 @@
 
 #include <sigc++-2.0/sigc++/signal.h>
 
-#include "dal/DataAbstractionLayer.h"
+#include "dal/ChangeApplicator.h"
 
 #include <cassert>
 
@@ -89,7 +89,11 @@ public:
 	        data[i] = 3 * i;
 	    }
 
-	    m_data = std::make_unique<MemoryDataAbstraction>(data.data(), len);
+	    m_data = std::make_unique<ChangeApplicator>();
+
+	    // temporary file stream until we get file openign working
+	    m_baseStream = std::make_unique<FileDataStream>("/tmp/01.png");
+	    m_data->SetBaseData(m_baseStream);
 
 		m_selection.signal_changed.connect(sigc::mem_fun(this,
 				&HaxDocument::notifySelectionChanged));
@@ -101,16 +105,31 @@ public:
 	}
 
 	/*!
-	 * Note: this will return the byte that contains this offset
+	 * Just returns a reference to a stream you can use to get your data
+	 *
+	 * NOte that streams are inherently BYTE oriented, not BIT oriented!
 	 */
-	const uint8_t* GetDataAt(offset_t offset) const
+	std::istream& GetDataStream()
 	{
-		return m_data->GetDataAtOffset(offset);
+		return m_data->GetDataStream();
+	}
+
+	/*!
+	 * Helper for quickly getting hold of a stream set to the byte for a
+	 * given bit. You will have to index to the bit as needed!
+	 * @param offset the BIT to index
+	 * @return the stream, seekg'd to the byte containing that bit
+	 */
+	std::istream& GetDataStreamAtBit(offset_t offset)
+	{
+		auto& stream = GetDataStream();
+		stream.seekg(offset / BYTE);
+		return stream;
 	}
 
 	offset_t GetDataLength() const
 	{
-		return m_data->GetCurrentDataLength() * 8;
+		return m_data->GetDataLength();
 	}
 
 	void SetOffset(uint64_t newOffset)
@@ -158,7 +177,7 @@ private:
 		signal_SelectionChanged.emit(changedSelection);
 	}
 
-	std::unique_ptr<DataAbstraction> m_data;
+	std::unique_ptr<ChangeApplicator> m_data;
 
 	// location of the caret within the document
 	uint64_t m_offset;
@@ -166,6 +185,8 @@ private:
 	// the current selection in the document
 	// future: multiple selections per document
 	Selection m_selection;
+
+	std::unique_ptr<BaseDataStream> m_baseStream;
 };
 
 class HaxDataRenderer
@@ -355,10 +376,12 @@ public:
 		int lastOffset = std::min(offset + GetWidth(),
 				getDocument().GetDataLength());
 
+		auto& stream = getDocument().GetDataStream();
+		stream.seekg(offset / BYTE);
 		for (int x = offset; x < lastOffset; x += 8)
 		{
-			const uint8_t* d = getDocument().GetDataAt(x);
-			ss << std::setw(2) << static_cast<unsigned>(*d) << " ";
+			const uint8_t d = stream.get();
+			ss << std::setw(2) << static_cast<unsigned>(d) << " ";
 		}
 
 		return ss.str();
@@ -399,10 +422,15 @@ public:
 		int lastOffset = std::min(offset + GetWidth(),
 				getDocument().GetDataLength());
 
+		auto& stream = getDocument().GetDataStreamAtBit(offset);
 		for (int x = offset; x < lastOffset; x += 8)
 		{
-			const uint8_t* d = getDocument().GetDataAt(x);
-			addCharToString((char)*d, ss);
+			char c;
+
+			if (stream.get(c))
+				addCharToString(c, ss);
+			else
+				std::cout << "Failed to read char at " << x;
 		}
 
 		return ss.str();

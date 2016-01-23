@@ -85,6 +85,12 @@ const ChangeStack::ChList& ChangeStack::GetChangeList() const
 	return impl->changes;
 }
 
+offset_t ChangeStack::GetLengthModification() const
+{
+	// TODO: fix this when we support ins/del
+	return 0;
+}
+
 void ChangeStack::PImpl::insertChange(
 		std::unique_ptr<AppliedChange> change)
 {
@@ -92,6 +98,7 @@ void ChangeStack::PImpl::insertChange(
 	auto insBeforeThis = changes.end();
 
 	// first - find the place in the list according to the start offset
+	// this might be a good place to build a skip list, since this is otherwise quadratic...
 	for (auto c = changes.begin(), e = changes.end(); c != e; ++c)
 	{
 		// the old change starts before the new change

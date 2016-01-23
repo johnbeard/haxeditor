@@ -7,6 +7,7 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:george-edison55/precise-backports -y
+  - sudo add-apt-repository ppa:apokluda/boost1.53 -y
   - sudo apt-get update -qq
 
 env:
@@ -40,6 +41,7 @@ addons:
 
 install:
     - sudo apt-get install -y libwxgtk3.0-dev g++-4.8 gcc-4.8 libsigc++-2.0-dev cmake cmake-data lcov rubygems
+    - sudo apt-get install -y libboost-system1.53-dev libboost-filesystem1.53-dev libboost-iostreams1.53.dev
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 90
     - gem install lcoveralls
