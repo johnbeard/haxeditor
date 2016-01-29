@@ -14,6 +14,8 @@
 
 #include "dal/ChangeApplicator.h"
 
+#include <iostream> //FIXME confine to impl
+
 class HaxDocument
 {
 public:

@@ -11,6 +11,7 @@
 #include "SelectionDriver.h"
 
 #include <math.h>
+#include <iostream>
 
 HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 	m_doc(doc),
