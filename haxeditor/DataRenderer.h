@@ -8,7 +8,7 @@
 #ifndef HAXEDITOR_DATARENDERER_H_
 #define HAXEDITOR_DATARENDERER_H_
 
-#include "haxeditor/haxeditor.h" // for HaxDocument
+#include "haxeditor/HaxDocument.h" // for HaxDocument
 
 class HaxDataRenderer
 {

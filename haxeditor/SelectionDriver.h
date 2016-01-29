@@ -8,7 +8,7 @@
 #ifndef HAXEDITOR_SELECTIONDRIVER_H_
 #define HAXEDITOR_SELECTIONDRIVER_H_
 
-#include "haxeditor/haxeditor.h"
+#include "haxeditor/HaxDocument.h"
 #include "utils/MathsUtils.h"
 
 #include <memory>

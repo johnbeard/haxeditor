@@ -7,7 +7,6 @@
 
 #include <gtest/gtest.h>
 
-#include "haxeditor/haxeditor.h"
 #include "haxeditor/StringCellRenderer.h"
 
 TEST(HaxStringRendererTests, basicOffsetCalcs)

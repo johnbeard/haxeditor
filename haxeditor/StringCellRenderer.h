@@ -23,7 +23,7 @@ protected:
 		DataCellRenderer(doc)
 	{}
 
-private:
+public:
 	virtual std::string RenderLine(offset_t offset) const = 0;
 };
 

@@ -8,7 +8,9 @@
 #ifndef HAXEDITOR_HAXOFFSETRENDERER_H_
 #define HAXEDITOR_HAXOFFSETRENDERER_H_
 
-#include "haxeditor.h"
+#include "HaxDocument.h"
+
+#include <sstream> // TODO move to impl
 
 /*!
  * Base class for offset renderers

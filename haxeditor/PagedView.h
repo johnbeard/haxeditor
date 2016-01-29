@@ -8,7 +8,9 @@
 #ifndef HAXEDITOR_PAGEDVIEW_H_
 #define HAXEDITOR_PAGEDVIEW_H_
 
-#include "haxeditor.h"
+#include <sigc++/signal.h>
+
+#include <dal/DalTypes.h>
 
 /*!
  * PagedView is used to describe a view which can show a page of information

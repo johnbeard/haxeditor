@@ -8,7 +8,7 @@
 #ifndef HXE_WX_SELECTIONRENDERER_H_
 #define HXE_WX_SELECTIONRENDERER_H_
 
-#include "haxeditor/haxeditor.h"
+#include "haxeditor/HaxDocument.h"
 
 #include "DataRenderer.h" // for the cell renderer
 

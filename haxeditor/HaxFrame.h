@@ -8,9 +8,7 @@
 #ifndef HAXEDITOR_HAXFRAME_H_
 #define HAXEDITOR_HAXFRAME_H_
 
-#include <sigc++-2.0/sigc++/sigc++.h>
-
-#include "haxeditor/haxeditor.h"
+#include "haxeditor/HaxDocument.h"
 
 /*!
  * The main type of data view in haxeditor: a frame filled will some sort

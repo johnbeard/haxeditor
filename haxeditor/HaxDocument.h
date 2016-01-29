@@ -1,33 +1,18 @@
+/*
+ * HaxDocument.h
+ *
+ *  Created on: 28 Jan 2016
+ *      Author: John Beard
+ */
 
-#ifndef HAXEDITOR__H_
-#define HAXEDITOR__H_
-
-#include <string>
-#include <iostream>
+#ifndef HAXEDITOR_HAXDOCUMENT_H_
+#define HAXEDITOR_HAXDOCUMENT_H_
 
 #include "utils/CompilerSupport.h"
 
 #include <sigc++-2.0/sigc++/signal.h>
 
 #include "dal/ChangeApplicator.h"
-
-#include <cassert>
-
-/*!
- * The base class for a haxeditor view of a file
- *
- * Basic file operations and undo stacks are handled in the FAL, this
- * class deals with the interpretation and modification of the data
- */
-class HaxEditorBase
-{
-public:
-
-    bool openFile(const std::string& /*filename*/)
-    {
-        return false;
-    }
-};
 
 class HaxDocument
 {
@@ -179,4 +164,6 @@ private:
 	std::unique_ptr<BaseDataStream> m_baseStream;
 };
 
-#endif // HAXEDITOR__H_
+
+
+#endif /* HAXEDITOR_HAXDOCUMENT_H_ */

@@ -8,7 +8,6 @@
 #ifndef HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_
 #define HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_
 
-#include "haxeditor.h"
 #include "HaxFrame.h"
 
 #include <memory>

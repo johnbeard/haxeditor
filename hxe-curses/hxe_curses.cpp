@@ -8,10 +8,7 @@
 
 /-----------------------------------------------------------------*/
 
-#include <haxeditor/haxeditor.h>
-
-#include <fal/FAL.h>
-
+#include <haxeditor/HaxEditor.h>
 #include <ncurses.h>
 
 #include <iostream>

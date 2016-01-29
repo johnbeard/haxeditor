@@ -74,7 +74,7 @@ private:
 HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
-		DataCellRenderer& renderer) :
+		StringCellRenderer& renderer) :
 			HaxFrame(),
 			wxWindow(parent, id, pos, size),
 			m_caretPos(0, 0),

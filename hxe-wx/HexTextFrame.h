@@ -15,8 +15,8 @@
 
 #include <memory>
 
-#include "haxeditor/haxeditor.h"
 #include "haxeditor/HaxFrame.h"
+#include "haxeditor/StringCellRenderer.h"
 #include "haxeditor/SelectionRenderer.h"
 
 #include "HugeScrollBar.h"
@@ -41,7 +41,7 @@ public:
 	HexTextFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
-			DataCellRenderer& renderer);
+			StringCellRenderer& renderer);
 	~HexTextFrame();
 
 	void DataChanged(bool force);
@@ -106,7 +106,7 @@ private:
 	State m_state, m_pendingState;
 
 	wxBitmap m_bmpBuffer;
-	DataCellRenderer& m_renderer;
+	StringCellRenderer& m_renderer;
 	Director* m_director;
 	class HexCaret* m_caret;
 	wxColour m_bgColour;
