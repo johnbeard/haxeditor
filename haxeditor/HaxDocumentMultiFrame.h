@@ -109,7 +109,7 @@ protected:
 
 private:
 
-	virtual void performDeltaOffset(uint64_t offset, bool down,
+	virtual void performDeltaOffset(offset_t offset, bool down,
 			bool extendSelection);
 
 	/*!

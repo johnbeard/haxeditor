@@ -22,7 +22,7 @@ public:
 	virtual ~HaxFrame()
 	{}
 
-	virtual void SetOffset(uint64_t newOffset) = 0;
+	virtual void SetOffset(offset_t newOffset) = 0;
 
 	virtual unsigned GetMinimumWidthForData() const = 0;
 

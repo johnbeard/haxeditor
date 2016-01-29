@@ -107,7 +107,7 @@ public:
 		return m_data->GetDataLength();
 	}
 
-	void SetOffset(uint64_t newOffset)
+	void SetOffset(offset_t newOffset)
 	{
 		m_offset = std::min(GetDataLength(), newOffset);
 

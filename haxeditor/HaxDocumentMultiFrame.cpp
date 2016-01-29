@@ -70,7 +70,7 @@ uint64_t HaxDocumentMultiFrame::getTotalNumRows() const
 	return dataRows;
 }
 
-uint64_t HaxDocumentMultiFrame::getMaximumOffsetRow() const
+offset_t HaxDocumentMultiFrame::getMaximumOffsetRow() const
 {
 	const uint64_t pageRows = GetNumVisibleRows();
 	const uint64_t totalRows = getTotalNumRows();
@@ -134,7 +134,7 @@ void HaxDocumentMultiFrame::scrollPageStart(int linesToMovePageBy)
 	m_pagedView->MovePageStartByLines(linesToMovePageBy);
 }
 
-void HaxDocumentMultiFrame::performDeltaOffset(uint64_t delta, bool down,
+void HaxDocumentMultiFrame::performDeltaOffset(offset_t delta, bool down,
 		bool extendSelection)
 {
 	const auto currOffset = m_doc.GetOffset();

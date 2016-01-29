@@ -68,7 +68,7 @@ HaxTextRenderer::HaxTextRenderer(HaxDocument& doc):
 	StringCellRenderer(doc)
 {}
 
-std::string HaxTextRenderer::RenderLine(uint64_t offset) const
+std::string HaxTextRenderer::RenderLine(offset_t offset) const
 {
 	std::stringstream ss;
 
@@ -125,7 +125,7 @@ HaxAddressRenderer::HaxAddressRenderer(HaxDocument& doc):
 	StringCellRenderer(doc)
 {}
 
-std::string HaxAddressRenderer::RenderLine(uint64_t offset) const
+std::string HaxAddressRenderer::RenderLine(offset_t offset) const
 {
 	std::stringstream ss;
 

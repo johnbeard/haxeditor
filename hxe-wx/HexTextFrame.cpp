@@ -230,13 +230,13 @@ void HexTextFrame::drawToBitmap(wxDC& dc)
 	}
 }
 
-void HexTextFrame::SetOffset(uint64_t newOffset)
+void HexTextFrame::SetOffset(offset_t newOffset)
 {
 	m_pendingState.offset = newOffset;
 	DataChanged(false);
 }
 
-void HexTextFrame::SetCaretPosition(uint64_t newOffset)
+void HexTextFrame::SetCaretPosition(offset_t newOffset)
 {
 	const offset_t caretPosInPage = newOffset - m_state.offset;
 

@@ -48,7 +48,7 @@ class HaxTextRenderer: public StringCellRenderer
 public:
 	HaxTextRenderer(HaxDocument& doc);
 
-	std::string RenderLine(uint64_t offset) const override;
+	std::string RenderLine(offset_t offset) const override;
 
 	unsigned GetCellsPerRow() const override;
 	unsigned GetCellChars() const override;
@@ -65,7 +65,7 @@ class HaxAddressRenderer: public StringCellRenderer
 public:
 	HaxAddressRenderer(HaxDocument& doc);
 
-	std::string RenderLine(uint64_t offset) const override;
+	std::string RenderLine(offset_t offset) const override;
 	unsigned GetCellsPerRow() const override;
 	unsigned GetCellChars() const override;
 	CellList GetRowCells(offset_t offset) const override;

@@ -16,7 +16,7 @@ typedef uint64_t datasize_t;
  * The offset within a file, expressed in bits (not bytes) to allow for
  * bitwise access
  */
-typedef uint64_t offset_t;
+typedef int64_t offset_t;
 
 constexpr offset_t BYTE = 8;
 
