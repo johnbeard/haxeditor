@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 
 #include "haxeditor/SelectionRenderer.h"
+#include "haxeditor/StringCellRenderer.h" // for the specific renderers we want
 
 class SelectionPathRendererTest: public ::testing::Test
 {

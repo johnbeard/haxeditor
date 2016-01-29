@@ -10,6 +10,8 @@
 
 #include "haxeditor/haxeditor.h"
 
+#include "DataRenderer.h" // for the cell renderer
+
 #include <algorithm>
 
 /*!
@@ -42,7 +44,7 @@ public:
 		int interCellGap = 0;
 		int interRowGap = 0;
 
-		int GetXForPos(const HaxStringRenderer::StringLinePos& pos) const
+		int GetXForPos(const DataCellRenderer::StringLinePos& pos) const
 		{
 			auto x = charW * pos.chars + interCellGap * pos.gaps;
 			return x;
@@ -61,7 +63,7 @@ public:
 		}
 	};
 
-	SelectionRenderer(const HaxStringRenderer& renderer):
+	SelectionRenderer(const DataCellRenderer& renderer):
 		m_renderer(renderer)
 	{}
 
@@ -93,7 +95,7 @@ public:
 protected:
 
 	// the renderer drives the knowledge of the data layout
-	const HaxStringRenderer& m_renderer;
+	const DataCellRenderer& m_renderer;
 	Layout m_layout; //TODO access via renderer?
 
 	HaxDocument::Selection m_sel;
@@ -111,7 +113,7 @@ private:
 class SelectionPathRenderer: public SelectionRenderer
 {
 public:
-	SelectionPathRenderer(const HaxStringRenderer& renderer):
+	SelectionPathRenderer(const DataCellRenderer& renderer):
 		SelectionRenderer(renderer)
 	{}
 
@@ -148,7 +150,7 @@ public:
 
 		offset_t offset = rowInPage * m_renderer.GetWidth();
 
-		HaxStringRenderer::CellList cellsInRow(m_renderer.GetRowCells(offset));
+		DataCellRenderer::CellList cellsInRow(m_renderer.GetRowCells(offset));
 
 		decltype(x) xInRow = 0;
 

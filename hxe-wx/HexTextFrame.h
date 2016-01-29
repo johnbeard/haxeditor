@@ -41,7 +41,7 @@ public:
 	HexTextFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
-			HaxStringRenderer& renderer);
+			DataCellRenderer& renderer);
 	~HexTextFrame();
 
 	void DataChanged(bool force);
@@ -106,7 +106,7 @@ private:
 	State m_state, m_pendingState;
 
 	wxBitmap m_bmpBuffer;
-	HaxStringRenderer& m_renderer;
+	DataCellRenderer& m_renderer;
 	Director* m_director;
 	class HexCaret* m_caret;
 	wxColour m_bgColour;

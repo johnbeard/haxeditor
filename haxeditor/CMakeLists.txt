@@ -6,6 +6,8 @@ set(srcFiles
     HaxFrame.cpp
     HaxDocumentMultiFrame.cpp
     SelectionDriver.cpp
+    DataCellRenderer.cpp
+    StringCellRenderer.cpp
 )
 
 add_library(haxeditor ${srcFiles})

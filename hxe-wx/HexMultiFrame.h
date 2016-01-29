@@ -86,7 +86,7 @@ private:
 
 	wxSizer* m_hexPanelSizer;
 
-	std::unique_ptr<HaxStringRenderer> m_hexRenderer;
+	std::unique_ptr<DataCellRenderer> m_hexRenderer;
 	std::unique_ptr<HaxAddressRenderer> m_addrRenderer;
 	std::unique_ptr<HaxTextRenderer> m_textRenderer;
 

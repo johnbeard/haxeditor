@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 
 #include "haxeditor/haxeditor.h"
+#include "haxeditor/StringCellRenderer.h"
 
 TEST(HaxStringRendererTests, basicOffsetCalcs)
 {
@@ -31,7 +32,7 @@ TEST(HaxStringRendererTests, basicOffsetCalcs)
 
 	EXPECT_EQ(10u, rdr.GetRowForOffset(800, true));
 
-	HaxStringRenderer::StringLinePos pos;
+	DataCellRenderer::StringLinePos pos;
 	pos = rdr.GetOffsetPosInLine(0, true);
 	EXPECT_EQ(0u, pos.chars);
 	EXPECT_EQ(0u, pos.gaps);
@@ -92,7 +93,7 @@ TEST(HaxStringRendererTests, testZeroWidth)
 	rdr.SetWidth(0); // zero bytes
 
 	// shouldn't divide by zero!
-	HaxStringRenderer::StringLinePos pos;
+	DataCellRenderer::StringLinePos pos;
 	pos = rdr.GetOffsetPosInLine(0, true);
 
 	EXPECT_EQ(0u, pos.chars);
@@ -107,8 +108,8 @@ TEST(HaxStringRendererTests, hexCellList)
 	rdr.SetWidth(80);
 
 	// shouldn't divide by zero!
-	HaxStringRenderer::StringLinePos pos;
-	HaxStringRenderer::CellList cells = rdr.GetRowCells(0);
+	DataCellRenderer::StringLinePos pos;
+	DataCellRenderer::CellList cells = rdr.GetRowCells(0);
 
 	EXPECT_EQ(10u, cells.size());
 	EXPECT_EQ(2, cells[0]);
