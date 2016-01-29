@@ -13,6 +13,8 @@ set(srcFiles
     ChangeStack.cpp
     ChangeApplicator.cpp
     FileDataStream.cpp
+    NullDataStream.cpp
+    MockPatternDataStream.cpp
 )
 
 add_library(dal ${srcFiles})

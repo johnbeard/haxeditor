@@ -67,7 +67,7 @@ public:
 	/*!
 	 * Get the current total length of the data stream (base data plus any
 	 * change/filter modifications)
-	 * @return the total length in _bytes_
+	 * @return the total length in _bits_
 	 */
 	offset_t GetDataLength() const;
 

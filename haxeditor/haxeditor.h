@@ -79,21 +79,11 @@ public:
 	HaxDocument():
 		m_offset(0)
 	{
-		// fill DA in with some fake data until we get the file IO
-		// sorted!
-		offset_t len = 3003;
-		std::vector<uint8_t> data;
-		data.resize(len);
-	    for (uint64_t i = 0; i < len; ++i)
-	    {
-	        data[i] = 3 * i;
-	    }
+		m_data = std::make_unique<ChangeApplicator>();
 
-	    m_data = std::make_unique<ChangeApplicator>();
-
-	    // temporary file stream until we get file openign working
-	    m_baseStream = std::make_unique<FileDataStream>("/tmp/01.png");
-	    m_data->SetBaseData(m_baseStream);
+		// initialise with a null stream
+		m_baseStream = std::make_unique<MockPatternDataStream>(200);
+		m_data->SetBaseData(m_baseStream);
 
 		m_selection.signal_changed.connect(sigc::mem_fun(this,
 				&HaxDocument::notifySelectionChanged));
@@ -376,12 +366,15 @@ public:
 		int lastOffset = std::min(offset + GetWidth(),
 				getDocument().GetDataLength());
 
-		auto& stream = getDocument().GetDataStream();
-		stream.seekg(offset / BYTE);
+		auto& stream = getDocument().GetDataStreamAtBit(offset);
+
 		for (int x = offset; x < lastOffset; x += 8)
 		{
-			const uint8_t d = stream.get();
-			ss << std::setw(2) << static_cast<unsigned>(d) << " ";
+			char c;
+			if (stream.get(c))
+			{
+				ss << std::setw(2) << static_cast<unsigned>(c & 0xFF) << " ";
+			}
 		}
 
 		return ss.str();
@@ -423,14 +416,14 @@ public:
 				getDocument().GetDataLength());
 
 		auto& stream = getDocument().GetDataStreamAtBit(offset);
+
 		for (int x = offset; x < lastOffset; x += 8)
 		{
 			char c;
-
 			if (stream.get(c))
+			{
 				addCharToString(c, ss);
-			else
-				std::cout << "Failed to read char at " << x;
+			}
 		}
 
 		return ss.str();

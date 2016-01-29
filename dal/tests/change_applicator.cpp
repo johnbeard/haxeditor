@@ -30,7 +30,7 @@ TEST(ChangeApplicatorTests, basicFileReadNoChange)
 
 	std::string s(std::istreambuf_iterator<char>(is), {});
 
-	EXPECT_EQ(12, ca.GetDataLength());
+	EXPECT_EQ(12 * BYTE, ca.GetDataLength());
 	EXPECT_STREQ("Hello World\n", s.c_str());
 }
 

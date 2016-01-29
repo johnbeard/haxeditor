@@ -36,7 +36,8 @@ public:
 
 	offset_t GetDataLength() const
 	{
-		return m_baseData->GetDataLength() + m_stack.GetLengthModification();
+		const auto bytes = m_baseData->GetDataLength() + m_stack.GetLengthModification();
+		return bytes * BYTE;
 	}
 
 	// The list of changes made by the user
