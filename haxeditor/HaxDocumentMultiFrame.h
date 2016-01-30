@@ -10,6 +10,8 @@
 
 #include "HaxFrame.h"
 #include "HaxPagedDocumentView.h"
+#include "StringCellRenderer.h"
+#include "HaxTextCellFrame.h"
 
 #include <memory>
 #include <vector>
@@ -24,12 +26,17 @@ class HaxDocumentMultiFrame
 {
 public:
 	HaxDocumentMultiFrame(HaxDocument& doc);
+
+	/*!
+	 * Adds a new frame to the multiframe
+	 * @param renderer the renderer that the frame will use. NOTE this needs to
+	 * be a DataCellRenderer, as this is the basic premise of the multiframe
+	 */
+	HaxTextCellFrame& AddNewFrame(std::unique_ptr<StringCellRenderer>& renderer);
+
 protected:
 	virtual ~HaxDocumentMultiFrame()
 	{}
-
-	// todo encapsulate
-	std::vector<HaxFrame*> m_frames;
 
 	// TODO and this?
 	HaxPagedDocumentView m_docView;
@@ -55,6 +62,17 @@ private:
 	virtual void onPageStartChangedInt() = 0;
 
 	void onOffsetChanged(const offset_t /*newOffset*/);
+
+	/*!
+	 * Called when a child frame requests an offset change eg from a click
+	 * @param offset
+	 * @param extendSelection
+	 */
+	void onFrameSetsOffset(offset_t offset, bool extendSelection);
+
+	// the multiframe owns the set of frame objects and their renderers
+	std::vector<std::unique_ptr<HaxTextCellFrame> > m_frames;
+	std::vector<std::unique_ptr<StringCellRenderer> > m_renderer;
 };
 
 #endif /* HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_ */

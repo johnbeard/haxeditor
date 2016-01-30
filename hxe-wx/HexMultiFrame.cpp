@@ -15,46 +15,50 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 		HaxDocumentMultiFrame(doc),
 		m_doc(doc)
 {
-	// TODO abstract out of WX code?
-	const unsigned lineSize = 10 * 8;
-	m_docView.SetRowLength(lineSize);
-
-	m_hexRenderer = std::make_unique<HaxHexRenderer>(doc);
-	m_hexRenderer->SetWidth(lineSize);
-
-	m_addrRenderer = std::make_unique<HaxAddressRenderer>(doc);
-	m_addrRenderer->SetWidth(lineSize);
-
-	m_textRenderer = std::make_unique<HaxTextRenderer>(doc);
-	m_textRenderer->SetWidth(lineSize);
-
 	m_hexPanelSizer = new wxBoxSizer(wxHORIZONTAL);
 	SetSizer(m_hexPanelSizer);
 
 	std::unique_ptr<HexTextFrame> f;
+	std::unique_ptr<StringCellRenderer> renderer;
 
-	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
+	{
+		renderer = std::make_unique<HaxAddressRenderer>(doc);
+		StringCellRenderer& thisRender = *renderer;
+		HaxTextCellFrame& theframe = AddNewFrame(renderer);
+
+		f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
 				this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-				this, *m_addrRenderer));
-	m_frames.push_back(f.get());
-	m_hexPanelSizer->Add(f.get(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
-	f.release();
+				this, thisRender, theframe));
+		m_frameWindows.push_back(f.get());
 
-	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
-			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_hexRenderer));
-	f->signal_offsetChanged.connect(sigc::mem_fun(this,
-			&HexMultiFrame::onFrameSetsOffset));
-	m_frames.push_back(f.get());
-	m_hexPanelSizer->Add(f.release(), 100, wxALIGN_RIGHT | wxEXPAND, 0);
-	f.release();
+		m_hexPanelSizer->Add(f.release(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
+	}
 
-	f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
-			this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			this, *m_textRenderer));
-	m_frames.push_back(f.get());
-	m_hexPanelSizer->Add(f.release(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
-	f.release();
+	{
+		renderer = std::make_unique<HaxHexRenderer>(doc);
+		StringCellRenderer& thisRender = *renderer;
+		HaxTextCellFrame& theframe = AddNewFrame(renderer);
+
+		f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
+				this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+				this, thisRender, theframe));
+		m_frameWindows.push_back(f.get());
+		m_hexPanelSizer->Add(f.release(), 100, wxALIGN_RIGHT | wxEXPAND, 0);
+		f.release();
+	}
+
+	{
+		renderer = std::make_unique<HaxTextRenderer>(doc);
+		StringCellRenderer& thisRender = *renderer;
+		HaxTextCellFrame& theframe = AddNewFrame(renderer);
+
+		f = std::unique_ptr<HexTextFrame>(new HexTextFrame(
+				this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+				this, thisRender, theframe));
+		m_frameWindows.push_back(f.get());
+		m_hexPanelSizer->Add(f.release(), 0, wxALIGN_RIGHT | wxEXPAND, 0);
+		f.release();
+	}
 
 	m_realScrollBar = new wxScrollBar(this, wxID_ANY, wxDefaultPosition,
 			wxDefaultSize, wxSB_VERTICAL);
@@ -155,7 +159,7 @@ void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
 	// TODO should react to a signal caused by the above?
 	AdjustScrollBar();
 
-	for (auto& f: m_frames)
+	for (auto& f: m_frameWindows)
 	{
 		const unsigned frameW = f->GetMinimumWidthForData();
 		static_cast<HexTextFrame*>(f)->SetMinSize(wxSize(frameW, 10));
@@ -178,12 +182,6 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 void HexMultiFrame::onPageStartChangedInt()
 {
 	AdjustScrollBar();
-}
-
-void HexMultiFrame::onFrameSetsOffset(offset_t offset, bool extendSelection)
-{
-	//std::cout << "Frame set new offset: " << offset << std::endl;
-	m_docView.scrollTo(offset, extendSelection, true);
 }
 
 void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)

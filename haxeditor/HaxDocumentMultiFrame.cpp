@@ -7,6 +7,8 @@
 
 #include "HaxDocumentMultiFrame.h"
 
+#include "HaxTextCellFrame.h"
+
 // ====================
 // Multiframe
 // ====================
@@ -14,6 +16,10 @@
 HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 		m_docView(doc)
 {
+	// TODO change this to be dynamic
+	const unsigned lineSize = 10 * 8;
+	m_docView.SetRowLength(lineSize);
+
 	doc.signal_SelectionChanged.connect(
 			sigc::mem_fun(this, &HaxDocumentMultiFrame::onSelectionChanged));
 
@@ -24,12 +30,15 @@ HaxDocumentMultiFrame::HaxDocumentMultiFrame(HaxDocument& doc):
 			&HaxDocumentMultiFrame::onViewStartChanged));
 }
 
-void HaxDocumentMultiFrame::onOffsetChanged(const offset_t /*newOffset*/)
+void HaxDocumentMultiFrame::onOffsetChanged(const offset_t newOffset)
 {
+	//std::cout << "offset: " << newOffset << std::endl;
+
 	// all the subframes need to know this
 	for (auto& f: m_frames)
 	{
-		f->SetCaretPosition(m_docView.GetCaretPosition());
+		f->SetCaretPosition(newOffset);
+		f->SetOffset(newOffset);
 	}
 }
 
@@ -51,4 +60,26 @@ void HaxDocumentMultiFrame::onViewStartChanged(const offset_t newStart)
 	}
 
 	onPageStartChangedInt();
+}
+
+void HaxDocumentMultiFrame::onFrameSetsOffset(offset_t offset, bool extendSelection)
+{
+	//std::cout << "Frame set new offset: " << offset << std::endl;
+	m_docView.scrollTo(offset + m_docView.GetPageOffset(), extendSelection, true);
+}
+
+HaxTextCellFrame& HaxDocumentMultiFrame::AddNewFrame(std::unique_ptr<StringCellRenderer>& renderer)
+{
+	renderer->SetWidth(m_docView.GetRowLength());
+
+	// we maintain our own renderers internally
+	m_renderer.push_back(std::move(renderer));
+
+	auto frame = std::make_unique<HaxTextCellFrame>(*m_renderer.back().get(), m_docView);
+
+	frame->signal_frameRequestsOffsetChange.connect(
+			sigc::mem_fun(this, &HaxDocumentMultiFrame::onFrameSetsOffset));
+
+	m_frames.push_back(std::move(frame));
+	return *m_frames.back();
 }

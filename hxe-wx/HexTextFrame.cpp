@@ -74,15 +74,14 @@ private:
 HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size,
 		Director* director,
-		StringCellRenderer& renderer) :
-			HaxFrame(),
+		StringCellRenderer& renderer,
+		HaxTextCellFrame& textFrame) :
 			wxWindow(parent, id, pos, size),
-			m_caretPos(0, 0),
 			m_bmpBuffer(0, 0),
-			m_renderer(renderer),
 			m_director(director),
 			m_bgColour(*wxWHITE),
-			m_selectionRenderer(renderer)
+			m_selectionRenderer(renderer),
+			m_textFrame(textFrame)
 {
 	wxColour c(*wxWHITE);
 	SetBackgroundColour(c);
@@ -94,6 +93,13 @@ HexTextFrame::HexTextFrame(wxWindow* parent, wxWindowID id,
 
 	m_caret = new HexCaret(this, m_director->GetCharSize());
 	m_caret->Show();
+
+	// listen for the frame's events
+	m_textFrame.signal_selectionChanged.connect(
+			sigc::mem_fun(this, &HexTextFrame::onSelectionChanged));
+
+	m_textFrame.signal_offsetChanged.connect(
+			sigc::mem_fun(this, &HexTextFrame::onOffsetChanged));
 
 	Bind(wxEVT_PAINT, &HexTextFrame::Paint, this);
 	Bind(wxEVT_SIZE, &HexTextFrame::OnSize, this);
@@ -130,21 +136,23 @@ void HexTextFrame::moveCaret()
 	const wxSize charSize(m_director->GetCharSize());
 
 	m_caret->SetSize(charSize);
-	m_caret->Move(m_caretPos.x * charSize.x,
-			m_caretPos.y * charSize.y);
+
+	const auto yoff = m_selectionRenderer.GetPositionForOffset(m_textFrame.GetPageOffset());
+
+	m_caret->Move((m_textFrame.m_caretPos.charsX + m_textFrame.m_caretPos.gapsX) * charSize.x,
+			m_textFrame.m_caretPos.row * charSize.y - yoff);
 }
 
 void HexTextFrame::DataChanged(bool force)
 {
 	moveCaret();
 
-	m_caret->Show(isCaretVisible());
+	m_caret->Show(m_textFrame.IsCaretVisible());
 
 	m_pendingState.m_charSize = m_director->GetCharSize();
 
 	// could use a different line spacing
 	m_pendingState.m_rows = m_director->GetNumRowsToShow();
-	m_pendingState.m_cols = m_renderer.GetWidth();
 
 	m_pendingState.m_selectionActive = m_selectionPolygon.GetCount();
 
@@ -212,57 +220,29 @@ void HexTextFrame::drawToBitmap(wxDC& dc)
 		//std::cout << "Selection poly " << m_selectionPolygon.GetCount() << " items" << std::endl;
 		dc.SetBrush(wxColour(0, 100, 255, 50));
 		dc.SetPen(wxColour(50, 50, 50, 255));
-		dc.DrawPolygon(&m_selectionPolygon);
+
+		// correct for the page offset
+		const auto yoff = m_selectionRenderer.GetPositionForOffset(m_textFrame.GetPageOffset());
+		dc.DrawPolygon(&m_selectionPolygon, 0, -yoff);
 	}
 
 	int yPos = m_state.m_margin.y;
-	uint64_t lineOffset = m_state.offset;
 	for ( int y = 0 ; y < m_state.m_rows; ++y )
 	{
 		int xPos = m_state.m_margin.x;
 
-		const std::string row(m_renderer.RenderLine(lineOffset));
+		const std::string row(m_textFrame.GetRowString(y));
 
 		dc.DrawText(row, xPos, yPos);
 
-		lineOffset += m_state.m_cols;
 		yPos += m_state.m_charSize.y + m_state.m_margin.y;
 	}
 }
 
-void HexTextFrame::SetOffset(offset_t newOffset)
+void HexTextFrame::onOffsetChanged(offset_t newOffset)
 {
 	m_pendingState.offset = newOffset;
 	DataChanged(false);
-}
-
-void HexTextFrame::SetCaretPosition(offset_t newOffset)
-{
-	const offset_t caretPosInPage = newOffset - m_state.offset;
-
-	const unsigned chPerCell = m_renderer.GetCellChars();
-	const unsigned bitsPerChar = m_renderer.GetBitsPerChar();
-	const unsigned bitsPerCell = bitsPerChar * chPerCell;
-
-	// work out the new care position
-	const unsigned w = m_renderer.GetWidth();
-	uint64_t div = caretPosInPage / w; // in rows
-	uint64_t rem = caretPosInPage % w; // in bits
-
-	uint64_t cells = rem / bitsPerCell;
-	uint64_t chars = (rem % bitsPerCell) / bitsPerChar;
-
-	m_caretPos.y = div;
-	m_caretPos.x = cells * chPerCell + chars;
-
-	// add the intercell gaps
-	if (cells)
-		m_caretPos.x += cells;
-
-	std::cout << "new caret pos for offset " << newOffset << ": "
-			<< m_caretPos.x << ", " << m_caretPos.y << std::endl;
-
-	moveCaret();
 }
 
 void HexTextFrame::OnSize(wxSizeEvent& /*event*/)
@@ -288,13 +268,13 @@ void HexTextFrame::Paint(wxPaintEvent& /*event*/)
 
 unsigned HexTextFrame::GetMinimumWidthForData() const
 {
-	const unsigned cells = m_renderer.GetCellsPerRow();
-	const unsigned gapW = 1;
-	const unsigned cellW = (m_renderer.GetCellChars() + gapW)
-			* m_director->GetCharSize().GetWidth();
+	const auto line = m_textFrame.GetMaximumTextWidth();
+
+	const unsigned charW = m_director->GetCharSize().GetWidth();
+	const unsigned textW = line.chars * charW + line.gaps * charW;
 
 	const unsigned margin = 5;
-	return cells * cellW + margin;
+	return textW + margin;
 }
 
 void HexTextFrame::OnKeyboardInput(wxKeyEvent& event)
@@ -316,14 +296,14 @@ void HexTextFrame::OnKeyboardInput(wxKeyEvent& event)
 void HexTextFrame::OnLeftMouseDown(wxMouseEvent& event)
 {
 	// TODO activate, and send signal
-	signal_frameActive.emit(true);
+	m_textFrame.signal_frameActive.emit(true);
 
 	// find out the click offset from the location
 	const auto pos = event.GetPosition();
 
 	const auto offset = m_selectionRenderer.GetOffsetForPosition(pos.x, pos.y);
 
-	signal_offsetChanged.emit(offset, false);
+	m_textFrame.RequestOffsetChange(offset, false);
 
 	// pass it on until we can deal with it? so as to avoid focus loss
 	event.Skip();
@@ -337,7 +317,7 @@ void HexTextFrame::OnMouseMotion(wxMouseEvent& event)
 
 		const auto offset = m_selectionRenderer.GetOffsetForPosition(pos.x, pos.y);
 
-		signal_offsetChanged.emit(offset, true);
+		m_textFrame.RequestOffsetChange(offset, true);
 	}
 }
 
@@ -354,7 +334,7 @@ void HexTextFrame::OnFocusSet(wxFocusEvent& /*event*/)
 }
 
 // selection change notification
-void HexTextFrame::ChangeSelection(const HaxDocument::Selection& selection,
+void HexTextFrame::onSelectionChanged(const HaxDocument::Selection& selection,
 		bool active)
 {
 	if (!active)

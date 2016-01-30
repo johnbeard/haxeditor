@@ -76,16 +76,15 @@ private:
 
 	wxSizer* m_hexPanelSizer;
 
-	std::unique_ptr<HaxHexRenderer> m_hexRenderer;
-	std::unique_ptr<HaxAddressRenderer> m_addrRenderer;
-	std::unique_ptr<HaxTextRenderer> m_textRenderer;
-
 	wxScrollBar* m_realScrollBar;
 	wxHugeScrollBar* m_hugeScrollBar;
 
 	wxSize m_charSize;
 	wxTextAttr m_textAttr;
 	wxSize m_frameMargin;
+
+	// the individual frame windows
+	std::vector<HexTextFrame* > m_frameWindows;
 
 	HaxDocument& m_doc; // TODO need this?
 };

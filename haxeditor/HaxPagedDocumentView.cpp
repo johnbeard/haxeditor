@@ -54,7 +54,7 @@ void HaxPagedDocumentView::SetNumVisibleRows(unsigned rowsToShow)
 }
 
 
-uint64_t HaxPagedDocumentView::getTotalNumRows() const
+offset_t HaxPagedDocumentView::getTotalNumRows() const
 {
 	const uint64_t dataSize = m_doc.GetDataLength();
 	const unsigned lineSize = 10;

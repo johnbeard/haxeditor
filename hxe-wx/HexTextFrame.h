@@ -18,11 +18,11 @@
 #include "haxeditor/HaxFrame.h"
 #include "haxeditor/StringCellRenderer.h"
 #include "haxeditor/SelectionRenderer.h"
+#include "haxeditor/HaxTextCellFrame.h"
 
 #include "HugeScrollBar.h"
 
-class HexTextFrame: public HaxFrame,
-				public wxWindow
+class HexTextFrame: public wxWindow
 {
 public:
 
@@ -41,7 +41,8 @@ public:
 	HexTextFrame(wxWindow *parent, wxWindowID id,
 			const wxPoint &pos, const wxSize &size,
 			Director* director,
-			StringCellRenderer& renderer);
+			StringCellRenderer& renderer,
+			HaxTextCellFrame& textFrame);
 	~HexTextFrame();
 
 	void DataChanged(bool force);
@@ -49,18 +50,15 @@ public:
 	void Paint(wxPaintEvent& event);
 	void OnSize(wxSizeEvent& event);
 
-	void SetOffset(offset_t offset) override;
-	void SetCaretPosition(offset_t newOffset);
-
 	/*!
 	 * Return the minimum width needed for the current data
 	 */
-	unsigned GetMinimumWidthForData() const override;
-protected:
-	wxPoint   m_caretPos;	// position (in text coords) of the caret
+	unsigned GetMinimumWidthForData() const;
+
 private:
 
-	void ChangeSelection(const HaxDocument::Selection& selection, bool active) override;
+	void onSelectionChanged(const HaxDocument::Selection& selection, bool active);
+	void onOffsetChanged(offset_t offset);
 
 	void OnKeyboardInput(wxKeyEvent& event);
 	void OnLeftMouseDown(wxMouseEvent& event);
@@ -69,7 +67,7 @@ private:
 
 	void drawToBitmap(wxDC& dc);
 
-	void moveCaret() override;
+	void moveCaret();
 
 	void onCharSizeChanged();
 
@@ -80,7 +78,6 @@ private:
 	struct State
 	{
 		int m_rows;
-		int m_cols;
 		uint64_t offset;
 		wxPoint m_margin; // the margin around the text
 		wxSize m_charSize;
@@ -88,7 +85,6 @@ private:
 
 		State():
 			m_rows(0),
-			m_cols(0),
 			offset(0),
 			m_selectionActive(false)
 		{}
@@ -97,7 +93,6 @@ private:
 		{
 			 return offset != other.offset
 					 || m_rows != other.m_rows
-					 || m_cols != other.m_cols
 					 || m_margin != other.m_margin
 					 || m_selectionActive != other.m_selectionActive;
 		}
@@ -106,7 +101,6 @@ private:
 	State m_state, m_pendingState;
 
 	wxBitmap m_bmpBuffer;
-	StringCellRenderer& m_renderer;
 	Director* m_director;
 	class HexCaret* m_caret;
 	wxColour m_bgColour;
@@ -114,6 +108,8 @@ private:
 	// the render to use for the selection
 	SelectionPathRenderer m_selectionRenderer;
 	wxPointList m_selectionPolygon;
+
+	HaxTextCellFrame& m_textFrame;
 };
 
 #endif /* HXE_WX_HEXTEXTFRAME_H_ */

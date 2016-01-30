@@ -22,35 +22,55 @@ public:
 	virtual ~HaxFrame()
 	{}
 
-	virtual void SetOffset(offset_t newOffset) = 0;
-
-	virtual unsigned GetMinimumWidthForData() const = 0;
-
 	virtual void SetCaretPosition(offset_t newPos) = 0;
 
-	virtual void moveCaret() = 0;
-
 	/*!
-	 * Implement to handle a selection change
+	 * Modify the selection that this frame shows
 	 * @param selection the new selection
 	 */
-	virtual void ChangeSelection(const HaxDocument::Selection& selection,
-			bool active) = 0;
+	void ChangeSelection(const HaxDocument::Selection& selection,
+			bool active)
+	{
+		// we don't do anything, but clients might be listening for the frame
+		// to change selection
+		signal_selectionChanged.emit(selection, active);
+	}
+
+	void SetOffset(offset_t newOffset)
+	{
+		signal_offsetChanged.emit(newOffset);
+	}
+
+	/*!
+	 * Call this if an action on a frame is driving the offset (eg a click).
+	 *
+	 * This is releative to the frame start
+	 * @param requestedOffset
+	 * @param extendSelection
+	 */
+	void RequestOffsetChange(offset_t requestedOffset, bool extendSelection)
+	{
+		signal_frameRequestsOffsetChange.emit(requestedOffset, extendSelection);
+	}
 
 	// signalled when a click or similar is driving the offset
-	sigc::signal<void, offset_t, bool> signal_offsetChanged;
+	sigc::signal<void, offset_t, bool> signal_frameRequestsOffsetChange;
+
+	// signalled when the frame start moves (clients probably need redraws)
+	sigc::signal<void, offset_t> signal_offsetChanged;
+
+	sigc::signal<void, const HaxDocument::Selection&, bool> signal_selectionChanged;
 
 	// signalled when a frame has been made active
 	sigc::signal<void, bool> signal_frameActive;
 
-protected:
 
-	bool isCaretVisible() const
+	bool IsCaretVisible() const
 	{
 		return m_caretVisible;
 	}
 
-	void setCaretVisible(bool visible)
+	void SetCaretVisible(bool visible)
 	{
 		m_caretVisible = visible;
 	}

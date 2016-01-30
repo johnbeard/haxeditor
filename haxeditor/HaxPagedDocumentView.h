@@ -54,14 +54,6 @@ public:
 	 */
 	offset_t GetPageOffset() const;
 
-	/*!
-	 * Get the caret position in the document
-	 */
-	offset_t GetCaretPosition() const
-	{
-		return m_doc.GetOffset();
-	}
-
 	bool HasActiveSelection() const;
 
 protected:
@@ -76,7 +68,7 @@ protected:
 	 * width.
 	 * @return
 	 */
-	uint64_t getTotalNumRows() const;
+	offset_t getTotalNumRows() const;
 
 	/*!
 	 * Get the row index of the maximum row you can scroll too (so that you
@@ -102,8 +94,6 @@ private:
 	void onOffsetChanged(offset_t newOffset);
 
 	void onPageStartChanged(const class PagedView& changedView);
-
-	uint64_t m_rowOffset = 0;
 
 	unsigned m_rows = 0;
 

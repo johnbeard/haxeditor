@@ -80,6 +80,17 @@ public:
 		// TODO: recompute?
 	}
 
+	int GetPositionForOffset(offset_t offset) const
+	{
+		const auto rows = m_renderer.GetRowForOffset(offset, true);
+		auto pos = m_layout.charH * rows;
+
+		if (rows)
+			pos += m_layout.interRowGap * (rows - 1);
+
+		return pos;
+	}
+
 	/*!
 	 * Update with a new selection object
 	 * @param selection
