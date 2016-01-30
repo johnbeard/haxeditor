@@ -19,13 +19,13 @@ HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 	const unsigned lineSize = 10 * 8;
 	m_docView.SetRowLength(lineSize);
 
-	m_hexRenderer.reset(new HaxHexRenderer(doc));
+	m_hexRenderer = std::make_unique<HaxHexRenderer>(doc);
 	m_hexRenderer->SetWidth(lineSize);
 
-	m_addrRenderer.reset(new HaxAddressRenderer(doc));
+	m_addrRenderer = std::make_unique<HaxAddressRenderer>(doc);
 	m_addrRenderer->SetWidth(lineSize);
 
-	m_textRenderer.reset(new HaxTextRenderer(doc));
+	m_textRenderer = std::make_unique<HaxTextRenderer>(doc);
 	m_textRenderer->SetWidth(lineSize);
 
 	m_hexPanelSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -182,7 +182,7 @@ void HexMultiFrame::onPageStartChangedInt()
 
 void HexMultiFrame::onFrameSetsOffset(offset_t offset, bool extendSelection)
 {
-	std::cout << "Frame set new offset: " << offset << std::endl;
+	//std::cout << "Frame set new offset: " << offset << std::endl;
 	m_docView.scrollTo(offset, extendSelection, true);
 }
 
