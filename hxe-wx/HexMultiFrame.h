@@ -54,7 +54,7 @@ private:
 	// forward to the HaxDocumentMultiFrame
 	unsigned GetNumRowsToShow() const override
 	{
-		return GetNumVisibleRows();
+		return m_docView.GetNumVisibleRows();
 	}
 
 	/*!
@@ -63,16 +63,6 @@ private:
 	 * Called for example when the multiframe window is resized
 	 */
 	void AdjustScrollBar();
-
-	/*!
-	 * Called when something has changed the offset
-	 */
-	void onOffsetChangeInt() override;
-
-	/*!
-	 * Called when the selection changes
-	 */
-	void onSelectionChangedInt() override;
 
 	/*!
 	 * Called by base class when the page start changes
@@ -97,6 +87,7 @@ private:
 	wxTextAttr m_textAttr;
 	wxSize m_frameMargin;
 
+	HaxDocument& m_doc; // TODO need this?
 };
 
 

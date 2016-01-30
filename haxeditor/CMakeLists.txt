@@ -4,6 +4,7 @@
 
 set(srcFiles
     HaxFrame.cpp
+    HaxPagedDocumentView.cpp
     HaxDocumentMultiFrame.cpp
     SelectionDriver.cpp
     DataCellRenderer.cpp

@@ -15,6 +15,9 @@
 /*!
  * PagedView is used to describe a view which can show a page of information
  * at once. It provides functions for scrolling around in the view and so on.
+ *
+ * It does not deal with moving around within the page, just where the page
+ * falls in the whole document
  */
 class PagedView
 {

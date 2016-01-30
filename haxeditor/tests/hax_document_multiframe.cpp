@@ -9,26 +9,11 @@
 
 #include "haxeditor/HaxDocumentMultiFrame.h"
 
-class TestMultiFrame: public HaxDocumentMultiFrame
+class TestMultiFrame: public HaxPagedDocumentView
 {
 public:
 	TestMultiFrame(HaxDocument& doc):
-		HaxDocumentMultiFrame(doc)
-	{
-		setRowLength(80); //TODO drive externally?
-	}
-
-private:
-
-	void onOffsetChangeInt() override
-	{
-	}
-
-	void onSelectionChangedInt() override
-	{
-	}
-
-	void onPageStartChangedInt() override
+		HaxPagedDocumentView(doc)
 	{
 	}
 };
@@ -41,6 +26,7 @@ public:
 		mf(doc),
 		sel(doc.GetSelection())
 	{
+		mf.SetRowLength(80);
 	}
 
 	HaxDocument doc;

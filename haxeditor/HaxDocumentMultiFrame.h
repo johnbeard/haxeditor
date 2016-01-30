@@ -9,122 +9,32 @@
 #define HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_
 
 #include "HaxFrame.h"
+#include "HaxPagedDocumentView.h"
 
 #include <memory>
+#include <vector>
 
 /*!
- * A generalised "view" into a document, which maintains state such as the
- * view start offset, the cursor offset, etc
- */
-class HaxDocumentView
-{
-protected:
-	HaxDocumentView():
-		m_cursorOffset(0)
-	{}
-
-	virtual ~HaxDocumentView()
-	{}
-
-	/*!
-	 * Gets the size of the view (number of bytes shown)
-	 */
-	virtual offset_t getViewSize() const = 0;
-
-//private:
-	// the offset of the cursor (or the start of the cursor if it is longer
-	// than one byte
-	offset_t m_cursorOffset;
-};
-
-/*
  * The HaxDocumentMultiFrame is the core of the editor - if shows a set of
  * HaxFrames, which each contain a view of the data. These frames scroll
- * together - a line in one means a line in the others
+ * together - a line in one means a line in the others, and are therefore
+ * driven from the same HaxPagedDocumentView
  */
-class HaxDocumentMultiFrame: public HaxDocumentView
+class HaxDocumentMultiFrame
 {
 public:
-
 	HaxDocumentMultiFrame(HaxDocument& doc);
-	virtual ~HaxDocumentMultiFrame();
-
-	void scrollTo(offset_t newOffset, bool extendSelection, bool moveCaret);
-	void scrollToStart();
-	void scrollToEnd();
-	void scrollLines(int linesToScrollDown, bool extendSelection, bool moveCaret);
-	void scrollPages(int pagesDown, bool extendSelection);
-	void scrollRight(int unitsRight, bool extendSelection);
-	void scrollPageStart(int linesToMovePage);
-
-	void SetOffset(uint64_t newOffset)
-	{
-		m_rowOffset = newOffset;
-	}
-
-	uint64_t GetRowOffset() const
-	{
-		return m_rowOffset;
-	}
-
-	unsigned GetNumVisibleRows() const
-	{
-		return m_rows;
-	}
-
-	/*!
-	 * @return the offset at the start of the page
-	 */
-	offset_t GetPageOffset() const;
-
 protected:
-
-	offset_t getViewSize() const override
-	{
-		return m_rows * getRowLength();
-	}
-
-	void setNumVisibleRows(unsigned rowsToShow);
-
-	/*!
-	 * Get the total length of the document, in rows, as rendered at the current
-	 * width.
-	 * @return
-	 */
-	uint64_t getTotalNumRows() const;
-
-	/*!
-	 * Get the row index of the maximum row you can scroll too (so that you
-	 * don't scroll into a mostly black page at the end
-	 */
-	offset_t getMaximumOffsetRow() const;
-
-	void setRowLength(unsigned rowLength);
-	offset_t getRowLength() const;
-
-	HaxDocument& m_doc;
+	virtual ~HaxDocumentMultiFrame()
+	{}
 
 	// todo encapsulate
 	std::vector<HaxFrame*> m_frames;
 
+	// TODO and this?
+	HaxPagedDocumentView m_docView;
+
 private:
-
-	virtual void performDeltaOffset(offset_t offset, bool down,
-			bool extendSelection);
-
-	/*!
-	 * Handle an offset change
-	 * Called by the offset provider - probably the HaxDocument
-	 * @param newOffset new offset - guaranteed to be in the document
-	 */
-	void onOffsetChanged(offset_t newOffset);
-
-	/*!
-	 * Implement this to do internal reactions to an offset change after
-	 * this class has worked out paging, etc
-	 * @param newOffset
-	 */
-	virtual void onOffsetChangeInt() = 0;
 
 	/*!
 	 * Handle a new selection
@@ -134,16 +44,9 @@ private:
 	void onSelectionChanged(const HaxDocument::Selection& selection);
 
 	/*!
-	 * Implement this to do internal reactions to a selection change, once
-	 * the base class has processed the basic aspects
-	 * @param newOffset
+	 * Called when the paged view start changes
 	 */
-	virtual void onSelectionChangedInt() = 0;
-
-	/*!
-	 * Called when the paged view page start changes
-	 */
-	virtual void onPageStartChanged(const class PagedView& changedView);
+	virtual void onViewStartChanged(const offset_t changedView);
 
 	/*!
 	 * Implement this to respond to page start (not necessarily document offset)
@@ -151,18 +54,7 @@ private:
 	 */
 	virtual void onPageStartChangedInt() = 0;
 
-	uint64_t m_rowOffset = 0;
-
-	unsigned m_rows = 0;
-
-	// logic for paging
-	std::unique_ptr<class PagedView> m_pagedView;
-
-	// selection wrapper/driver
-	std::unique_ptr<class SelectionDriver> m_selectionDriver;
-
-	// are we moving the caret?
-	bool m_movingCaret = false;
+	void onOffsetChanged(const offset_t /*newOffset*/);
 };
 
 #endif /* HAXEDITOR_HAXDOCUMENTMULTIFRAME_H_ */

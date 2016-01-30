@@ -69,7 +69,7 @@ public:
 		m_data = std::make_unique<ChangeApplicator>();
 
 		// initialise with a null stream
-		m_baseStream = std::make_unique<MockPatternDataStream>(200);
+		m_baseStream = std::make_unique<MockPatternDataStream>(2000);
 		m_data->SetBaseData(m_baseStream);
 
 		m_selection.signal_changed.connect(sigc::mem_fun(this,

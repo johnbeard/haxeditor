@@ -12,11 +12,12 @@
 HexMultiFrame::HexMultiFrame(wxWindow* parent, wxWindowID id,
 		HaxDocument& doc) :
 		wxScrolledWindow(parent, id),
-		HaxDocumentMultiFrame(doc)
+		HaxDocumentMultiFrame(doc),
+		m_doc(doc)
 {
 	// TODO abstract out of WX code?
 	const unsigned lineSize = 10 * 8;
-	setRowLength(lineSize);
+	m_docView.SetRowLength(lineSize);
 
 	m_hexRenderer.reset(new HaxHexRenderer(doc));
 	m_hexRenderer->SetWidth(lineSize);
@@ -126,10 +127,10 @@ void HexMultiFrame::OnFontChange()
 
 void HexMultiFrame::AdjustScrollBar()
 {
-	const uint64_t dataRows = m_doc.GetDataLength() / getRowLength();
-	const uint64_t rowOffset = GetPageOffset() / getRowLength();
+	const uint64_t dataRows = m_doc.GetDataLength() / m_docView.GetRowLength();
+	const uint64_t rowOffset = m_docView.GetPageOffset() / m_docView.GetRowLength();
 
-	const unsigned rows = GetNumVisibleRows();
+	const unsigned rows = m_docView.GetNumVisibleRows();
 
 	m_hugeScrollBar->SetScrollbar(rowOffset, rows,
 			dataRows, rows - 1, true);
@@ -148,9 +149,10 @@ void HexMultiFrame::OnResize(wxSizeEvent& /*event*/)
 	if (usableH % rowH)
 		visibleRows += 1;
 
-	setNumVisibleRows(visibleRows);
+	m_docView.SetNumVisibleRows(visibleRows);
 
 	// recompute the scrollbar properties
+	// TODO should react to a signal caused by the above?
 	AdjustScrollBar();
 
 	for (auto& f: m_frames)
@@ -164,21 +166,13 @@ void HexMultiFrame::OnOffsetScroll(wxScrollEvent& /*event*/)
 {
 	// take the position from the HugeScrollBar
 	// (which must have already processed the event!)
-	const uint64_t currRow = GetPageOffset() / getRowLength();
+	const uint64_t currRow = m_docView.GetPageOffset() / m_docView.GetRowLength();
 	const int64_t lineDelta = m_hugeScrollBar->GetThumbPosition() - currRow;
 
 	if (lineDelta)
-		scrollLines(lineDelta, false, false);
+		m_docView.scrollLines(lineDelta, false, false);
 
 	//std::cout << "hmf offset scroll " << m_rowOffset << std::endl;
-}
-
-void HexMultiFrame::onOffsetChangeInt()
-{
-}
-
-void HexMultiFrame::onSelectionChangedInt()
-{
 }
 
 void HexMultiFrame::onPageStartChangedInt()
@@ -189,7 +183,7 @@ void HexMultiFrame::onPageStartChangedInt()
 void HexMultiFrame::onFrameSetsOffset(offset_t offset, bool extendSelection)
 {
 	std::cout << "Frame set new offset: " << offset << std::endl;
-	scrollTo(offset, extendSelection, true);
+	m_docView.scrollTo(offset, extendSelection, true);
 }
 
 void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
@@ -201,7 +195,7 @@ void HexMultiFrame::OnMouseWheel(wxMouseEvent& event)
 	const int lineDelta = event.GetLinesPerAction();
 
 	// scroll the page not the offset
-	scrollPageStart(lineDelta * (goingDown ? 1 : -1));
+	m_docView.scrollPageStart(lineDelta * (goingDown ? 1 : -1));
 }
 
 void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
@@ -212,22 +206,22 @@ void HexMultiFrame::OnKeyboardInput(wxKeyEvent& event)
 	switch (keyCode)
 	{
 	case WXK_HOME:
-		scrollToStart();
+		m_docView.scrollToStart();
 		break;
 	case WXK_END:
-		scrollToEnd();
+		m_docView.scrollToEnd();
 		break;
 	case WXK_PAGEDOWN:
 	case WXK_PAGEUP:
-		scrollPages((keyCode == WXK_PAGEDOWN) ? 1 :-1, false);
+		m_docView.scrollPages((keyCode == WXK_PAGEDOWN) ? 1 :-1, false);
 		break;
 	case WXK_UP:
 	case WXK_DOWN:
-		scrollLines((keyCode == WXK_DOWN) ? 1: -1, event.ShiftDown(), true);
+		m_docView.scrollLines((keyCode == WXK_DOWN) ? 1: -1, event.ShiftDown(), true);
 		break;
 	case WXK_LEFT:
 	case WXK_RIGHT:
-		scrollRight((keyCode == WXK_RIGHT) ? 1 : -1, event.ShiftDown());
+		m_docView.scrollRight((keyCode == WXK_RIGHT) ? 1 : -1, event.ShiftDown());
 		break;
 	default:
 		// unhandled key
