@@ -8,6 +8,8 @@ set(srcFiles
     selection_renderer.cpp
     selection_driver.cpp
 
+    inspection/string_interp.cpp
+    inspection/integer_inspection.cpp
 )
 
 add_executable(haxeditor_tests ${srcFiles})
