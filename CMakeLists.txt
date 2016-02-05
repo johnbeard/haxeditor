@@ -10,7 +10,7 @@ project(haxeditor)
 # custom package finders
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package( wxWidgets 2.8.0 COMPONENTS core REQUIRED )
+find_package( wxWidgets 2.8.0 COMPONENTS core aui REQUIRED )
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SIGC2 REQUIRED sigc++-2.0)

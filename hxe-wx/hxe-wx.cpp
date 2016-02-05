@@ -4,10 +4,14 @@
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
+#include <wx/aui/aui.h>
 #endif
 
 #include "HexMultiFrame.h"
 #include "haxeditor/HaxOffsetRenderer.h"
+
+// panels
+#include "hxe-wx/panels/HwxDataInspectorPanel.h"
 
 class HaxEditorWX: public wxApp
 {
@@ -83,10 +87,17 @@ private:
 	void OnExitWindow(wxCloseEvent& event);
 	void OnAbout(wxCommandEvent& event);
 
+	wxAuiManager* m_mainAui;
+
+	// the main document tabbed notebook
+	wxAuiNotebook* m_notebook;
+
 	std::unique_ptr<HaxDocument> m_doc;
 	HexMultiFrame* m_mframe;
 
 	std::unique_ptr<HwxStatusBar> m_statusBar;
+
+	HwxDataInspectorPanel* m_dataInspPanel;
 };
 
 enum
@@ -117,7 +128,38 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 	menuBar->Append(menuHelp, wxT("&Help"));
 	SetMenuBar(menuBar);
 
+	// set up the AUI
+	m_mainAui = new wxAuiManager(this);
+
 	m_statusBar = std::make_unique<HwxStatusBar>(*CreateStatusBar());
+
+	// main document notebook
+	m_notebook = new wxAuiNotebook( this, wxID_ANY,
+			wxDefaultPosition, wxDefaultSize,
+			wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_TAB_MOVE | wxAUI_NB_TAB_SPLIT | wxAUI_NB_WINDOWLIST_BUTTON);
+	m_notebook->SetArtProvider(new wxAuiDefaultTabArt);
+
+	m_mainAui->AddPane(m_notebook, wxAuiPaneInfo().
+			CaptionVisible(false).
+			Name("Document Browser").
+			Caption("Document Browser").
+			MinSize(wxSize(150,100)).
+			CloseButton(false).
+			Center().Layer(1));
+
+	m_dataInspPanel = new HwxDataInspectorPanel(this);
+
+	m_mainAui->AddPane(m_dataInspPanel,
+			wxAuiPaneInfo().
+				Name("Data Inspector").
+				Caption("Data Inspector").
+				TopDockable(false).
+				BottomDockable(false).
+				BestSize(wxSize(174,218)).
+				Resizable(false).
+				Show(true).
+				Left().Layer(1).Position(0)
+	);
 
 	// bind menu events
 	Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
@@ -136,6 +178,8 @@ MyFrame::~MyFrame()
 	DestroyChildren();
 
 	Unbind(wxEVT_CLOSE_WINDOW, &MyFrame::OnExitWindow, this);
+
+	m_mainAui->UnInit();
 }
 
 void MyFrame::SetData()
@@ -144,10 +188,10 @@ void MyFrame::SetData()
 
 	m_mframe = new HexMultiFrame(this, wxID_ANY, *m_doc);
 
-	wxSizer* sz = new wxBoxSizer(wxHORIZONTAL);
-	SetSizer(sz);
-	sz->Show(true);
-	sz->Add(m_mframe, 100, wxALIGN_RIGHT | wxEXPAND, 10);
+	m_notebook->AddPage(m_mframe, "File Name", true );
+	m_mframe->Show();
+
+	m_mainAui->Update(); // TODO needed?
 
 	// bind document events
 	m_doc->signal_OffsetChanged.connect(sigc::mem_fun(m_statusBar.get(),

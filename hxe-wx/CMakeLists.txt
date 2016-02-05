@@ -3,6 +3,8 @@ set(srcFiles
     HexTextFrame.cpp
     HexMultiFrame.cpp
     HugeScrollBar.cpp
+    
+    panels/HwxDataInspectorPanel.cpp
 )
 
 add_executable(hxe-wx ${srcFiles})
