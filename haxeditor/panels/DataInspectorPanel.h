@@ -35,11 +35,20 @@ private:
 class DataInspectorPanel: public DataPanel
 {
 public:
-	DataInspectorPanel(HaxDocument& doc):
-		m_doc(doc)
+	DataInspectorPanel()
 	{}
 
 	std::string GetPanelTitle() const override;
+
+	void SetPanelDocument(HaxDocument& doc)
+	{
+		m_doc = &doc;
+	}
+
+	/*!
+	 * Called when the inspectors in the panel change
+	 */
+	sigc::signal<void> signal_inspectorsChanged;
 
 private:
 
@@ -47,7 +56,8 @@ private:
 
 	std::vector<DataInspectorControl> m_inspectors;
 
-	HaxDocument& m_doc;
+	// the document driving the panel (if any)
+	HaxDocument* m_doc = nullptr;
 };
 
 

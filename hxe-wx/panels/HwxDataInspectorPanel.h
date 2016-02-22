@@ -19,13 +19,20 @@
 class HwxDataInspectorPanel: public wxPanel
 {
 public:
-	HwxDataInspectorPanel(wxWindow* parent, wxWindowID id = wxID_ANY);
+	HwxDataInspectorPanel(DataInspectorPanel& corePanel, wxWindow* parent, wxWindowID id = wxID_ANY);
 
 	~HwxDataInspectorPanel();
 
 private:
+
+	// handle changing DataInspectors in the panel
+	void onPanelsChanged();
+
 	// handles to controls - PImpl time?
 	wxCheckBox* m_cbUnsigned;
+
+	// the actual core lib panel
+	DataInspectorPanel& m_corePanel;
 };
 
 #endif /* HXE_WX_PANELS_HWXDATAINSPECTORPANEL_H_ */

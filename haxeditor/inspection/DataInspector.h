@@ -14,6 +14,25 @@
 
 typedef std::basic_istream<uint8_t> RawStream;
 
+// the class that represents a DataInspector in terms of some UI
+// which will depend on the UI library used
+class DataInspectorUiAdapter
+{
+public:
+	virtual ~DataInspectorUiAdapter()
+	{}
+
+public:
+	// call this to draw the panel
+	virtual void draw() = 0; //const?
+};
+
+class TextInspectorUiAdapter: public DataInspectorUiAdapter
+{
+	void draw() override
+	{}
+};
+
 /*!
  * A DataInspector is a class that represents a single "inspection"
  * or interpretation of a chunk of data, for example, as an integer of certain
@@ -37,6 +56,11 @@ public:
 	 */
 	virtual std::unique_ptr<DataInterpretation> GetInterpretation(
 			RawStream& stream) const = 0;
+
+private:
+	// this is the UI adapter that will be used to display this DataInspector.
+	// Which kind of UiAdapter is used will depend on what the adapter shows
+	std::unique_ptr<DataInspectorUiAdapter> m_uiAdapter;
 };
 
 /*!

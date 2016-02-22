@@ -97,6 +97,8 @@ private:
 
 	std::unique_ptr<HwxStatusBar> m_statusBar;
 
+	std::unique_ptr<DataInspectorPanel> m_diPanel; //TODO move this into the main lib
+
 	HwxDataInspectorPanel* m_dataInspPanel;
 };
 
@@ -147,7 +149,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size) 
 			CloseButton(false).
 			Center().Layer(1));
 
-	m_dataInspPanel = new HwxDataInspectorPanel(this);
+	//TODO move into core
+	m_diPanel = std::make_unique<DataInspectorPanel>();
+
+	m_dataInspPanel = new HwxDataInspectorPanel(*m_diPanel, this);
 
 	m_mainAui->AddPane(m_dataInspPanel,
 			wxAuiPaneInfo().
@@ -190,6 +195,8 @@ void MyFrame::SetData()
 
 	m_notebook->AddPage(m_mframe, "File Name", true );
 	m_mframe->Show();
+
+	m_diPanel->SetPanelDocument(*m_doc);
 
 	m_mainAui->Update(); // TODO needed?
 
